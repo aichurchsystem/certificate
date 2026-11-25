@@ -11,7 +11,7 @@
   'use strict';
 
   var A4W = 793.7, A4H = 1122.5, MM = 3.7795;
-  var FIELDS_TOP = 67, DATE_TOP = 206.5;   /* 지면 조판 기준점(mm) */
+  var FIELDS_TOP = 80, DATE_TOP = 221.5;   /* 지면 조판 기준점(mm) */
 
   var SEALS = [
     { key: 'chair',      name: '노회장 인',    def: 'assets/seals/seal-chair-round.png' },
