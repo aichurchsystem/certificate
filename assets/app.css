@@ -239,11 +239,12 @@ main{padding:14px 14px 0}
    기관명 줄 → 두 이름 줄, 직함↔이름 사이를 모두 같은 값(--sg-gap 6mm)으로 맞춘 한 리듬.
    직함은 왼쪽 정렬이라 '노회장'과 '서기'가 같은 세로선에서 시작하고,
    이름도 두 줄의 첫 글자가 같은 세로선에 선다. */
-.sign{position:absolute;z-index:2;left:0;right:0;bottom:32mm;text-align:center;--sg-gap:6mm}
+.sign{position:absolute;z-index:2;left:0;right:0;bottom:31mm;text-align:center;--sg-gap:7.5mm}
 .sg1wrap{display:flex;justify-content:center}
 .sg1{position:relative;display:inline-block;font-size:6.45mm;letter-spacing:.9mm;padding-left:.9mm;
   font-weight:700;line-height:1;white-space:nowrap}
 .sg2wrap{margin-top:var(--sg-gap);display:flex;justify-content:center}
+.sg1wrap{margin-bottom:1.5mm}
 .sg2{display:grid;grid-template-columns:max-content max-content;
   column-gap:5mm;row-gap:3.2mm;align-items:baseline;text-align:left}
 /* 직함은 오른쪽 끝을 맞춘다 — '노회장'의 '장'과 '서기'의 '기'가 같은 세로선에 선다 */
@@ -254,7 +255,7 @@ main{padding:14px 14px 0}
 .seal-hold img{position:absolute;left:0;top:0;transform:translate(-50%,-50%);object-fit:contain;display:block}
 .seal-hold[hidden]{display:none}
 /* 1안(정석): 노회 사각 인은 '노회' 글자 위, 원형 인은 이름 끝 글자 위에 반투명으로 얹는다 */
-.seal-hold-org{right:2.6mm;top:50%}
+.seal-hold-org{right:.2mm;top:50%}
 .seal-hold-name{left:calc(100% + 2.2mm);top:50%}
 .seal-org{width:20mm;height:20mm;opacity:.6}
 .seal-name{width:8mm;height:8mm;opacity:.55}
@@ -733,27 +734,37 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
   -webkit-font-smoothing:antialiased;
 }
 .nt-page + .nt-page{margin-top:8mm}
-.nt-wm{position:absolute;left:50%;top:112mm;width:104mm;transform:translateX(-50%);pointer-events:none;user-select:none}
-.nt-hq{position:absolute;right:15.2mm;top:10.2mm;font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;
-  font-size:3.05mm;font-weight:700;letter-spacing:.02mm;line-height:1}
-.nt-brand{position:absolute;left:15.2mm;right:15.2mm;top:23mm;display:flex;align-items:center;justify-content:center;gap:5.2mm}
-.nt-mark{width:13mm;height:13mm;flex:0 0 13mm;display:block}
-.nt-tt{text-align:center}
-.nt-org{font-size:7.3mm;font-weight:700;letter-spacing:.55mm;line-height:1.15;white-space:nowrap}
-.nt-slogan{margin-top:1.6mm;font-size:3.4mm;letter-spacing:.02mm;line-height:1.1}
+.nt-wm{position:absolute;left:50%;top:104mm;width:72mm;transform:translateX(-50%);pointer-events:none;user-select:none}
+/* 머리글 — 증명서(.p-band/.p-sub)와 같은 틀: 좌측 백석 로고 + 가운데 교단명·노회명, 그 아래 주소·전화 한 줄 */
+.nt-band{
+  position:absolute;left:0;right:0;top:0;height:30mm;
+  display:flex;align-items:center;justify-content:center;padding:0 8mm;
+  background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);
+  color:#fff;
+}
+.nt-band:after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:.8mm;
+  background:linear-gradient(90deg,#2E7BB8,#8AC6E8 50%,#2E7BB8);
+}
+.nt-brand{display:flex;align-items:center;justify-content:center;gap:5mm;max-width:100%;min-width:0}
+.nt-mark{width:16mm;height:16mm;flex:0 0 16mm;display:block}
+.nt-org{font-size:9mm;letter-spacing:.9mm;padding-left:.9mm;font-weight:700;line-height:1.15;white-space:nowrap;min-width:0;overflow:hidden}
+.nt-sub{position:absolute;left:15.2mm;right:15.2mm;top:33.4mm;text-align:center;color:#333}
+.nt-sub1{font-size:3.45mm;letter-spacing:.06mm;line-height:1.5;white-space:nowrap;overflow:hidden}
+.nt-sub2{margin-top:.8mm;font-size:3.3mm;line-height:1.35;white-space:nowrap;overflow:hidden}
 .nt-rule{position:absolute;left:15.2mm;right:15.2mm;height:0;display:block;font-style:normal}
-.nt-rule-top{top:21.6mm;border-top:.32mm solid #9d9d9d}
-.nt-rule-mid{top:44.8mm;border-top:.32mm solid #8d8d8d}
-.nt-rule-body{top:57.9mm;border-top:.9mm solid #111}
+.nt-rule-top{top:41.6mm;border-top:.55mm solid #2E7BB8}
+.nt-rule-mid{display:none}
+.nt-rule-body{top:52.6mm;border-top:.9mm solid #111}
 .nt-rule-info{top:259.4mm;border-top:1.1mm solid #6f6f6f}
 .nt-rule-foot{top:281.6mm;left:10mm;right:10mm;border-top:1mm solid #111}
-.nt-meta{position:absolute;left:15.2mm;right:15.2mm;top:47mm}
+.nt-meta{position:absolute;left:15.2mm;right:15.2mm;top:43.8mm}
 .nt-row{display:flex;align-items:baseline;height:5.4mm;font-size:3.9mm;line-height:1}
 .nt-row .mk{flex:0 0 12mm;font-weight:700;letter-spacing:.6mm;white-space:nowrap}
 .nt-row .cl{flex:0 0 5mm;text-align:center}
 .nt-row .mv{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nt-body{
-  position:absolute;left:15.2mm;width:179.6mm;top:63.5mm;height:163mm;overflow:hidden;
+  position:absolute;left:15.2mm;width:179.6mm;top:55mm;height:171mm;overflow:hidden;
   font-size:3.6mm;line-height:5.2mm;letter-spacing:0;white-space:normal;
 }
 .nt-p{display:block;white-space:pre-wrap;overflow-wrap:anywhere;text-indent:0;min-height:5.2mm}
@@ -773,7 +784,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 }
 .nt-names .st{letter-spacing:4.6mm}
 .nt-names .sn{letter-spacing:.4mm}
-.nt-seal{position:absolute;right:19mm;top:-2.5mm;width:26mm;height:26mm;object-fit:contain;opacity:.9}
+.nt-seal{position:absolute;right:24mm;top:-1mm;width:20mm;height:20mm;object-fit:contain;opacity:.88}
 .nt-info{
   position:absolute;left:15.2mm;right:15.2mm;top:261.2mm;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;

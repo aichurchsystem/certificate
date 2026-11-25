@@ -672,9 +672,9 @@
     el.pDate.textContent = fmtDateWide(state.date);
     el.pSignOrg.textContent = F.org + ' ' + (F.presbytery || '');
     el.pSignChairTitle.textContent = F.chairTitle || '';
-    el.pSignChair.textContent = F.chairName || '';
+    el.pSignChair.textContent = F.chairName || '이용동';
     el.pSignTitle.textContent = T.signTitle;
-    el.pSigner.textContent = T.signerName;
+    el.pSigner.textContent = T.signerName || '박재용';
     /* 안내문 두 줄을 한 줄로 이어 찍는다(폭이 모자라면 fitHead가 그 줄만 줄인다) */
     var n1 = String(F.note1 || '').trim(), n2 = String(F.note2 || '').trim();
     if (n1 && n2 && !/[.!?]$/.test(n1)) n1 += '.';

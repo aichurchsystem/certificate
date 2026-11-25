@@ -30,7 +30,7 @@
 
   var PAGE_W = 210, PAGE_H = 297;
   var EDGE = 15.2;
-  var BODY_TOP = 63.5, BODY_H = 163;
+  var BODY_TOP = 55, BODY_H = 171;
   var LINE_MM = 5.2;
   var BODY_W = PAGE_W - EDGE * 2;                 /* 179.6mm */
   var CAP = Math.floor(BODY_H / LINE_MM);         /* 한 장에 들어가는 줄 수 */
@@ -279,19 +279,22 @@
 
     var refDate = D.refDate ? D.refDate : dateKo(D.date);
 
+    var sub1 = '(' + String(s.postal || '') + ') ' + String(s.address || '') +
+      (s.tel ? '   Tel: ' + s.tel : '') + (s.email ? '   E-mail: ' + s.email : '');
     return '' +
       '<div class="nt-page" data-pg="' + (idx + 1) + '">' +
         wm +
-        '<div class="nt-hq">' + esc(s.hq || '') + '</div>' +
-        '<div class="nt-brand">' +
-          '<img class="nt-mark" src="' + LOGO + '" alt="">' +
-          '<div class="nt-tt">' +
+        '<div class="nt-band">' +
+          '<div class="nt-brand">' +
+            '<img class="nt-mark" src="assets/logo-white.svg" alt="">' +
             '<div class="nt-org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + '</div>' +
-            '<div class="nt-slogan">' + esc(s.slogan || '') + '</div>' +
           '</div>' +
         '</div>' +
+        '<div class="nt-sub">' +
+          '<div class="nt-sub1">' + esc(sub1) + '</div>' +
+          (s.slogan ? '<div class="nt-sub2">' + esc(s.slogan) + '</div>' : '') +
+        '</div>' +
         '<i class="nt-rule nt-rule-top"></i>' +
-        '<i class="nt-rule nt-rule-mid"></i>' +
         meta +
         '<i class="nt-rule nt-rule-body"></i>' +
         '<div class="nt-body" data-f="body">' + bodyHtml + '</div>' +
