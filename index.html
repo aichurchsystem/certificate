@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="노회 문서">
-<link rel="stylesheet" href="assets/app.css?v=38">
+<link rel="stylesheet" href="assets/app.css?v=39">
 </head>
 <body>
 
@@ -431,6 +431,10 @@
           <h3 class="fmt-h">성구 · 로고</h3>
           <div class="field"><label for="fmSlogan">성구 문구 <small class="hint-inline">(비우면 빠짐)</small></label><input id="fmSlogan" data-fmt="slogan" placeholder="“사랑을 심고, 사랑을 꽃피우는 노회” 엡4:15"></div>
           <div class="field">
+            <label for="fmRuleColor">가로선 색 <small class="hint-inline">(기본 고동색)</small></label>
+            <input id="fmRuleColor" type="color" data-fmt="ruleColor" value="#8B1D24">
+          </div>
+          <div class="field">
             <label for="fmLogoSize">머리글 로고 크기</label>
             <select id="fmLogoSize" data-fmt="logoSize">
               <option value="13">작게 (13mm)</option>
@@ -454,6 +458,7 @@
           </div>
           <div class="field"><label for="ntaAddr">주소</label><input id="ntaAddr" data-nta="address"></div>
           <div class="field"><label for="ntaEmail">E-mail</label><input id="ntaEmail" data-nta="email"></div>
+          <div class="field"><label for="ntaRuleColor">가로선 색 <small class="hint-inline">(기본 고동색)</small></label><input id="ntaRuleColor" type="color" data-nta="ruleColor" value="#8B1D24"></div>
           <div class="field"><label for="ntaDisclosure">공개 구분 <small class="hint-inline">(지면 아래 시행일자 옆)</small></label><input id="ntaDisclosure" data-nta="disclosure" placeholder="공개"></div>
 
           <h3 class="fmt-h">문서번호 규칙</h3>
@@ -592,6 +597,10 @@
 
           <h3 class="fmt-h">성구 · 로고</h3>
           <div class="field"><label for="fmSlogan">성구 문구 <small class="hint-inline">(비우면 빠짐)</small></label><input id="fmSlogan" data-fmt="slogan" placeholder="“사랑을 심고, 사랑을 꽃피우는 노회” 엡4:15"></div>
+          <div class="field">
+            <label for="fmRuleColor">가로선 색 <small class="hint-inline">(기본 고동색)</small></label>
+            <input id="fmRuleColor" type="color" data-fmt="ruleColor" value="#8B1D24">
+          </div>
           <div class="field">
             <label for="fmLogoSize">머리글 로고 크기</label>
             <select id="fmLogoSize" data-fmt="logoSize">
@@ -913,9 +922,9 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="vendor/html2canvas.min.js?v=38"></script>
-<script src="assets/xlsx.js?v=38"></script>
-<script src="assets/app.js?v=38"></script>
-<script src="assets/notice.js?v=38"></script>
+<script src="vendor/html2canvas.min.js?v=39"></script>
+<script src="assets/xlsx.js?v=39"></script>
+<script src="assets/app.js?v=39"></script>
+<script src="assets/notice.js?v=39"></script>
 </body>
 </html>

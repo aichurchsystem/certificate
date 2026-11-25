@@ -30,7 +30,7 @@
 
   var PAGE_W = 210, PAGE_H = 297;
   var EDGE = 15.2;
-  var BODY_TOP = 55.4, BODY_H = 170.6;
+  var BODY_TOP = 55.4, BODY_H = 162;
   var LINE_MM = 5.2;
   var BODY_W = PAGE_W - EDGE * 2;                 /* 179.6mm */
   var CAP = Math.floor(BODY_H / LINE_MM);         /* 한 장에 들어가는 줄 수 */
@@ -55,7 +55,8 @@
       watermark: '8',
       noPrefix: '서울강동 제',
       noNext: '1102603-17',
-      disclosure: '공개'
+      disclosure: '공개',
+      ruleColor: '#8B1D24'
     };
   }
 
@@ -274,7 +275,7 @@
     if (rows * rowH > avail) rowH = Math.max(3.9, avail / rows);
     var used = rows * rowH;
     var bodyTop = limit + Math.max(0, used - avail) + 2.2 + 3.6;
-    var bodyH = 226 - bodyTop;
+    var bodyH = 218 - bodyTop;
     LAY = {
       recips: rec, rowH: rowH, bodyTop: bodyTop, bodyH: bodyH,
       cap: Math.max(10, Math.floor(bodyH / LINE_MM))
@@ -361,6 +362,7 @@
 
   function renderInto(container) {
     if (!container) return 0;
+    container.style.setProperty('--rule', S.ruleColor || '#8B1D24');
     var pages = paginate(D.body);
     var html = pages.map(function (p, i) { return pageHtml(p, i, pages.length); }).join('');
     container.innerHTML = html;
