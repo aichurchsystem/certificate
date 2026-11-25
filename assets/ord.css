@@ -1,0 +1,161 @@
+/* ==========================================================================
+   목사 안수증 지면 — 금색 장식 테두리 양식(한글 1쪽 + 영문 1쪽)
+   · 다른 증명서 지면(남색 머리 띠 서식, app.css)은 그대로 두고 이 파일만 덧붙인다.
+   · A4 210×297mm 실측 좌표로 조판한다.
+   ========================================================================== */
+
+/* 지면 글꼴 — 명조 계열. Noto Serif KR(한글 2,576자 부분집합)을 저장소에 넣어
+   기기에 바탕체가 없어도 같은 모양이 나오게 한다. */
+@font-face{font-family:'Noto Serif KR Cert';src:url('fonts/nsr-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Noto Serif KR Cert';src:url('fonts/nsr-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+
+/* ------------------------------------------------------------------ 지면 틀 */
+.paper.ord{
+  font-family:'Noto Serif KR Cert','Nanum Myeongjo Cert','Nanum Myeongjo','Noto Serif KR','Batang','바탕',AppleMyungjo,serif;
+  color:#111;
+  background:#fff;
+}
+.paper.ord[data-lang="en"]{
+  font-family:'Times New Roman','Noto Serif','Noto Serif KR Cert','Liberation Serif',serif;
+}
+.od-frame{
+  position:absolute;left:0;top:0;width:210mm;height:297mm;z-index:0;
+  pointer-events:none;user-select:none;
+}
+.od-inner{position:absolute;left:0;top:0;width:210mm;height:297mm;z-index:1}
+
+/* 문서번호 */
+.od-no{position:absolute;left:28mm;top:38.5mm;font-size:3.5mm;line-height:1;letter-spacing:.01em;white-space:nowrap}
+/* 제목 */
+.od-title{
+  position:absolute;left:0;right:0;top:49mm;text-align:center;
+  font-size:10.4mm;line-height:1.2;font-weight:700;letter-spacing:.02em;white-space:nowrap;
+}
+.paper.ord[data-lang="en"] .od-title{top:47mm;font-size:10.2mm;letter-spacing:.01em}
+
+/* 사진 + 성명·생년월일 */
+.od-id{position:absolute;left:0;right:0;top:0}
+.od-photo{
+  position:absolute;left:var(--ph-l,30mm);top:var(--ph-t,72mm);
+  width:var(--ph-w,31mm);height:calc(var(--ph-w,31mm) * 4 / 3);
+  border:0;background:#f4f2ec;overflow:hidden;z-index:2;
+}
+.od-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.od-photo[data-empty="1"]{background:#faf8f3;box-shadow:inset 0 0 0 .22mm #d9d3c4}
+.od-photo[data-empty="1"] img{display:none}
+.od-photo .ph-ph{
+  position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  text-align:center;font-size:2.6mm;color:#b9b1a0;letter-spacing:.05em;
+}
+.od-photo:not([data-empty="1"]) .ph-ph{display:none}
+
+.od-lines{position:absolute;left:var(--id-t,0mm);top:0}
+.od-line{display:flex;align-items:baseline;white-space:nowrap}
+.od-line + .od-line{margin-top:3.4mm}
+.od-line .lb{font-size:4.6mm;letter-spacing:.22em}
+.od-line .cl{margin:0 2.4mm 0 3.2mm;font-size:4.4mm}
+.od-line .vl{font-size:4.6mm;letter-spacing:.02em}
+
+/* 본문 */
+.od-body{
+  position:absolute;left:22mm;right:22mm;top:118mm;
+  font-size:5.35mm;line-height:9.9mm;letter-spacing:.01em;
+  text-align:justify;text-justify:inter-word;word-break:keep-all;
+}
+.od-body p{margin:0;text-indent:2em}
+.paper.ord[data-lang="en"] .od-body{left:26mm;right:26mm;top:121mm;font-size:5.1mm;line-height:8.4mm}
+
+/* 안수위원 */
+.od-comm{
+  position:absolute;left:30mm;right:30mm;top:187mm;
+  font-size:4.2mm;line-height:7.4mm;display:flex;align-items:baseline;
+}
+.od-comm .lb{white-space:nowrap;margin-right:2.6mm;letter-spacing:.02em}
+.od-comm .nm{flex:1;min-width:0;text-align:left;word-break:keep-all}
+
+/* 날짜 */
+.od-date{position:absolute;left:0;right:0;top:210mm;text-align:center;font-size:4.6mm;letter-spacing:.02em}
+.paper.ord[data-lang="en"] .od-date{top:208mm;font-size:4.4mm}
+
+/* 발급 명의 */
+.od-org{position:absolute;left:0;right:0;top:224mm;text-align:center;font-size:6.3mm;letter-spacing:.34em;text-indent:.34em}
+.paper.ord[data-lang="en"] .od-org{top:222mm;font-size:5.0mm;letter-spacing:.01em;text-indent:0}
+
+/* 서명부 */
+.od-sign{position:absolute;left:0;right:0;top:240mm}
+.od-sg{display:flex;justify-content:center;align-items:baseline;gap:5mm;margin-bottom:3.2mm}
+.od-sg .st{width:28mm;text-align:justify;text-align-last:justify;font-size:4.6mm;letter-spacing:.1em}
+.od-sg .sn{font-size:5.0mm;letter-spacing:.18em;white-space:nowrap}
+.paper.ord[data-lang="en"] .od-sg{gap:4mm;margin-bottom:3.6mm}
+.paper.ord[data-lang="en"] .od-sg .st{width:auto;text-align:center;text-align-last:center;font-size:4.4mm;letter-spacing:.02em}
+.paper.ord[data-lang="en"] .od-sg .sn{font-size:4.6mm;letter-spacing:.01em}
+
+/* 직인 — 위치·크기는 관리자 설정(지면 mm 좌표) */
+.od-seal{position:absolute;z-index:3;pointer-events:none}
+.od-seal img{width:100%;height:100%;object-fit:contain;display:block}
+.od-seal.sq{left:var(--sq-l,146mm);top:var(--sq-t,214mm);width:var(--sq-s,30mm);height:var(--sq-s,30mm)}
+.od-seal.r1{left:var(--r1-l,124mm);top:var(--r1-t,236mm);width:var(--r-s,18mm);height:var(--r-s,18mm);opacity:.92}
+.od-seal.r2{left:var(--r2-l,122mm);top:var(--r2-t,252mm);width:var(--r-s,18mm);height:var(--r-s,18mm);opacity:.92}
+.od-seal[hidden]{display:none}
+
+/* 진위 확인 QR · Internet No. */
+.od-qr{position:absolute;right:15mm;bottom:13mm;width:30mm;height:30mm;z-index:2}
+.od-qr[hidden]{display:none}
+.od-inet{position:absolute;left:28mm;bottom:11mm;font-size:2.5mm;color:#6a6459;letter-spacing:.02em}
+
+/* ---------------------------------------------------- 미리보기(두 쪽 이어 보기) */
+.paper-host.is-ord{background:#e8e5db;display:block;position:relative;overflow:hidden}
+.paper-host.is-ord #paper{display:none}
+.paper-host:not(.is-ord) #ordPapers{display:none}
+#ordPapers{
+  position:absolute;left:0;top:0;width:210mm;
+  display:flex;flex-direction:column;gap:24px;
+  transform-origin:top left;
+}
+#ordPapers .paper{position:relative;left:auto;top:auto;margin:0}
+.ord-cap{
+  font:600 13px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color:#7d7666;letter-spacing:.2px;margin:0 0 6px 2px;
+}
+.ord-cap.gap{margin-top:14px}
+
+/* 이미지 저장·PDF 만들 때는 배율 없이 원래 크기로 펼친다 */
+body.exporting #paperHost.is-ord{position:fixed!important;left:-3000mm;top:0;width:210mm!important;height:auto!important;overflow:visible!important;background:#fff!important}
+body.exporting #ordPapers{transform:none!important;position:static!important;gap:0}
+
+/* ---------------------------------------------------- 인쇄: 금색 테두리 없이 */
+@media print{
+  .od-frame{display:none!important}
+  .ord-cap{display:none!important}
+  .paper-host.is-ord{height:auto!important;display:block!important}
+  #ordPapers{transform:none!important;position:static!important;gap:0;width:210mm}
+  #ordPapers .paper{page-break-after:always;break-after:page;box-shadow:none!important}
+  #ordPapers .paper:last-child{page-break-after:auto;break-after:auto}
+  /* 테두리가 빠진 만큼 지면을 조금 키워 여백이 허전하지 않게 한다 */
+  .paper.ord .od-inner{transform:translate(-4mm,-4mm) scale(1.035);transform-origin:top left}
+}
+
+/* ---------------------------------------------------- 발급 화면: 안수증 입력칸 */
+#certForm.is-ord .ord-hide{display:none}
+.ord-panel{border:1px solid var(--line);border-radius:12px;padding:11px 11px 4px;margin:4px 0 12px;background:#fcfaf5}
+.ord-panel > h3{font-size:12.5px;font-weight:700;color:var(--gold);letter-spacing:.2px;margin:0 0 9px}
+.ord-panel .hint{margin:2px 2px 8px}
+.photo-pick{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.photo-pick .thumb{
+  width:46px;height:61px;flex:0 0 46px;border:1px dashed #cfc8b8;border-radius:6px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--faint);overflow:hidden;
+}
+.photo-pick .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-pick .thumb[hidden]{display:none}
+
+/* 관리자: 안수증 서식 */
+.ord-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ord-grid .wide{grid-column:1 / -1}
+.ord-num{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ord-num .field label{font-size:11px}
+.ord-undo{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+
+@media (max-width:520px){
+  .ord-grid{grid-template-columns:1fr}
+  .ord-num{grid-template-columns:1fr 1fr}
+}
