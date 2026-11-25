@@ -85,6 +85,10 @@
           "src": "rep"
         },
         {
+          "label": "직분",
+          "src": "position"
+        },
+        {
           "label": "기도처 시작일",
           "src": "plantDate",
           "fmt": "date"

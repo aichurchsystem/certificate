@@ -449,6 +449,15 @@
       body: ['위 교회는 대한예수교장로회(백석) 서울강동노회 산하에', '속한 교회임을 증명합니다.'], extra: []
     };
   }
+  /* 관리자에서 끈 항목은 지면에서 빼고 찍는다 */
+  function rowHideMap(typeId) {
+    if (!state.rowHide) state.rowHide = {};
+    if (!state.rowHide[typeId]) state.rowHide[typeId] = {};
+    return state.rowHide[typeId];
+  }
+  function isRowHidden(typeId, src) {
+    return !!rowHideMap(typeId)[src];
+  }
   function extraOf(typeId) {
     if (!state.extras[typeId]) state.extras[typeId] = {};
     return state.extras[typeId];
@@ -708,7 +717,8 @@
     el.pSignTitle.textContent = T.signTitle;
     el.pSigner.textContent = T.signerName || '박재용';
     /* 안내문 두 줄을 한 줄로 이어 찍는다(폭이 모자라면 fitHead가 그 줄만 줄인다) */
-    var n1 = String(F.note1 || '').trim(), n2 = String(F.note2 || '').trim();
+    var NDEF = baseFmt();
+    var n1 = String(F.note1 || '').trim() || NDEF.note1, n2 = String(F.note2 || '').trim() || NDEF.note2;
     if (n1 && n2 && !/[.!?]$/.test(n1)) n1 += '.';
     el.pNoteLine.textContent = [n1, n2].filter(Boolean).join(' ');
     el.pInet.textContent = state.inet || '';
@@ -745,7 +755,8 @@
     $('pMail').hidden = el.pFromRow.hidden && el.pToRow.hidden;
 
     // 항목
-    el.pFields.innerHTML = def.rows.map(function (r) {
+    var shownRows = def.rows.filter(function (r) { return !isRowHidden(def.id, r.src); });
+    el.pFields.innerHTML = shownRows.map(function (r) {
       var label = (T.labels && T.labels[r.src]) || r.label;
       var lb = String(label).replace(/\s+/g, '').split('').map(function (c) {
         return '<i>' + esc(c) + '</i>';
@@ -753,7 +764,7 @@
       return '<div class="fld"><span class="lb">' + lb + '</span>' +
              '<span class="cl">:</span><span class="vl">' + esc(rowValue(r)) + '</span></div>';
     }).join('');
-    var n = def.rows.length || 4;
+    var n = shownRows.length || 4;
     var rowH = n >= 5 ? 9.2 : 9.6;            /* 항목이 많은 종은 조금 좁혀 한 장에 담는다 */
     Array.prototype.forEach.call(el.pFields.children, function (f) { f.style.height = rowH + 'mm'; });
     el.pBody.style.top = (FIELDS_TOP + n * rowH + 12).toFixed(1) + 'mm';   /* 제목 ↔ 첫 항목 12mm */
@@ -879,7 +890,9 @@
 
     $('fmLabels').innerHTML = def.rows.map(function (r) {
       var v = (T.labels && T.labels[r.src]) || r.label;
-      return '<label class="lg"><span>' + esc(r.label) + '</span>' +
+      var hid = isRowHidden(def.id, r.src);
+      return '<label class="lg"><span><input type="checkbox" data-rowshow="' + esc(r.src) + '"' +
+        (hid ? '' : ' checked') + '> ' + esc(r.label) + '</span>' +
         '<input data-label-src="' + esc(r.src) + '" value="' + esc(v) + '"></label>';
     }).join('');
   }
@@ -2459,6 +2472,12 @@
     });
     $('fmTSignName').addEventListener('input', function () {
       typeOverride($('fmType').value, true).signerName = this.value;
+      saveState(); renderPaper();
+    });
+    $('fmLabels').addEventListener('change', function (e) {
+      var cb = e.target.closest('[data-rowshow]');
+      if (!cb) return;
+      rowHideMap($('fmType').value)[cb.dataset.rowshow] = !cb.checked;
       saveState(); renderPaper();
     });
     $('fmLabels').addEventListener('input', function (e) {
