@@ -1,0 +1,4 @@
+{
+  "seal": null,
+  "sealNote": "노회 직인 이미지를 assets/ 폴더에 넣고(예: assets/seal-presbytery.png) 아래 seal 값을 \"assets/seal-presbytery.png\" 로 바꾸면 지면 서명부에 직인이 찍힙니다. 값이 null 이면 자리 표시(화면에서만 보이는 점선)로 남습니다."
+}

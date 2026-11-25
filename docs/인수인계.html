@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>증명서 발급 앱 인수인계</title>
+<style>
+@page{size:A4;margin:12mm}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Nanum Myeongjo","Apple SD Gothic Neo",system-ui,sans-serif;color:#16181d;background:#fff;font-size:10.5pt;line-height:1.5}
+.wrap{max-width:186mm;margin:0 auto;padding:6mm 0}
+h1{font-size:17pt;margin:0 0 2mm;letter-spacing:-.4pt}
+.lede{margin:0 0 4mm;color:#4a4f59;font-size:9.5pt}
+h2{font-size:11.5pt;margin:5mm 0 2mm;padding-bottom:1mm;border-bottom:1px solid #16223c}
+table{width:100%;border-collapse:collapse;font-size:9pt;margin:0 0 2mm}
+th,td{border:1px solid #cfd4dd;padding:1.4mm 2mm;text-align:left;vertical-align:top;word-break:break-all}
+th{background:#f1f3f7;font-weight:700;white-space:nowrap}
+.cols{column-count:2;column-gap:7mm}
+.card{break-inside:avoid;border:1px solid #cfd4dd;border-radius:2mm;padding:2.4mm 3mm;margin:0 0 2.6mm}
+.card h3{font-size:9.8pt;margin:0 0 1.2mm}
+.card p,.card li{font-size:8.8pt;line-height:1.5;margin:0 0 1mm}
+ol,ul{margin:0;padding-left:4.4mm}
+.warn{border-left:2.5px solid #a6452a;background:#fdf5f2}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:8.2pt}
+@media print{.wrap{padding:0}}
+</style></head><body><div class="wrap">
+<h1>증명서 발급 앱 — 인수인계 안내</h1>
+<p class="lede">앱 화면 · 구글 스프레드시트 · Apps Script(서버) · 드라이브 폴더가 한 세트입니다. 폴더만 넘기면 동작하지 않습니다.</p>
+
+<h2>1. 무엇이 어디에 있나</h2>
+<table>
+<tr><th>앱(사이트)</th><td>https://aichurchsystem.github.io/certificate/</td></tr>
+<tr><th>저장소</th><td>github.com/aichurchsystem/certificate · 저장소 루트 (main, GitHub Pages)</td></tr>
+<tr><th>드라이브 폴더</th><td><span class="mono">certificate-app</span> (1lwAG-4hw7nkIIYuwrPAib5_Xu-RpxDLn)<br>└ 발급증명서 · 노회공문 (자동 생성, 공유 안 함)</td></tr>
+<tr><th>스프레드시트</th><td><span class="mono">증명서-교인명단</span> (160e_RC_ajz5ao94pM-R30z0VTvEnhPEatNbWJJXVgc8)<br>탭: 명단 · 발급대장 · 노회공문 · 설정</td></tr>
+<tr><th>Apps Script</th><td><span class="mono">증명서-교인명단-API</span> (1ijSne20kDkEatXfFQbQlUKQJRByXyw0nuTRqh7b5cfECniBczQZ3669K)<br>웹앱 · 실행: 소유자 · 액세스: 모든 사용자</td></tr>
+</table>
+
+<h2>2. 넘기는 순서</h2>
+<div class="cols">
+<div class="card"><h3>①~④ 폴더·시트·스크립트</h3>
+<ol><li>드라이브 <b>certificate-app</b> 폴더 소유권 이전</li>
+<li>스프레드시트 <b>증명서-교인명단</b> 소유권 이전</li>
+<li>Apps Script 프로젝트 소유권 이전</li>
+<li>새 소유자 계정으로 <b>새 버전 재배포</b></li></ol></div>
+<div class="card"><h3>⑤~⑧ 주소·키·사이트·확인</h3>
+<ol start="5"><li>새 배포 URL을 <span class="mono">app.js</span> 의 <span class="mono">API_URL</span> 에 반영</li>
+<li>40자 키 새로 발급해 코드와 앱에 넣기</li>
+<li>GitHub 저장소 이전 · Pages 재설정</li>
+<li>시험 발급 1건으로 전 구간 확인 후 시험 파일 삭제</li></ol></div>
+<div class="card warn"><h3>꼭 기억할 것</h3>
+<p>스크립트는 <b>소유자 계정 권한</b>으로 돕니다. 소유권만 옮기고 재배포하지 않으면 예전 주인 계정으로 계속 실행됩니다.</p></div>
+<div class="card warn"><h3>개인정보</h3>
+<p>교인 이름·생년월일·주소·직분과 증명서 이미지가 들어 있습니다. 넘길 때 접근 권한을 정리하고 개인정보 처리 방침(수집 항목·보관 기간·파기)을 문서로 남기세요.</p></div>
+<div class="card"><h3>배포 액세스</h3>
+<p>“모든 사용자”입니다. 주소+키를 아는 사람은 명단·대장·공문을 읽고 쓸 수 있습니다. 키는 40자 난수 하나가 유일한 잠금장치이고, <b>공개 저장소에는 넣지 않았습니다</b>(각 기기 브라우저에만 저장).</p></div>
+</div>
+
+<h2>3. 발급번호 규칙</h2>
+<div class="cols">
+<div class="card"><h3>형식</h3><p><span class="mono">접두어 + 연도-일련번호 + 호</span> · 기본 <span class="mono">제2026-001호</span>. 연도는 발급 당일 연도가 자동으로 들어가고, 해가 바뀌면 그 해 1번부터 시작합니다.</p></div>
+<div class="card"><h3>바꾸는 곳</h3><p>관리자 › <b>발급번호 설정</b>(접두어·시작번호·자릿수). 값은 시트 <span class="mono">설정</span> 탭에 저장됩니다.</p></div>
+<div class="card"><h3>서버가 정합니다</h3><p>발급대장을 보고 다음 번호를 계산합니다(<span class="mono">next-no</span>). 이미 있는 번호는 건너뜁니다. 기록은 <span class="mono">issue</span> 한 번에 번호 확정+파일 저장+대장 기록이 함께 처리되고, 실패하면 번호를 쓰지 않습니다.</p></div>
+<div class="card"><h3>시트 구성</h3><p><b>발급대장</b>: 자체번호·문서번호·발급일자·증명서종류·제목·이름·생년월일·교회명·직분·노회공문번호·파일ID·파일링크·지운여부·수정일</p></div>
+</div>
+
+<h2>4. 서버 액션 · 되돌리기</h2>
+<div class="cols">
+<div class="card"><h3>액션</h3><p class="mono">issue · list · file · next-no · no-config · no-config-save · notice-add · notice-update · notice-delete · notice-upload · notice-list · add · update · delete · bulk</p></div>
+<div class="card"><h3>통신</h3><p>POST는 <span class="mono">text/plain;charset=utf-8</span> JSON 본문. 응답은 모두 HTTP 200 + <span class="mono">{ok:true|false}</span>.</p></div>
+<div class="card"><h3>되돌리기</h3><p>서버 코드는 Apps Script 편집기에 다시 붙여 넣기, 사이트는 <span class="mono">git revert</span>. 대장·공문은 행을 지우지 않고 지운여부/사용여부로 표시합니다.</p></div>
+</div>
+</div></body></html>

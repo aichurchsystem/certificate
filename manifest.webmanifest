@@ -1,0 +1,20 @@
+{
+  "id": "/certificate/",
+  "name": "증명서 발급",
+  "short_name": "증명서",
+  "description": "대한예수교장로회(백석) 서울강동노회 증명서를 만들어 인쇄·PDF·이미지로 받는 앱",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#8B1D24",
+  "background_color": "#F6EFE3",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
