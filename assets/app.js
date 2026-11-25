@@ -719,6 +719,8 @@
     /* 안내문 두 줄을 한 줄로 이어 찍는다(폭이 모자라면 fitHead가 그 줄만 줄인다) */
     var NDEF = defaultFmt();
     var n1 = String(F.note1 || '').trim() || NDEF.note1, n2 = String(F.note2 || '').trim() || NDEF.note2;
+    /* 저장된 안내문에 둘째 줄이 이미 들어 있으면 한 번만 찍는다 */
+    if (n2 && n1.indexOf(n2.replace(/[.!?]$/, '')) > -1) n2 = '';
     if (n1 && n2 && !/[.!?]$/.test(n1)) n1 += '.';
     el.pNoteLine.textContent = [n1, n2].filter(Boolean).join(' ');
     el.pInet.textContent = state.inet || '';

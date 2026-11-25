@@ -5,15 +5,13 @@ with sync_playwright() as p:
     b=p.chromium.launch()
     pg=b.new_page(viewport={'width':1200,'height':1500})
     pg.goto(url); pg.wait_for_timeout(1200)
-    pg.click('#cvGo'); pg.wait_for_timeout(2500)
-    info=pg.evaluate("""()=>{
-      const r=x=>x?{w:Math.round(x.width),h:Math.round(x.height),t:Math.round(x.top),l:Math.round(x.left)}:null;
-      const n=document.getElementById('pNoteLine'), paper=document.getElementById('paper');
-      return {view:(document.getElementById('view-issue').hidden?'hidden':'shown'),
-              note:n?n.textContent.trim():null, noteRect:r(n),
-              footRect:r(document.querySelector('.p-foot')), paperRect:r(paper),
-              paperDisplay:paper?getComputedStyle(paper).display:null};
-    }""")
-    print(json.dumps(info,ensure_ascii=False))
-    pg.screenshot(path='full.png', full_page=True)
+    for _ in range(4):
+        pg.evaluate("""()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='0');if(b)b.click();}""")
+        pg.wait_for_timeout(120)
+    pg.wait_for_timeout(800)
+    pg.evaluate("()=>{const b=document.getElementById('cvGo'); if(b) b.click();}")
+    pg.wait_for_timeout(2500)
+    print(pg.evaluate("()=>({issue:document.getElementById('view-issue').hidden?'hidden':'shown', lock:document.querySelector('.lock, #lockModal')?true:false})"))
+    el=pg.query_selector('#paperHost')
+    el.screenshot(path='host.png')
     b.close()
