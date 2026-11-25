@@ -2122,7 +2122,7 @@
   }
 
   /* ------------------------------------------------------------------ 화면 */
-  var VIEWS = ['cover', 'issue', 'notice', 'notice-admin', 'history', 'format', 'people'];
+  var VIEWS = ['cover', 'issue', 'notice', 'notice-admin', 'history', 'format'];
 
   var navPushed = false;
   function switchView(name, fromHistory) {
@@ -2137,10 +2137,11 @@
     document.body.classList.toggle('notice-mode', name === 'notice' || name === 'notice-admin');
     if (el.actionBar) el.actionBar.style.display = name === 'issue' ? '' : 'none';
     if (name === 'format') { renderFmtForm(); renderSealSlots(); }
-    if (name === 'people') { renderPeopleList(); renderPersonForm(false); }
     if (name === 'issue') { renderPaper(); fitPreview(); }
     if (name === 'notice' && window.CertNotice) window.CertNotice.enter();
     if (name === 'notice-admin' && window.CertNotice) window.CertNotice.enterAdmin();
+    var tabsEl = $('adminTabs');
+    if (tabsEl) tabsEl.hidden = (name !== 'format' && name !== 'notice-admin');
     /* 화면을 옮기면 맨 위로 — 폰에서 스크롤이 남지 않게 */
     try { window.scrollTo(0, 0); } catch (e) {}
     /* 안드로이드 뒤로가기로도 표지까지 나올 수 있게 히스토리를 남긴다 */
@@ -2154,6 +2155,27 @@
     var v = (e && e.state && e.state.view) || 'cover';
     switchView(v, true);
   });
+
+  /* ------------------------------------------------------------ 관리자 탭 */
+  var ADMIN_TAB = 'cert';
+  function switchAdmin(tab) {
+    ADMIN_TAB = tab || 'cert';
+    Array.prototype.forEach.call(document.querySelectorAll('.atab'), function (b) {
+      b.classList.toggle('on', b.dataset.atab === ADMIN_TAB);
+    });
+    if (ADMIN_TAB === 'notice') {
+      switchView('notice-admin');
+    } else {
+      switchView('format');
+      Array.prototype.forEach.call(document.querySelectorAll('#view-format [data-group]'), function (c) {
+        c.hidden = c.getAttribute('data-group') !== ADMIN_TAB;
+      });
+      if (ADMIN_TAB === 'people') { renderPeopleList(); renderPersonForm(false); }
+      if (ADMIN_TAB === 'cert') { renderFmtForm(); renderSealSlots(); }
+    }
+    var tabs = $('adminTabs');
+    if (tabs) tabs.hidden = false;
+  }
 
   /* ------------------------------------------------------------------ 설정 파일 */
   function exportSettings() {
@@ -2195,10 +2217,10 @@
     /* 표지 */
     if ($('cvGo')) $('cvGo').addEventListener('click', function () { switchView('issue'); });
     if ($('cvNotice')) $('cvNotice').addEventListener('click', function () { switchView('notice'); });
-    if ($('cvPeople')) $('cvPeople').addEventListener('click', function () { switchView('people'); });
-    if ($('peopleCoverBtn')) $('peopleCoverBtn').addEventListener('click', function () { switchView('cover'); });
-    if ($('peopleToAdmin')) $('peopleToAdmin').addEventListener('click', function () { switchView('format'); });
-    if ($('adminToPeople')) $('adminToPeople').addEventListener('click', function () { switchView('people'); });
+    if ($('cvAdmin')) $('cvAdmin').addEventListener('click', function () { switchAdmin('cert'); });
+    Array.prototype.forEach.call(document.querySelectorAll('.atab'), function (b) {
+      b.addEventListener('click', function () { switchAdmin(b.dataset.atab); });
+    });
     if ($('coverBtn')) $('coverBtn').addEventListener('click', function () { switchView('cover'); });
     /* 상단 막대(교단명·노회 문서)와 ⌂ 홈 — 어느 화면에서나 표지로 */
     var goHome = function () { switchView('cover'); };
@@ -2738,7 +2760,7 @@
     toast: toast, openSheet: openSheet, downloadBlob: downloadBlob,
     buildPdf: buildPdf, dataUrlBytes: dataUrlBytes,
     needGuide: needGuide, inAppBrowser: inAppBrowser,
-    switchView: switchView, esc: esc, todayISO: todayISO, fmtDateWide: fmtDateWide,
+    switchView: switchView, switchAdmin: switchAdmin, esc: esc, todayISO: todayISO, fmtDateWide: fmtDateWide,
     loadNotices: loadNotices, A4W: A4W, A4H: A4H,
     pushSettings: pushSettings, pullSettings: pullSettings
   };

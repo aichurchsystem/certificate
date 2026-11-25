@@ -971,3 +971,17 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 .lock-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}
 .lock-acts .btn{padding:14px;font-size:15.5px;background:#2F6FB0;border-color:#2F6FB0;color:#fff}
 .lock-forget{margin-top:12px;border:0;background:none;color:rgba(255,255,255,.55);font-size:12px;text-decoration:underline;text-underline-offset:3px}
+
+/* ---------------- 관리자 탭 ---------------- */
+.admin-tabs{
+  position:sticky;top:0;z-index:32;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+  background:var(--bg);padding:8px 0 7px;margin:0 0 10px;
+  box-shadow:0 6px 8px -6px rgba(24,32,47,.12);
+}
+.admin-tabs[hidden]{display:none}
+.atab{
+  border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 2px;
+  font-size:12px;font-weight:700;color:var(--dim);white-space:nowrap;
+}
+.atab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.cv-small{font-size:13.5px;color:rgba(255,255,255,.62);min-height:36px}

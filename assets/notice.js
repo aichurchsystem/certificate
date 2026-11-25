@@ -448,7 +448,7 @@
         disclosure: 'ntaDisclosure'
       };
       var ae = $(amap[f.slice(2)] || '');
-      A.switchView('notice-admin');
+      if (A.switchAdmin) A.switchAdmin('notice'); else A.switchView('notice-admin');
       if (!ae) return;
       setTimeout(function () {
         if (ae.scrollIntoView) ae.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -1142,7 +1142,10 @@
 
     /* 표지 / 화면 이동 */
     if ($('ntCoverBtn')) $('ntCoverBtn').addEventListener('click', function () { A.switchView('cover'); });
-    if ($('ntAdminBtn')) $('ntAdminBtn').addEventListener('click', function () { A.switchView('notice-admin'); });
+    if ($('ntAdminBtn')) $('ntAdminBtn').addEventListener('click', function () {
+      if (window.CertApp && window.CertApp.switchAdmin) window.CertApp.switchAdmin('notice');
+      else A.switchView('notice-admin');
+    });
     if ($('ntaBackBtn')) $('ntaBackBtn').addEventListener('click', function () { A.switchView('notice'); });
     if ($('ntPastBtn')) $('ntPastBtn').addEventListener('click', openPick);
     if ($('ntPickClose')) $('ntPickClose').addEventListener('click', closePick);
