@@ -2105,7 +2105,8 @@
   /* ------------------------------------------------------------------ 화면 */
   var VIEWS = ['cover', 'issue', 'notice', 'notice-admin', 'history', 'format'];
 
-  function switchView(name) {
+  var navPushed = false;
+  function switchView(name, fromHistory) {
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       b.classList.toggle('on', b.dataset.view === name);
     });
@@ -2120,7 +2121,19 @@
     if (name === 'issue') { renderPaper(); fitPreview(); }
     if (name === 'notice' && window.CertNotice) window.CertNotice.enter();
     if (name === 'notice-admin' && window.CertNotice) window.CertNotice.enterAdmin();
+    /* 화면을 옮기면 맨 위로 — 폰에서 스크롤이 남지 않게 */
+    try { window.scrollTo(0, 0); } catch (e) {}
+    /* 안드로이드 뒤로가기로도 표지까지 나올 수 있게 히스토리를 남긴다 */
+    if (!fromHistory) {
+      try { history.pushState({ view: name }, '', '#' + name); navPushed = true; } catch (e) {}
+    }
   }
+
+  /* 뒤로가기: 앱 안에서 온 화면이면 표지로, 이미 표지면 그대로 둔다(브라우저가 앱을 닫게) */
+  window.addEventListener('popstate', function (e) {
+    var v = (e && e.state && e.state.view) || 'cover';
+    switchView(v, true);
+  });
 
   /* ------------------------------------------------------------------ 설정 파일 */
   function exportSettings() {

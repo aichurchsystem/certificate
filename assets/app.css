@@ -710,7 +710,12 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
    좌우 15.2mm · 위 가는 선 21.6mm · 중간 가는 선 44.6mm · 검은 굵은 선 57.9mm ·
    본문 63.5mm(줄간 5.2mm) · 서명부 227.5mm · 회색 굵은 선 259.4mm · 맨 아래 검은 선 281.6mm
    ========================================================================== */
-.nt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
+.nt-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;
+  /* 스크롤을 내려도 되돌아갈 버튼이 늘 보이게 위에 고정 */
+  position:sticky;top:0;z-index:30;background:var(--bg);
+  padding:8px 0 7px;box-shadow:0 6px 8px -6px rgba(24,32,47,.12);
+}
 .nt-headright{display:flex;align-items:center;gap:8px;min-width:0}
 .nt-adminlink{color:var(--navy-2);font-weight:700}
 .nt-adminlink:before{content:'';display:inline-block;width:1px;height:13px;background:var(--line);
@@ -816,9 +821,9 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-pastbtn{font-size:13.5px;color:var(--navy-2);text-decoration:underline;text-underline-offset:3px}
 .nt-actions{grid-template-columns:1.2fr 1fr 1fr}
 /* 공문 화면에서는 증명서 탭바를 감춘다 */
-body.notice-mode .tabbar{display:none!important}
-body.notice-mode{padding-bottom:calc(var(--act-h) + var(--safe-b) + 14px)}
-body.notice-mode .actions{position:fixed;left:0;right:0;bottom:var(--safe-b);z-index:18}
+body.notice-mode .tabbar{display:grid}   /* 나가는 길을 늘 남긴다 */
+body.notice-mode{padding-bottom:calc(var(--act-h) + var(--bar-h) + var(--safe-b) + 14px)}
+body.notice-mode .actions{position:fixed;left:0;right:0;bottom:calc(var(--bar-h) + var(--safe-b));z-index:18}
 @media (min-width:900px){
   body.notice-mode{padding-bottom:26px}
   body.notice-mode .actions{position:static}
