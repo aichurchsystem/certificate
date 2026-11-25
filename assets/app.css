@@ -999,7 +999,7 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
   display:flex;align-items:center;justify-content:center;padding:0 10mm;
   background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);color:#fff;
 }
-.nt-foot .fl{font-size:2.6mm;letter-spacing:-.02mm;line-height:1.35;color:rgba(255,255,255,.94);
+.nt-foot .fl{font-size:3.53mm;letter-spacing:-.02mm;line-height:1.35;color:rgba(255,255,255,.94);
   white-space:nowrap;overflow:hidden;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif}
 .p-foot{
@@ -1007,5 +1007,5 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
   display:flex;align-items:center;justify-content:center;padding:0 12mm;
   background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);color:#fff;
 }
-.p-footline{font-size:2.6mm;line-height:1.35;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;
+.p-footline{font-size:3.53mm;line-height:1.35;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;letter-spacing:-.02mm}

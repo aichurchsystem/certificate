@@ -361,7 +361,7 @@
 
   /* 하단 주소 줄을 한 줄에 담기게 — 10pt부터 시작해 9pt·8.5pt·8pt로만 내린다 */
   function fitFoot(container) {
-    var steps = ['2.6mm', '2.45mm', '2.3mm', '2.2mm'];
+    var steps = ['3.53mm', '3.2mm', '2.9mm', '2.6mm', '2.4mm'];
     Array.prototype.forEach.call(container.querySelectorAll('.nt-foot .fl'), function (box) {
       box.style.fontSize = '';
       for (var i = 0; i < steps.length; i++) {
