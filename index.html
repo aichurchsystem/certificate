@@ -12,8 +12,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="노회 문서">
-<link rel="stylesheet" href="assets/app.css?v=88">
-<link rel="stylesheet" href="assets/ord.css?v=88">
+<link rel="stylesheet" href="assets/app.css?v=89">
+<link rel="stylesheet" href="assets/ord.css?v=89">
 </head>
 <body>
 
@@ -106,7 +106,8 @@
               <div class="row2">
                 <div class="field">
                   <label for="fNameEn">영문 성명</label>
-                  <input id="fNameEn" placeholder="Rev. Kang Joong-hyun">
+                  <input id="fNameEn" placeholder="Kang Junghyun">
+                  <p class="hint auto-line" id="fNameEnState"><span class="auto-badge" id="fNameEnBadge">자동</span><span id="fNameEnNote">한글 성명에서 채웁니다.</span> <button type="button" class="mini" id="fNameEnReset" hidden>자동으로</button></p>
                 </div>
                 <div class="field">
                   <label for="fOrdDocNo">문서번호 번호</label>
@@ -137,6 +138,7 @@
               <div class="field" id="fOrdCommEnField" hidden>
                 <label for="fOrdCommEn">안수위원 명단(영문)</label>
                 <textarea id="fOrdCommEn" rows="2" placeholder="Names, separated by commas"></textarea>
+                <p class="hint auto-line" id="fOrdCommEnState"><span class="auto-badge" id="fOrdCommEnBadge">자동</span><span id="fOrdCommEnNote">한글 명단에서 사람별로 채웁니다.</span> <button type="button" class="mini" id="fOrdCommEnReset" hidden>자동으로</button></p>
                 <p class="hint">관리자에서 ‘영문판에 안수위원 명단 — 넣기’를 고른 때만 영문판에 찍힙니다.</p>
               </div>
             </div>
@@ -743,6 +745,21 @@
               <div class="field"><label for="oaCommLabelEn">안수위원 라벨(영문)</label><input id="oaCommLabelEn" data-ord="commLabelEn"></div>
             </div>
             <p class="hint" style="margin:2px 2px 8px">‘넣기’를 고르면 영문판에도 안수위원 명단이 찍힙니다. 명단과 순서는 ‘안수위원’ 묶음에서 고칩니다.</p>
+
+            <h3 class="fmt-h">한글 → 영문 자동 표기</h3>
+            <div class="ord-grid">
+              <div class="field"><label for="oaAutoEn">자동 채우기</label>
+                <select id="oaAutoEn" data-ord="autoEn"><option value="on">켜기</option><option value="off">끄기</option></select>
+              </div>
+              <div class="field"><label for="oaNameHyphen">이름 표기</label>
+                <select id="oaNameHyphen" data-ord="nameHyphen"><option value="off">붙여 쓰기 (Jaeyong)</option><option value="on">하이픈 (Jae-yong)</option></select>
+              </div>
+            </div>
+            <p class="hint" style="margin:2px 2px 8px">한글 성명을 넣으면 영문 성명 칸이 저절로 채워집니다(기본 켜짐). 발급 화면에서 그 칸을 직접 고치면 자동이 멈추고, ‘자동으로’ 단추를 누르면 다시 채웁니다. 인터넷 없이 이 브라우저 안에서 계산합니다.</p>
+            <div class="field wide" style="margin:0 2px 6px"><label for="oaRomInput">시험해 보기 <small class="hint-inline">쉼표로 나열</small></label>
+              <input id="oaRomInput" value="박재용, 강중현, 김민수, 이서연, 최지훈, 황명구, 이용동">
+            </div>
+            <div class="rom-out" id="oaRomOut" aria-live="polite"></div>
           </div>
 
           <!-- ---------- 안수위원 ---------- -->
@@ -774,7 +791,7 @@
               <div class="field"><label for="oaWmSize">크기 <small class="hint-inline">지면 폭 %</small></label><input id="oaWmSize" data-ord="wmSize" inputmode="decimal"></div>
               <div class="field"><label for="oaWmTone">진하기 <small class="hint-inline">%</small></label><input id="oaWmTone" data-ord="wmTone" inputmode="decimal"></div>
             </div>
-            <p class="hint" style="margin:2px 2px 8px">기본은 지면 폭의 45%, 진하기 4%입니다(폭 45~55%, 진하기 3~6%가 ‘아주 옅은’ 정도). 인쇄·PDF·이미지 모두 같은 농도로 남습니다.</p>
+            <p class="hint" style="margin:2px 2px 8px">기본은 지면 폭의 45%, 진하기 8%입니다(폭 45~55%, 진하기 7~9%가 ‘아주 옅은’ 정도). 인쇄·PDF·이미지 모두 같은 농도로 남습니다.</p>
 
             <h3 class="fmt-h">증명사진 자리 <small class="hint-inline">지면 왼쪽 위부터(mm)</small></h3>
             <div class="ord-num">
@@ -786,7 +803,7 @@
             </div>
             <p class="hint" style="margin:2px 2px 8px">높이는 폭의 4/3(세로 3:4 비율)으로 잡히고, 사진은 칸에 꼭 차게 잘려 들어갑니다. 모서리는 3mm로 살짝 둥글게 나옵니다.</p>
 
-            <h3 class="fmt-h">사진 모서리 교단 압인 <small class="hint-inline">교단 엠블럼 원형 도장</small></h3>
+            <h3 class="fmt-h">사진 모서리 교단 압인 <small class="hint-inline">교단 마크만 눌려 찍힌 자리</small></h3>
             <div class="ord-num">
               <div class="field"><label for="oaStampOn">압인</label>
                 <select id="oaStampOn" data-ord="stampOn"><option value="on">찍기</option><option value="off">빼기</option></select>
@@ -806,7 +823,7 @@
             <p class="hint" style="margin:2px 2px 8px">사진이 없으면 압인도 찍히지 않습니다. 화면·PDF 저장·이미지 저장에는 찍히고, <b>브라우저 인쇄에는 찍히지 않습니다</b>(인쇄는 테두리도 빠집니다).</p>
 
             <h3 class="fmt-h">직인 자리 <small class="hint-inline">가로·세로는 지면 왼쪽 위부터(mm)</small></h3>
-            <p class="hint" style="margin:-4px 2px 8px">노회 사각 인 · 노회장 인 · 서기 인 — 기본값은 서명부 아래 빈 자리에 글자와 겹치지 않게 놓았습니다.</p>
+            <p class="hint" style="margin:-4px 2px 8px">노회 사각 인 · 노회장 인 · 서기 인 — 기본값은 서명부에 한 덩어리로 모아, 노회장·서기 이름 위에 인이 겹쳐 찍히고 사각 인은 서명부 왼쪽에 옵니다. 영문 지면은 같은 값에 영문 서명부 위치 차이만 더해 겹칩니다.</p>
             <div class="ord-num">
               <div class="field"><label for="oaSqS">사각 인 크기</label><input id="oaSqS" data-ord="sqS" inputmode="decimal"></div>
               <div class="field"><label for="oaSqL">사각 인 가로</label><input id="oaSqL" data-ord="sqL" inputmode="decimal"></div>
@@ -1274,11 +1291,12 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="vendor/qrcode.js?v=88"></script>
-<script src="vendor/html2canvas.min.js?v=88"></script>
-<script src="assets/xlsx.js?v=88"></script>
-<script src="assets/app.js?v=88"></script>
-<script src="assets/notice.js?v=88"></script>
-<script src="assets/lock.js?v=88"></script>
+<script src="vendor/qrcode.js?v=89"></script>
+<script src="vendor/html2canvas.min.js?v=89"></script>
+<script src="assets/xlsx.js?v=89"></script>
+<script src="assets/roman.js?v=89"></script>
+<script src="assets/app.js?v=89"></script>
+<script src="assets/notice.js?v=89"></script>
+<script src="assets/lock.js?v=89"></script>
 </body>
 </html>

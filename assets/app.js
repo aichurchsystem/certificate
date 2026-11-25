@@ -69,7 +69,7 @@
 
   function defaultOrd() {
     return {
-      ordRev: 3,
+      ordRev: 4,
       titleKo: '목 사 안 수 증',
       titleEn: 'Certificate of Ordination',
       noKo: '서울강동 제{no}호',
@@ -106,14 +106,16 @@
       sigOrder: 'cs',
       labelSep: ':',
       phKo: '증명사진', phEn: 'PHOTO',
+      /* 한글 → 영문 자동 표기 — 기본 켜짐, 이름은 붙여 쓰기(Jaeyong) */
+      autoEn: 'on', nameHyphen: 'off',
       inetTpl: '(Internet No) {inet}',
       /* 백석 엠블럼 워터마크 — 지면 폭 %, 진하기 % */
-      wmOn: 'on', wmSize: '45', wmTone: '4',
+      wmOn: 'on', wmSize: '45', wmTone: '8',
       /* 사진 모서리 교단 압인 — 인주색 원형 도장, 오른쪽 아래, 지름 mm, 진하지 % */
       stampOn: 'on', stampCorner: 'br', stampColor: 'ink', stampSize: '14', stampTone: '30',
       phW: 31, phL: 30, phT: 72,
-      sqS: 28, sqL: 72, sqT: 252,
-      rS: 15, r1L: 104, r1T: 258, r2L: 122, r2T: 258
+      sqS: 28, sqL: 32, sqT: 230,
+      rS: 13, r1L: 115, r1T: 228.1, r2L: 115, r2T: 242.5
     };
   }
 
@@ -139,6 +141,19 @@
         F.rS = 15; F.r1L = 104; F.r1T = 258; F.r2L = 122; F.r2T = 258;
       }
       F.ordRev = 3;
+    }
+    /* 2026-11-26 목사님 지시 — 워터마크를 한 단계 진하게(4%→8%), 직인은 서명부 아래에서
+       노회장·서기 이름 위로(사각 인은 서명부 왼쪽으로) 옮겼다. 예전 기본값 그대로인 항목만 바꾼다. */
+    if (rev < 4) {
+      if (F.wmTone == null || String(F.wmTone) === '4') F.wmTone = '8';
+      var oldSeal = String(F.sqS) === '28' && String(F.sqL) === '72' && String(F.sqT) === '252' &&
+        String(F.rS) === '15' && String(F.r1L) === '104' && String(F.r1T) === '258' &&
+        String(F.r2L) === '122' && String(F.r2T) === '258';
+      if (oldSeal) {
+        F.rS = 13; F.sqL = 32; F.sqT = 230;
+        F.r1L = 115; F.r1T = 228.1; F.r2L = 115; F.r2T = 242.5;
+      }
+      F.ordRev = 4;
     }
     return F;
   }
@@ -811,6 +826,68 @@
       return (vars[k] === undefined || vars[k] === null) ? '' : String(vars[k]);
     });
   }
+
+  /* ------------------------------------------------------------------ 한글 → 영문 자동 표기
+     한글 성명·안수위원 명단을 넣으면 영문 칸을 저절로 채운다(기본 켜짐, 관리자에서 끄기/켜기).
+     사람이 그 칸을 직접 고치면 그 값(nameEnEdited·committeeEnEdited)은 다시 건드리지 않는다.
+     변환은 assets/roman.js 가 브라우저 안에서 한다(인터넷·외부 API 없음). */
+  function ordOpts() { return Object.assign(defaultOrd(), state.fmt.ord || {}); }
+  function ordAutoOn() { return String(ordOpts().autoEn == null ? 'on' : ordOpts().autoEn) !== 'off'; }
+  function ordHyphenOn() { return String(ordOpts().nameHyphen) === 'on'; }
+  function romanEnName(ko) {
+    if (!window.KRoman) return '';
+    return KRoman.name(ko, { hyphen: ordHyphenOn() });
+  }
+  /* 안수위원 명단 — 관리자의 한글·영문 짝을 먼저 쓰고, 짝이 없는 이름만 로마자로 적는다.
+     관리자 영문 명단이 ‘Rev. …’로 시작하면 새 이름에도 같은 머리말을 붙인다. */
+  function autoEnCommittee(koList) {
+    if (!window.KRoman) return '';
+    var O = ordOpts();
+    var adminKo = KRoman.splitList(O.commNames);
+    var adminEn = KRoman.splitList(O.commNamesEn);
+    var pair = {};
+    adminKo.forEach(function (nm, i) { if (nm && adminEn[i]) pair[nm] = adminEn[i]; });
+    var cnt = {}, best = '', bestN = 0;
+    adminEn.forEach(function (e) {
+      var m = /^(Rev\.|Pastor|Dr\.)\s+/i.exec(e);
+      if (m) { var k = m[1]; cnt[k] = (cnt[k] || 0) + 1; if (cnt[k] > bestN) { bestN = cnt[k]; best = k; } }
+    });
+    var prefix = best ? best + ' ' : '';
+    return koList.map(function (nm) {
+      if (pair[nm]) return pair[nm];
+      var r = romanEnName(nm);
+      return r ? prefix + r : '';
+    }).filter(Boolean).join(', ');
+  }
+  /* 자동으로 채울 값 — 지금 값과 달라면 state 에 쓴다(사람이 고친 칸은 그대로) */
+  function applyOrdAutoEn() {
+    if (!window.KRoman) return false;
+    var o = ordOf(), changed = false;
+    var on = ordAutoOn();
+    if (!o.nameEnEdited) {
+      var want = on ? romanEnName(state.name) : '';
+      if (want !== String(o.nameEn == null ? '' : o.nameEn)) { o.nameEn = want; changed = true; }
+    }
+    if (!o.committeeEnEdited) {
+      var koList = KRoman.splitList(o.committee);
+      var want2 = on ? autoEnCommittee(koList) : '';
+      if (String(want2) !== String(o.committeeEn == null ? '' : o.committeeEn)) { o.committeeEn = want2; changed = true; }
+    }
+    if (changed) saveState();
+    return changed;
+  }
+  function renderRomanPreview() {
+    var inp = $('oaRomInput'), out = $('oaRomOut');
+    if (!inp || !out || !window.KRoman) return;
+    var hyphen = ordHyphenOn();
+    var names = KRoman.splitList(inp.value);
+    if (!names.length) { out.innerHTML = '<p class="hint">이름을 넣으면 여기에 결과가 나옵니다.</p>'; return; }
+    out.innerHTML = '<table class="rom-table"><thead><tr><th>한글</th><th>영문</th><th>하이픈</th></tr></thead><tbody>' +
+      names.map(function (nm) {
+        return '<tr><td>' + esc(nm) + '</td><td><b>' + esc(KRoman.name(nm, { hyphen: hyphen })) +
+          '</b></td><td>' + esc(KRoman.name(nm, { hyphen: true })) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
   function ordEls(lang) {
     var pre = lang === 'en' ? 'odEn' : 'odKo';
     var g = function (s) { return document.getElementById(pre + s); };
@@ -829,6 +906,7 @@
 
   function renderOrd() {
     if (!document.getElementById('ordKo')) return;
+    applyOrdAutoEn();
     var O = Object.assign(defaultOrd(), state.fmt.ord || {}), o = ordOf();
     var dd = ordDateParts(o.date), bb = ordDateParts(state.birth);
     var nameKo = [String(state.name || '').trim(), String(state.position || '').trim()]
@@ -901,6 +979,19 @@
         e.commLb.textContent = names ? (ko ? O.commLabel : O.commLabelEn) : '';
         e.commNm.textContent = names;
         e.comm.hidden = !names;
+        /* 이름이 많아 아래 날짜·발급 명의까지 내려가면 글자를 줄여 한 블록 안에 담는다 */
+        e.comm.style.removeProperty('font-size');
+        e.comm.style.removeProperty('line-height');
+        if (names) {
+          var baseF = ko ? 4.3 : 3.9, baseL = ko ? 7.4 : 6.2;
+          var avail = ko ? 19.5 : 18.5;                 /* 위(185~187mm)에서 날짜(201~208mm)까지 남는 높이 */
+          var hMM = e.comm.offsetHeight / (96 / 25.4);
+          if (hMM > avail) {
+            var k = Math.max(0.62, avail / hMM);
+            e.comm.style.fontSize = (baseF * k).toFixed(2) + 'mm';
+            e.comm.style.lineHeight = (baseL * k).toFixed(2) + 'mm';
+          }
+        }
       }
 
       e.date.textContent = ordFill(ko ? O.dateKo : O.dateEn, dv);
@@ -1181,6 +1272,7 @@
 
   /* 목사 안수증 입력칸 채우기 */
   function fillOrdInputs() {
+    applyOrdAutoEn();
     var o = ordOf();
     var set = function (id, val) {
       var inp = $(id);
@@ -1196,7 +1288,25 @@
       var OE = Object.assign(defaultOrd(), state.fmt.ord || {});
       enField.hidden = String(OE.commShowEn) !== 'on';
     }
+    renderAutoState();
     renderOrdPhotoThumb();
+  }
+
+  /* ‘자동’ 표시 — 어느 칸이 자동으로 채워졌는지, 사람이 고쳐 자동이 멈췄는지 보여 준다 */
+  function renderAutoState() {
+    if (!window.KRoman) return;
+    var o = ordOf(), on = ordAutoOn();
+    var rows = [
+      { key: 'nameEnEdited', auto: '한글 성명에서 채웁니다.', badge: 'fNameEnBadge', note: 'fNameEnNote', reset: 'fNameEnReset' },
+      { key: 'committeeEnEdited', auto: '한글 명단에서 사람별로 채웁니다.', badge: 'fOrdCommEnBadge', note: 'fOrdCommEnNote', reset: 'fOrdCommEnReset' }
+    ];
+    rows.forEach(function (r) {
+      var isAuto = !o[r.key] && on;
+      var b = $(r.badge), n = $(r.note), btn = $(r.reset);
+      if (b) b.hidden = !isAuto;
+      if (n) n.textContent = isAuto ? r.auto : (on ? '직접 고친 값입니다 — 자동이 멈췄습니다.' : '자동 채우기를 껐습니다(관리자).');
+      if (btn) btn.hidden = isAuto || !on;
+    });
   }
   function renderOrdPhotoThumb() {
     var box = $('ordPhotoThumb');
@@ -2930,11 +3040,35 @@
       saveState();
       renderOrd();
     }
-    if ($('fNameEn')) $('fNameEn').addEventListener('input', function () { setOrd('nameEn', this.value); });
+    if ($('fNameEn')) $('fNameEn').addEventListener('input', function () {
+      /* 직접 고친 값은 그대로 둔다 — 자동이 덮어쓰지 않게 표시(비우면 ‘자동으로’ 단추로 되돌린다) */
+      var auto = romanEnName(state.name);
+      ordOf().nameEnEdited = String(this.value).trim() !== '' && String(this.value) !== auto;
+      setOrd('nameEn', this.value);
+      renderAutoState();
+    });
+    if ($('fNameEnReset')) $('fNameEnReset').addEventListener('click', function () {
+      ordOf().nameEnEdited = false;
+      saveState(); fillOrdInputs(); renderOrd();
+      toast('한글 성명에서 다시 채웠습니다.');
+    });
     if ($('fOrdDocNo')) $('fOrdDocNo').addEventListener('input', function () { setOrd('docNo', this.value); });
     if ($('fOrdDate')) $('fOrdDate').addEventListener('change', function () { setOrd('date', this.value || todayISO()); });
-    if ($('fOrdComm')) $('fOrdComm').addEventListener('input', function () { setOrd('committee', this.value); });
-    if ($('fOrdCommEn')) $('fOrdCommEn').addEventListener('input', function () { setOrd('committeeEn', this.value); });
+    if ($('fOrdComm')) $('fOrdComm').addEventListener('input', function () {
+      setOrd('committee', this.value);
+      fillOrdInputs();
+    });
+    if ($('fOrdCommEn')) $('fOrdCommEn').addEventListener('input', function () {
+      var auto = autoEnCommittee(window.KRoman ? KRoman.splitList(ordOf().committee) : []);
+      ordOf().committeeEnEdited = String(this.value).trim() !== '' && String(this.value) !== auto;
+      setOrd('committeeEn', this.value);
+      renderAutoState();
+    });
+    if ($('fOrdCommEnReset')) $('fOrdCommEnReset').addEventListener('click', function () {
+      ordOf().committeeEnEdited = false;
+      saveState(); fillOrdInputs(); renderOrd();
+      toast('한글 명단에서 다시 채웠습니다.');
+    });
     if ($('ordPhotoBtn')) $('ordPhotoBtn').addEventListener('click', function () { $('ordPhotoFile').click(); });
     if ($('ordPhotoFile')) $('ordPhotoFile').addEventListener('change', function () {
       saveOrdPhotoFromFile(this.files && this.files[0]);
@@ -3127,6 +3261,7 @@
       O[inp.dataset.ord] = inp.value;
       saveState();
       if (inp.dataset.ord === 'commShowEn') fillOrdInputs();
+      if (inp.dataset.ord === 'autoEn' || inp.dataset.ord === 'nameHyphen') renderRomanPreview();
       renderPaper();
     }
     Array.prototype.forEach.call(document.querySelectorAll('[data-ord]'), function (inp) {
@@ -3134,6 +3269,10 @@
       inp.addEventListener('input', function () { ordSave(inp); });
       inp.addEventListener('change', function () { ordSave(inp); });
     });
+    if ($('oaRomInput')) {
+      $('oaRomInput').addEventListener('input', renderRomanPreview);
+      renderRomanPreview();
+    }
 
     /* 관리자: 안수증 서식 안쪽 묶음 탭 */
     Array.prototype.forEach.call(document.querySelectorAll('.ord-tab'), function (b) {
