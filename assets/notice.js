@@ -273,7 +273,7 @@
     var rowH = 5.4;
     if (rows * rowH > avail) rowH = Math.max(3.9, avail / rows);
     var used = rows * rowH;
-    var bodyTop = limit + Math.max(0, used - avail) + 2.2;
+    var bodyTop = limit + Math.max(0, used - avail) + 2.2 + 3.6;
     var bodyH = 226 - bodyTop;
     LAY = {
       recips: rec, rowH: rowH, bodyTop: bodyTop, bodyH: bodyH,
@@ -306,13 +306,21 @@
           (i > 0 ? '<button type="button" class="nt-x" data-rx="' + i + '" aria-label="이 수신자 지우기">×</button>' : '') +
         '</div>';
       }).join('') +
-        '<div class="nt-row nt-row-title" style="height:' + L.rowH.toFixed(2) + 'mm" data-f="title">' +
+        '<div class="nt-row nt-row-title" style="height:' + L.rowH.toFixed(2) + 'mm;margin-top:3.6mm" data-f="title">' +
           '<span class="mk">제 목</span><span class="cl">:</span>' +
           '<span class="mv">' + esc(D.title || '') + '</span></div>' +
       '</div>';
     }
 
     var refDate = D.refDate ? D.refDate : dateKo(D.date);
+    function footLine() {
+      var bits = [];
+      var addr = String(s.address || '').trim();
+      if (s.postal || addr) bits.push('☎ ' + (s.postal ? '(' + s.postal + ') ' : '') + addr);
+      if (s.tel) bits.push(String(s.tel).trim());
+      bits.push('시행일자 ' + dateKoShort(D.date) + ' (' + disc + ')');
+      return bits.join(' · ');
+    }
     var sub1 = '(' + String(s.postal || '') + ') ' + String(s.address || '') +
       (s.tel ? '   Tel: ' + s.tel : '') + (s.email ? '   E-mail: ' + s.email : '');
     var disc = s.disclosure || '공개';
@@ -344,10 +352,7 @@
         '</div>' +
         '<i class="nt-rule nt-rule-info"></i>' +
         '<div class="nt-info">' +
-          '<div class="nt-i1" data-f="date"><span class="nt-i1b">(시행일자 : ' + esc(dateKoShort(D.date)) + ' : ' + esc(disc) + ')</span></div>' +
-          '<div class="nt-i2" data-f="a:address">☎ ' + esc((s.postal || '') + ' ' + (s.address || '')) +
-            (s.tel ? ' 전화 : ' + esc(s.tel) : '') + '</div>' +
-          '<div class="nt-i3" data-f="a:email">' + (s.email ? 'E-mail : ' + esc(s.email) : '') + '</div>' +
+          '<div class="nt-i1" data-f="a:address">' + esc(footLine()) + '</div>' +
         '</div>' +
         '<i class="nt-rule nt-rule-foot"></i>' +
         (total > 1 ? '<div class="nt-pgno">' + (idx + 1) + ' / ' + total + '</div>' : '') +

@@ -810,9 +810,9 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-info{
   position:absolute;left:15.2mm;right:15.2mm;top:261.2mm;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;
-  font-size:2.9mm;line-height:4.4mm;letter-spacing:-.01mm;
+  font-size:2.55mm;line-height:4.4mm;letter-spacing:-.02mm;
 }
-.nt-i1{display:flex;justify-content:center;gap:4mm}
+.nt-i1{text-align:center;white-space:nowrap;overflow:hidden}
 .nt-i2,.nt-i3{margin-top:.5mm}
 .nt-pgno{position:absolute;right:15.2mm;top:287.5mm;font-size:2.7mm;color:#777;
   font-family:-apple-system,BlinkMacSystemFont,sans-serif}

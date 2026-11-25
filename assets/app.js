@@ -670,8 +670,7 @@
       var bits = [];
       if (postal) bits.push('(' + postal + ')');
       if (String(F.presbyteryAddress || '').trim()) bits.push(String(F.presbyteryAddress).trim());
-      if (tel) bits.push(tel.replace(/^Tel:\s*/i, '전화 '));
-      if (fax) bits.push(fax.replace(/^Fax:\s*/i, '팩스 '));
+      if (tel) bits.push(tel.replace(/^Tel:\s*/i, ''));       /* 주소 옆에 핸드폰 번호, 이메일은 지면에 넣지 않는다 */
       cLine.textContent = bits.join(' · ');
       cLine.hidden = !bits.length;
     }
