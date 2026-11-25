@@ -2122,7 +2122,7 @@
   }
 
   /* ------------------------------------------------------------------ 화면 */
-  var VIEWS = ['cover', 'issue', 'notice', 'notice-admin', 'history', 'format'];
+  var VIEWS = ['cover', 'issue', 'notice', 'notice-admin', 'history', 'format', 'people'];
 
   var navPushed = false;
   function switchView(name, fromHistory) {
@@ -2136,7 +2136,8 @@
     document.body.classList.toggle('cover-mode', name === 'cover');
     document.body.classList.toggle('notice-mode', name === 'notice' || name === 'notice-admin');
     if (el.actionBar) el.actionBar.style.display = name === 'issue' ? '' : 'none';
-    if (name === 'format') { renderFmtForm(); renderPeopleList(); renderSealSlots(); }
+    if (name === 'format') { renderFmtForm(); renderSealSlots(); }
+    if (name === 'people') { renderPeopleList(); renderPersonForm(false); }
     if (name === 'issue') { renderPaper(); fitPreview(); }
     if (name === 'notice' && window.CertNotice) window.CertNotice.enter();
     if (name === 'notice-admin' && window.CertNotice) window.CertNotice.enterAdmin();
@@ -2194,11 +2195,10 @@
     /* 표지 */
     if ($('cvGo')) $('cvGo').addEventListener('click', function () { switchView('issue'); });
     if ($('cvNotice')) $('cvNotice').addEventListener('click', function () { switchView('notice'); });
-    if ($('cvPeople')) $('cvPeople').addEventListener('click', function () {
-      switchView('format');
-      var card = $('peopleCard');
-      if (card && card.scrollIntoView) card.scrollIntoView({ block: 'start' });
-    });
+    if ($('cvPeople')) $('cvPeople').addEventListener('click', function () { switchView('people'); });
+    if ($('peopleCoverBtn')) $('peopleCoverBtn').addEventListener('click', function () { switchView('cover'); });
+    if ($('peopleToAdmin')) $('peopleToAdmin').addEventListener('click', function () { switchView('format'); });
+    if ($('adminToPeople')) $('adminToPeople').addEventListener('click', function () { switchView('people'); });
     if ($('coverBtn')) $('coverBtn').addEventListener('click', function () { switchView('cover'); });
     /* 상단 막대(교단명·노회 문서)와 ⌂ 홈 — 어느 화면에서나 표지로 */
     var goHome = function () { switchView('cover'); };
