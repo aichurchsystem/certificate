@@ -2216,15 +2216,15 @@
 
     /* 표지 */
     /* 표지는 그대로 열리고, 발급·관리자로 들어갈 때만 잠금(숫자 4자리)을 묻는다 */
-    function withLock(fn) {
+    function withLock(fn, opts) {
       return function () {
-        if (window.CertLock && window.CertLock.require) window.CertLock.require(fn);
+        if (window.CertLock && window.CertLock.require) window.CertLock.require(fn, opts);
         else fn();
       };
     }
     if ($('cvGo')) $('cvGo').addEventListener('click', withLock(function () { switchView('issue'); }));
     if ($('cvNotice')) $('cvNotice').addEventListener('click', withLock(function () { switchView('notice'); }));
-    if ($('cvAdmin')) $('cvAdmin').addEventListener('click', withLock(function () { switchAdmin('cert'); }));
+    if ($('cvAdmin')) $('cvAdmin').addEventListener('click', withLock(function () { switchAdmin('cert'); }, { always: true }));
     Array.prototype.forEach.call(document.querySelectorAll('.atab'), function (b) {
       b.addEventListener('click', function () { switchAdmin(b.dataset.atab); });
     });

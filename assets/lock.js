@@ -202,9 +202,11 @@
 
   window.CertLock = {
     /* 잠겨 있으면 비밀번호를 묻고, 풀리면 cb를 부른다 */
-    require: function (cb) {
+    require: function (cb, opts) {
+      var always = !!(opts && opts.always);
       if (!cfg || cfg.on === false) return cb();
-      if (unlockedRecently()) return cb();
+      if (!always && unlockedRecently()) return cb();
+      if (always) clearUnlocked();          /* 관리자는 세션과 무관하게 매번 묻는다 */
       if (!cfg.hash) {   /* 첫 해시가 아직 준비되지 않은 순간 */
         return hash(DEFAULT_PW, cfg.salt).then(function (h) { cfg.hash = h; saveLock(cfg); show(cb); });
       }
