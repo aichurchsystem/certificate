@@ -995,7 +995,7 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 
 /* ---- 지면 맨 아래 군청 띠 (위 머리글 띠와 짝) ---- */
 .nt-foot{
-  position:absolute;left:0;right:0;bottom:0;height:14mm;z-index:2;
+  position:absolute;left:0;right:0;bottom:0;height:7mm;z-index:2;
   display:flex;align-items:center;justify-content:center;padding:0 10mm;
   background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);color:#fff;
 }
@@ -1003,7 +1003,7 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
   white-space:nowrap;overflow:hidden;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif}
 .p-foot{
-  position:absolute;left:0;right:0;bottom:0;height:13mm;z-index:2;
+  position:absolute;left:0;right:0;bottom:0;height:7mm;z-index:2;
   display:flex;align-items:center;justify-content:center;padding:0 12mm;
   background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);color:#fff;
 }
