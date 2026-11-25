@@ -56,7 +56,7 @@
       noPrefix: '서울강동 제',
       noNext: '1102603-17',
       disclosure: '공개',
-      ruleColor: '#8B1D24'
+      ruleColor: '#1B3A5A'
     };
   }
 
@@ -362,7 +362,8 @@
 
   function renderInto(container) {
     if (!container) return 0;
-    container.style.setProperty('--rule', S.ruleColor || '#8B1D24');
+    container.style.setProperty('--rule', S.ruleColor || '#1B3A5A');
+    container.style.setProperty('--rule-lite', S.ruleColor || '#42618A');
     var pages = paginate(D.body);
     var html = pages.map(function (p, i) { return pageHtml(p, i, pages.length); }).join('');
     container.innerHTML = html;

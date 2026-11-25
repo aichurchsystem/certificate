@@ -171,7 +171,7 @@ main{padding:14px 14px 0}
 }
 .p-band:after{
   content:"";position:absolute;left:0;right:0;bottom:0;height:.8mm;
-  background:var(--rule,#8B1D24);
+  background:var(--rule,#1B3A5A);
 }
 /* 로고 + 교단명·노회명 = 한 덩어리. 이 덩어리의 중심이 지면 중심과 맞는다 */
 .p-brand{
@@ -203,7 +203,7 @@ main{padding:14px 14px 0}
 .gap-tel[hidden]{display:none}
 .p-holy{margin:1.4mm 0 0;font-size:3.2mm;line-height:1.4;letter-spacing:.02mm;color:#333;white-space:nowrap;overflow:hidden}
 .p-holy[hidden]{display:none}
-.p-rule{display:block;height:0;margin:5.12mm 0 0;border-top:.5mm solid var(--rule,#8B1D24)}
+.p-rule{display:block;height:0;margin:5.12mm 0 0;border-top:.45mm solid var(--rule-lite,#42618A)}
 /* 총회 주소까지 두 줄이 되면 그만큼 줄 간격을 좁혀 아래 괘선 자리를 지킨다 */
 .paper.has-hq .p-sub{padding-top:1.8mm}
 .paper.has-hq .p-sub .hl2{line-height:1.35}
@@ -276,7 +276,7 @@ main{padding:14px 14px 0}
 /* ---- 아래: 지면 바닥에 붙는 블록 ---- */
 .p-bottom{position:absolute;z-index:1;left:0;right:0;bottom:8.5mm;
   display:flex;flex-direction:column;justify-content:flex-end}
-.p-contact{margin:0 22.2mm 1.6mm;font-size:2.75mm;line-height:1.5;letter-spacing:-.01mm;color:#3a3a3a;
+.p-contact{margin:0 15.2mm 1.6mm;padding-top:1.8mm;border-top:.4mm solid var(--rule-lite,#42618A);font-size:2.75mm;line-height:1.5;letter-spacing:-.01mm;color:#3a3a3a;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;text-align:center}
 .p-contact[hidden]{display:none}
 .p-bottom .band{margin:0 17.8mm 0 22.2mm;height:8.4mm;border:.26mm solid #111;overflow:hidden}
@@ -759,8 +759,8 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
   color:#fff;
 }
 .nt-band:after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:.8mm;
-  background:var(--rule,#8B1D24);
+  content:"";position:absolute;left:0;right:0;bottom:0;height:.6mm;
+  background:var(--rule-lite,#42618A);
 }
 .nt-brand{display:flex;align-items:center;justify-content:center;gap:5mm;max-width:100%;min-width:0}
 .nt-mark{width:16mm;height:16mm;flex:0 0 16mm;display:block}
@@ -769,11 +769,11 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-sub1{font-size:3.45mm;letter-spacing:.06mm;line-height:1.5;white-space:nowrap;overflow:hidden}
 .nt-sub2{margin-top:.8mm;font-size:3.3mm;line-height:1.35;white-space:nowrap;overflow:hidden}
 .nt-rule{position:absolute;left:15.2mm;right:15.2mm;height:0;display:block;font-style:normal}
-.nt-rule-top{top:36.4mm;border-top:.35mm solid var(--rule,#8B1D24)}
+.nt-rule-top{top:36.4mm;border-top:.3mm solid var(--rule-lite,#42618A)}
 .nt-rule-mid{display:none}
-.nt-rule-body{top:53.2mm;border-top:.9mm solid var(--rule,#8B1D24)}
-.nt-rule-info{top:259.4mm;border-top:1.1mm solid var(--rule,#8B1D24)}
-.nt-rule-foot{top:281.6mm;left:10mm;right:10mm;border-top:1mm solid var(--rule,#8B1D24)}
+.nt-rule-body{top:53.2mm;border-top:.7mm solid var(--rule,#1B3A5A)}
+.nt-rule-info{top:254mm;border-top:.7mm solid var(--rule,#1B3A5A)}
+.nt-rule-foot{top:272mm;left:15.2mm;right:15.2mm;border-top:.5mm solid var(--rule-lite,#42618A)}
 .nt-docno{position:absolute;right:15.2mm;top:38.6mm;font-size:3.3mm;letter-spacing:.02mm;line-height:1}
 .nt-meta{position:absolute;left:15.2mm;right:15.2mm;top:43.4mm}
 .nt-row{display:flex;align-items:baseline;height:5.4mm;font-size:3.9mm;line-height:1}
@@ -808,7 +808,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-names .sn{letter-spacing:.4mm}
 .nt-seal{position:absolute;right:26mm;top:2.4mm;width:24mm;height:24mm;object-fit:contain;opacity:.88}
 .nt-info{
-  position:absolute;left:15.2mm;right:15.2mm;top:264mm;text-align:center;
+  position:absolute;left:15.2mm;right:15.2mm;top:256.4mm;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;
   font-size:2.55mm;line-height:4.4mm;letter-spacing:-.02mm;
 }

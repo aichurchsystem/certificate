@@ -47,7 +47,7 @@
       signSeal: '1',
       slogan: '',
       logoSize: '16',
-      ruleColor: '#8B1D24',
+      ruleColor: '#1B3A5A',
       photoStamp: 'on',
       photoStampSize: '15',
       photoStampCorner: 'br',
@@ -683,7 +683,8 @@
       holy.hidden = !String(F.slogan || '').trim();
       el.paper.classList.toggle('has-holy', !holy.hidden);
     }
-    el.paper.style.setProperty('--rule', F.ruleColor || '#8B1D24');
+    el.paper.style.setProperty('--rule', F.ruleColor || '#1B3A5A');
+    el.paper.style.setProperty('--rule-lite', F.ruleColor || '#42618A');
     var logo = Number(F.logoSize) || 16;
     el.paper.style.setProperty('--logo', logo + 'mm');
     el.paper.style.setProperty('--logo-half', (logo / 2) + 'mm');

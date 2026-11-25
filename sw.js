@@ -3,14 +3,14 @@
    운동일지 앱(/Church/)과는 다른 사이트이므로 그쪽 캐시·화면은 건드리지 않는다.
    네트워크가 있으면 새 파일을 먼저 받아 두고, 없으면 받아 둔 사본으로 연다. */
 
-const CACHE = 'certificate-standalone-v12';
+const CACHE = 'certificate-standalone-v13';
 const SHELL = [
   './',
   './index.html',
-  './assets/app.css?v=40',
-  './assets/app.js?v=40',
-  './assets/notice.js?v=40',
-  './assets/xlsx.js?v=40',
+  './assets/app.css?v=41',
+  './assets/app.js?v=41',
+  './assets/notice.js?v=41',
+  './assets/xlsx.js?v=41',
   './assets/fonts/nm-Regular.woff2',
   './assets/fonts/nm-Bold.woff2',
   './assets/logo-sky.svg',
