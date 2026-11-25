@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>문서 진위 확인 · 대한예수교장로회(백석) 서울강동노회</title>
+<meta name="description" content="대한예수교장로회(백석) 서울강동노회가 발급한 증명서·공문의 진위를 확인하는 화면입니다. 문서에 인쇄된 자체번호와 문서확인번호를 넣거나 QR을 찍으면 확인됩니다.">
+<meta name="theme-color" content="#0e2442">
+<link rel="icon" href="assets/logo-navy.svg">
+<link rel="stylesheet" href="assets/verify.css">
+</head>
+<body>
+
+<header class="vhead">
+  <div class="vhead-in">
+    <img class="vmark" src="assets/logo-white.svg" alt="대한예수교장로회(백석) 엠블럼">
+    <div class="vorg">
+      <span class="vo1">대한예수교장로회(백석)</span>
+      <span class="vo2">서울강동노회</span>
+    </div>
+  </div>
+  <h1 class="vtitle">문서 진위 확인</h1>
+  <p class="vlede">이 노회가 발급한 문서가 맞는지 확인합니다</p>
+</header>
+
+<main class="vmain">
+
+  <!-- 확인 결과 -->
+  <section class="vres" id="vres" hidden aria-live="polite">
+    <div class="vbadge" id="vbadge">
+      <svg class="vico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>
+    </div>
+    <p class="vmsg" id="vmsg"></p>
+      <dl class="vlist" id="vlist" hidden>
+        <div><dt>발급번호</dt><dd id="vNo"></dd></div>
+        <div><dt>문서 종류</dt><dd id="vType"></dd></div>
+        <div id="vTitleRow"><dt>제목</dt><dd id="vTitle"></dd></div>
+        <div><dt>성명</dt><dd id="vName"></dd></div>
+        <div><dt>교회</dt><dd id="vChurch"></dd></div>
+        <div><dt>발급일</dt><dd id="vDate"></dd></div>
+      </dl>
+    <p class="vhint" id="vhint" hidden></p>
+  </section>
+
+  <!-- 직접 입력 -->
+  <form class="vform" id="vform" autocomplete="off" novalidate>
+    <p class="vform-lede">문서에 인쇄된 두 번호를 넣어 주세요</p>
+    <label class="vf">
+      <span class="vf-l">자체번호</span>
+      <input id="fNo" name="no" type="text" inputmode="text" placeholder="예: 서울강동 제2026-001호" autocomplete="off" spellcheck="false">
+    </label>
+    <label class="vf">
+      <span class="vf-l">문서확인번호</span>
+      <input id="fInet" name="inet" type="text" inputmode="text" placeholder="예: ABCD123456789" autocomplete="off" spellcheck="false" autocapitalize="characters">
+    </label>
+    <button class="vbtn" id="vgo" type="submit">확인하기</button>
+    <p class="verr" id="verr" hidden></p>
+  </form>
+
+  <p class="vnote">2026년 11월 25일 이전에 발급된 문서는 발급대장에 확인번호가 없어 이 화면에서 확인되지 않습니다. 노회로 문의해 주세요.</p>
+
+</main>
+
+<footer class="vfoot">
+  <span>대한예수교장로회(백석) 서울강동노회</span>
+  <span class="vd">·</span>
+  <span>Tel 02-429-1318</span>
+</footer>
+
+<script src="assets/verify.js"></script>
+</body>
+</html>

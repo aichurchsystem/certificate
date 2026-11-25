@@ -1,0 +1,131 @@
+/* 문서 진위 확인 페이지 — 앱(발급 화면)과 완전히 독립된 가벼운 정적 페이지.
+   앱 잠금(lock.js)이나 서비스워커와 엮이지 않는다. 확인하러 온 외부인에게
+   관리자 화면·명단이 절대 보이지 않도록 이 페이지가 부르는 것은 verify 하나뿐이다. */
+
+@font-face{font-family:'Nanum Myeongjo Cert';src:url('fonts/nm-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+
+:root{
+  --navy:#0e2442;
+  --navy-2:#1b3559;
+  --gold:#b08a4a;
+  --paper:#fbf8f1;
+  --bg:#f2f0ea;
+  --line:#e3e0d7;
+  --text:#18202f;
+  --dim:#6b7385;
+  --ok:#1e7a5a;
+  --ok-bg:#e9f5ef;
+  --warn:#8a5a12;
+  --warn-bg:#fbf1dd;
+  --bad:#a3312c;
+  --bad-bg:#fbeceb;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  font-size:15px;line-height:1.5;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+
+/* ---------- 머리 ---------- */
+.vhead{
+  background:var(--navy);
+  color:#fff;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 18px 16px;
+  text-align:center;
+}
+.vhead-in{display:flex;align-items:center;justify-content:center;gap:9px}
+.vmark{width:30px;height:30px;display:block}
+.vorg{display:flex;flex-direction:column;text-align:left;line-height:1.22}
+.vo1{font-size:10.5px;letter-spacing:.02em;color:#c9d6e8}
+.vo2{font-family:'Nanum Myeongjo Cert',"Nanum Myeongjo","Noto Serif KR",Batang,serif;font-weight:700;font-size:16px;letter-spacing:.06em}
+.vtitle{
+  margin:11px 0 0;font-family:'Nanum Myeongjo Cert',"Nanum Myeongjo","Noto Serif KR",Batang,serif;
+  font-size:21px;font-weight:700;letter-spacing:.14em;
+}
+.vlede{margin:4px 0 0;font-size:12.5px;color:#c9d6e8;letter-spacing:.01em}
+
+/* ---------- 본문 ---------- */
+.vmain{flex:1 1 auto;padding:14px 14px 0;max-width:520px;width:100%;margin:0 auto}
+
+/* 결과 카드 */
+.vres{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-top:3px solid var(--ok);
+  border-radius:12px;
+  padding:14px 14px 12px;
+  text-align:center;
+  box-shadow:0 1px 2px rgba(24,32,47,.05),0 10px 24px rgba(24,32,47,.07);
+}
+.vres.is-bad{border-top-color:var(--bad)}
+.vres.is-warn{border-top-color:var(--warn)}
+.vbadge{
+  width:44px;height:44px;margin:0 auto 8px;border-radius:50%;
+  background:var(--ok-bg);color:var(--ok);
+  display:flex;align-items:center;justify-content:center;
+}
+.is-bad .vbadge{background:var(--bad-bg);color:var(--bad)}
+.is-warn .vbadge{background:var(--warn-bg);color:var(--warn)}
+.vico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.is-bad .vico{stroke-width:2.8}
+.vmsg{margin:0;font-size:15px;font-weight:700;line-height:1.45;letter-spacing:-.01em;word-break:keep-all}
+.is-bad .vmsg,.is-warn .vmsg{color:var(--bad)}
+.is-warn .vmsg{color:var(--warn)}
+
+.vlist{margin:11px 0 0;padding:10px 0 0;border-top:1px dashed var(--line);text-align:left}
+.vlist>div{display:flex;gap:10px;padding:2.5px 0;font-size:13.5px}
+.vlist dt{flex:0 0 68px;color:var(--dim);font-size:12.5px;padding-top:1px}
+.vlist dd{margin:0;flex:1 1 auto;min-width:0;word-break:keep-all;overflow-wrap:anywhere;font-weight:600}
+#vTitleRow[hidden]{display:none}
+.vhint{margin:9px 0 0;font-size:12px;color:var(--dim);text-align:left;line-height:1.45;word-break:keep-all}
+
+/* 입력 폼 */
+.vform{
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:13px 14px 14px;margin-top:12px;
+}
+.vres[hidden]+.vform{margin-top:0}
+.vform-lede{margin:0 0 9px;font-size:12.5px;color:var(--dim)}
+.vf{display:block;margin-bottom:9px}
+.vf-l{display:block;font-size:12.5px;font-weight:700;color:var(--navy-2);margin-bottom:4px;letter-spacing:.01em}
+.vf input{
+  width:100%;height:44px;padding:0 11px;
+  border:1px solid #d9d5ca;border-radius:9px;background:#fdfcf9;
+  font-size:15px;color:var(--text);font-family:inherit;
+}
+.vf input::placeholder{color:#aeb4c0;font-size:14px}
+.vf input:focus{outline:none;border-color:var(--navy-2);background:#fff;box-shadow:0 0 0 3px rgba(27,53,89,.09)}
+#fInet{letter-spacing:.06em;text-transform:uppercase}
+.vbtn{
+  width:100%;height:46px;margin-top:3px;border:0;border-radius:10px;
+  background:var(--navy);color:#fff;font-size:15.5px;font-weight:700;letter-spacing:.03em;
+  font-family:inherit;cursor:pointer;
+}
+.vbtn:active{background:var(--navy-2)}
+.vbtn[disabled]{opacity:.62;cursor:default}
+.verr{margin:9px 0 0;padding:8px 10px;border-radius:8px;background:var(--bad-bg);color:var(--bad);font-size:12.5px;line-height:1.45}
+
+.vnote{
+  margin:12px 2px 0;font-size:11.5px;line-height:1.5;color:var(--faint,#98a0b0);
+  color:#8b93a3;word-break:keep-all;
+}
+
+/* ---------- 아래 ---------- */
+.vfoot{
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));
+  text-align:center;font-size:11.5px;color:#8b93a3;letter-spacing:.01em;
+}
+.vd{margin:0 5px;color:#c3c8d2}
+
+@media (min-width:560px){
+  .vhead{padding-top:22px;padding-bottom:20px}
+  .vtitle{font-size:23px}
+  .vmain{padding:18px 18px 0}
+  .vres{padding:18px 18px 16px}
+  .vform{padding:16px 18px 18px}
+}

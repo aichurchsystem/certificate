@@ -610,22 +610,22 @@
     }
   }
 
-  /* 지면 오른쪽 아래 진위 확인 QR — 확인번호·성명·종류·발급일을 담는다.
-     찍으면 휴대폰에 그 내용이 그대로 뜨고, 노회에 문의할 때 대조할 수 있다. */
+  /* 지면 오른쪽 아래 진위 확인 QR — 문서 진위 확인 페이지 주소를 담는다.
+     찍으면 verify.html?no=자체번호&inet=문서확인번호 로 열려 서버가 발급 기록과 대조한다.
+     (인쇄된 지면만으로는 확인할 수 없고, 대장의 같은 줄과 두 값이 맞아야 확인된다.) */
+  var QR_VERIFY_BASE = 'https://aichurchsystem.github.io/certificate/verify.html';
   var qrCacheKey = '';
   function drawVerifyQr(T, F) {
     F = F || state.fmt || defaultFmt();
     var img = el.pQr;
     if (!img) return;
     if (typeof qrcode !== 'function') { img.hidden = true; return; }
-    var lines = [
-      '대한예수교장로회(백석) ' + (F.presbytery || '서울강동노회'),
-      '문서확인번호 ' + (state.inet || ''),
-      '증명서 ' + (T.title || ''),
-      '성명 ' + (state.name || ''),
-      '발급일 ' + fmtDate(state.date)
-    ];
-    var text = lines.join('\n');
+    var no = String(state.no || '').trim();
+    var inet = String(state.inet || '').replace(/\s+/g, '').toUpperCase();
+    var text = (no && inet)
+      ? QR_VERIFY_BASE + '?no=' + encodeURIComponent(no) + '&inet=' + encodeURIComponent(inet)
+      : '';
+    if (!text) { qrCacheKey = ''; img.hidden = true; return; }
     if (text === qrCacheKey) return;
     qrCacheKey = text;
     try {
@@ -1447,6 +1447,7 @@
       church: state.church || '',
       position: state.position || '',
       issueDate: state.date || todayISO(),
+      inet: String(state.inet || '').replace(/\s+/g, '').toUpperCase(),
       docNo: notice ? String(notice.no || '') : String(state.docNo || ''),
       title: String(state.title || '') || (notice ? String(notice.title || '') : (typeText(def).title || def.name)),
       noticeNo: notice ? String(notice.no || '') : ''
