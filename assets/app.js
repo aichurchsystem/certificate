@@ -74,7 +74,7 @@
     pDate: $('pDate'), pSignOrg: $('pSignOrg'),
     pSignChairTitle: $('pSignChairTitle'), pSignChair: $('pSignChair'),
     pSignTitle: $('pSignTitle'), pSigner: $('pSigner'),
-    pNote1: $('pNote1'), pNote2: $('pNote2'), pInet: $('pInet'), pPhoto: $('pPhoto'),
+    pNote1: $('pNote1'), pNote2: $('pNote2'), pInet: $('pInet'), pPhoto: $('pPhoto'), pQr: $('pQr'),
     pFrom: $('pFrom'), pTo: $('pTo'), pFromRow: $('pFromRow'), pToRow: $('pToRow'),
     sealSlots: $('sealSlots'), sealSlotsAdmin: $('sealSlotsAdmin'),
     hList: $('hList'), hCnt: $('hCnt'), hSearch: $('hSearch'), hType: $('hType'), hPeriod: $('hPeriod'),
@@ -610,6 +610,32 @@
     }
   }
 
+  /* 지면 오른쪽 아래 진위 확인 QR — 확인번호·성명·종류·발급일을 담는다.
+     찍으면 휴대폰에 그 내용이 그대로 뜨고, 노회에 문의할 때 대조할 수 있다. */
+  var qrCacheKey = '';
+  function drawVerifyQr(T) {
+    var img = el.pQr;
+    if (!img) return;
+    if (typeof qrcode !== 'function') { img.hidden = true; return; }
+    var lines = [
+      '대한예수교장로회(백석) ' + (F.presbytery || '서울강동노회'),
+      '문서확인번호 ' + (state.inet || ''),
+      '증명서 ' + (T.title || ''),
+      '성명 ' + (state.name || ''),
+      '발급일 ' + fmtDate(state.date)
+    ];
+    var text = lines.join('\n');
+    if (text === qrCacheKey) return;
+    qrCacheKey = text;
+    try {
+      var q = qrcode(0, 'M');
+      q.addData(text, 'Byte');
+      q.make();
+      img.src = q.createDataURL(4, 0);
+      img.hidden = false;
+    } catch (e) { img.hidden = true; }
+  }
+
   function rowValue(row) {
     var map = {
       birth: fmtDate(state.birth),
@@ -724,6 +750,7 @@
     if (n1 && n2 && !/[.!?]$/.test(n1)) n1 += '.';
     el.pNoteLine.textContent = [n1, n2].filter(Boolean).join(' ');
     el.pInet.textContent = state.inet || '';
+    drawVerifyQr(T);
 
     // 엠블럼 워터마크: 종류별 켜기·끄기 + 지면 전체 시안(네이비·회청·먹색·없음)
     var wmVariant = WM_VARIANTS.indexOf(F.watermark) < 0 ? 'slate' : F.watermark;
