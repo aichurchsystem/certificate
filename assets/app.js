@@ -717,7 +717,7 @@
     el.pSignTitle.textContent = T.signTitle;
     el.pSigner.textContent = T.signerName || '박재용';
     /* 안내문 두 줄을 한 줄로 이어 찍는다(폭이 모자라면 fitHead가 그 줄만 줄인다) */
-    var NDEF = baseFmt();
+    var NDEF = defaultFmt();
     var n1 = String(F.note1 || '').trim() || NDEF.note1, n2 = String(F.note2 || '').trim() || NDEF.note2;
     if (n1 && n2 && !/[.!?]$/.test(n1)) n1 += '.';
     el.pNoteLine.textContent = [n1, n2].filter(Boolean).join(' ');
