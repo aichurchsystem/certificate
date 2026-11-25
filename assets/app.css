@@ -265,7 +265,7 @@ main{padding:14px 14px 0}
 .seal-hold-org{right:2.6mm;top:50%}
 .seal-hold-name{left:calc(100% + 1.2mm);top:50%}
 .seal-org{width:28.8mm;height:28.8mm;opacity:.6}
-.seal-name{width:15mm;height:15mm;opacity:.55}
+.seal-name{width:22.2mm;height:22.2mm;opacity:.55}
 /* 2안(판독 우선): 사각 인은 '노회' 글자에 조금만, 원형 인은 이름 오른쪽 어깨에 살짝 걸친다 */
 .paper[data-sg="2"] .seal-hold-org{right:.6mm}
 .paper[data-sg="2"] .seal-hold-name{left:calc(100% + 1.4mm)}
