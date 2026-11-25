@@ -674,6 +674,13 @@
       if (tel) bits.push(tel.replace(/^Tel:\s*/i, ''));       /* 주소 옆에 핸드폰 번호, 이메일은 지면에 넣지 않는다 */
       cLine.textContent = bits.join(' · ');
       cLine.hidden = !bits.length;
+      /* 한 줄에 담기게 10pt → 9pt → 8.5pt → 8pt */
+      var steps = ['3.53mm', '3.175mm', '3.0mm', '2.82mm'];
+      cLine.style.fontSize = '';
+      for (var si = 0; si < steps.length; si++) {
+        cLine.style.fontSize = steps[si];
+        if (cLine.scrollWidth <= cLine.clientWidth + 1) break;
+      }
     }
 
     /* 성구 한 줄(비우면 빠짐)과 로고 크기 */

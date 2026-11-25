@@ -360,6 +360,18 @@
       '</div>';
   }
 
+  /* 하단 주소 줄을 한 줄에 담기게 — 10pt부터 시작해 9pt·8.5pt·8pt로만 내린다 */
+  function fitFoot(container) {
+    var steps = ['3.53mm', '3.175mm', '3.0mm', '2.82mm'];
+    Array.prototype.forEach.call(container.querySelectorAll('.nt-i1'), function (box) {
+      box.style.fontSize = '';
+      for (var i = 0; i < steps.length; i++) {
+        box.style.fontSize = steps[i];
+        if (box.scrollWidth <= box.clientWidth + 1) return;
+      }
+    });
+  }
+
   function renderInto(container) {
     if (!container) return 0;
     container.style.setProperty('--rule', S.ruleColor || '#1B3A5A');
@@ -367,6 +379,7 @@
     var pages = paginate(D.body);
     var html = pages.map(function (p, i) { return pageHtml(p, i, pages.length); }).join('');
     container.innerHTML = html;
+    fitFoot(container);
     return pages.length;
   }
 
