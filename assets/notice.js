@@ -348,9 +348,9 @@
           '<div class="nt-date" data-f="refDate">' + esc(refDate) + '</div>' +
           '<div class="nt-org2wrap"><span class="nt-org2" data-f="a:org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + seal + '</span></div>' +
           '<div class="nt-names">' +
-            '<span class="st">노 회 장</span><span class="sn" data-f="chair">' + esc(D.chair || s.chair || '이용동') +
+            '<span class="st"><i>노</i><i>회</i><i>장</i></span><span class="sn" data-f="chair">' + esc(D.chair || s.chair || '이용동') +
               (s.seal === 'off' ? '' : '<img class="nt-nmseal" src="assets/seals/seal-chair-round.png" alt="">') + '</span>' +
-            '<span class="st">서 기</span><span class="sn" data-f="secretary">' + esc(D.secretary || s.secretary || '박재용') +
+            '<span class="st"><i>서</i><i>기</i></span><span class="sn" data-f="secretary">' + esc(D.secretary || s.secretary || '박재용') +
               (s.seal === 'off' ? '' : '<img class="nt-nmseal" src="assets/seals/seal-secretary-round.png" alt="">') + '</span>' +
           '</div>' +
         '</div>' +
