@@ -154,10 +154,10 @@ main{padding:14px 14px 0}
 .wm{
   position:absolute;z-index:0;left:50%;top:98mm;width:134mm;
   transform:translateX(-50%);
-  opacity:.30;pointer-events:none;user-select:none;
+  opacity:.36;pointer-events:none;user-select:none;
 }
-.paper[data-wm="slate"] .wm{opacity:.26}
-.paper[data-wm="ink"] .wm{opacity:.20}
+.paper[data-wm="slate"] .wm{opacity:.32}
+.paper[data-wm="ink"] .wm{opacity:.26}
 .paper[data-wm="none"] .wm{display:none}
 
 /* ---- 위: 머리글 띠 ---- */
