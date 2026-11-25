@@ -163,17 +163,15 @@ main{padding:14px 14px 0}
 /* ---- 위: 머리글 띠 ---- */
 .p-top{position:absolute;z-index:1;left:0;right:0;top:0}
 .p-band{
-  position:relative;height:30mm;
+  position:relative;height:15mm;   /* 남색 띠 없이 교단명만 작게 — 지면 위를 비운다 */
   display:flex;align-items:center;justify-content:center;
-  padding:0 8mm;            /* 로고와 글자를 한 덩어리로 묶어 지면 폭 가운데에 놓는다 */
-  background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);
-  color:#fff;
+  padding:6mm 8mm 0;
+  background:none;
+  color:var(--rule,#1B3A5A);
 }
-.p-band:after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:.8mm;
-  background:var(--rule,#1B3A5A);
-}
+.p-band:after{content:none}
 /* 로고 + 교단명·노회명 = 한 덩어리. 이 덩어리의 중심이 지면 중심과 맞는다 */
+.p-mark{display:none}
 .p-brand{
   display:flex;align-items:center;justify-content:center;gap:5mm;
   max-width:100%;min-width:0;
@@ -191,7 +189,7 @@ main{padding:14px 14px 0}
 .hl1 [hidden]{display:none}
 .gap-org{display:inline-block;width:5.5mm}
 .gap-org[hidden]{display:none}
-.p-sub{padding:3.2mm 17.8mm 0 16.6mm;text-align:center}
+.p-sub{padding:2mm 17.8mm 0 16.6mm;text-align:center}
 /* 주소·전화·팩스는 한 줄에 찍는다(우편번호 + 주소 + Tel + Fax). 폭을 넘으면 fitOneLine이 그 줄만 줄인다 */
 .p-sub .hl2{
   font-size:3.45mm;letter-spacing:.06mm;line-height:1.6;color:#333;
@@ -208,10 +206,10 @@ main{padding:14px 14px 0}
 .paper.has-hq .p-sub{padding-top:1.8mm}
 .paper.has-hq .p-sub .hl2{line-height:1.35}
 
-.cno{position:absolute;z-index:1;left:22.4mm;top:46mm;font-size:3.15mm;letter-spacing:.12mm;line-height:4mm}
+.cno{position:absolute;z-index:1;left:22.4mm;top:33mm;font-size:3.15mm;letter-spacing:.12mm;line-height:4mm}
 
 /* 공문 머리: 발신처·수신처 */
-.mailhead{position:absolute;z-index:1;right:17.8mm;top:46.1mm;max-width:118mm;display:flex;justify-content:flex-end;
+.mailhead{position:absolute;z-index:1;right:17.8mm;top:33.1mm;max-width:118mm;display:flex;justify-content:flex-end;
   gap:7mm;align-items:baseline;font-size:3mm;line-height:4mm}
 .mailhead .mrow{white-space:nowrap}
 .mailhead .mrow[hidden]{display:none}
@@ -219,7 +217,7 @@ main{padding:14px 14px 0}
 .mailhead .mv{font-weight:700}
 
 /* 제목: 괘선 없이 여백으로 나눈다. 자간은 0.8mm로 절제 */
-.title{position:absolute;z-index:1;left:0;right:0;top:56.5mm;text-align:center;line-height:0}
+.title{position:absolute;z-index:1;left:0;right:0;top:43.5mm;text-align:center;line-height:0}
 .title span{
   display:inline-block;font-size:10.9mm;font-weight:700;
   letter-spacing:.8mm;padding-left:.8mm;line-height:1.05;
@@ -240,7 +238,7 @@ main{padding:14px 14px 0}
 .bl{display:block}
 .bl.first{text-indent:26.2mm}
 
-.date{position:absolute;z-index:1;left:0;right:0;top:221.5mm;text-align:center;font-size:4.8mm;letter-spacing:.9mm;padding-left:.9mm}
+.date{position:absolute;z-index:1;left:0;right:0;top:206.5mm;text-align:center;font-size:4.8mm;letter-spacing:.9mm;padding-left:.9mm}
 
 /* 서명부 — 바닥에서 위로 쌓는다.
    기관명 줄 → 두 이름 줄, 직함↔이름 사이를 모두 같은 값(--sg-gap 6mm)으로 맞춘 한 리듬.
