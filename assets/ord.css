@@ -48,8 +48,9 @@
   position:absolute;left:var(--ph-l,30mm);top:var(--ph-t,72mm);
   width:var(--ph-w,31mm);height:calc(var(--ph-w,31mm) * 4 / 3);
   border:0;background:#fff;overflow:hidden;z-index:2;
+  border-radius:var(--ph-r,3mm);     /* 사진 모서리를 살짝 부드럽게 */
 }
-.od-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.od-photo img{width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--ph-r,3mm)}
 .od-photo[data-empty="1"]{background:#fff;border:.3mm solid #b9af97}
 .od-photo[data-empty="1"] img{display:none}
 .od-photo .ph-ph{
@@ -83,34 +84,64 @@
   position:absolute;left:30mm;right:28mm;top:187mm;
   font-size:4.3mm;line-height:7.4mm;letter-spacing:.01em;word-break:keep-all;
 }
+.paper.ord[data-lang="en"] .od-comm{top:181mm;left:30mm;right:24mm;font-size:3.9mm;line-height:6.2mm}
+.paper.ord[data-lang="en"] .od-comm .od-lb{float:none;width:auto;margin-right:2mm;letter-spacing:.01em}
 .od-comm .od-lb{float:left;width:20mm;letter-spacing:.02em}
 .od-comm .od-nm{display:block;margin-left:20mm;text-align:justify;text-align-last:left}
 
 /* 날짜 */
-.od-date{position:absolute;left:0;right:0;top:212mm;text-align:center;font-size:4.6mm;letter-spacing:.02em}
-.paper.ord[data-lang="en"] .od-date{top:207mm;font-size:4.4mm}
+.od-date{position:absolute;left:0;right:0;top:208mm;text-align:center;font-size:4.6mm;letter-spacing:.02em}
+.paper.ord[data-lang="en"] .od-date{top:201mm;font-size:4.4mm}
 
-/* 발급 명의 */
-.od-org{position:absolute;left:0;right:0;top:225mm;text-align:center;font-size:6.4mm;letter-spacing:.3em;text-indent:.3em}
-.paper.ord[data-lang="en"] .od-org{top:223mm;font-size:5.0mm;letter-spacing:.01em;text-indent:0}
+/* 발급 명의 — 영문은 (Baekseok)까지 한 줄에 들어가지 않아 두 줄로 나눠 찍는다.
+   관리자에서 Enter로 바꾼 줄 그대로 찍힌다(white-space:pre-line). */
+.od-org{
+  position:absolute;left:0;right:0;top:220mm;text-align:center;
+  font-size:6.4mm;letter-spacing:.3em;text-indent:.3em;
+  white-space:pre-line;line-height:1.22;
+}
+.paper.ord[data-lang="en"] .od-org{
+  top:211mm;font-size:5.0mm;letter-spacing:.01em;text-indent:0;
+  line-height:1.3;
+}
 
 /* 서명부 */
-.od-sign{position:absolute;left:0;right:0;top:240mm}
-.paper.ord[data-lang="en"] .od-sign{top:234mm}
+.od-sign{position:absolute;left:0;right:0;top:231mm}
+.paper.ord[data-lang="en"] .od-sign{top:228mm}
 .od-sg{display:flex;justify-content:center;align-items:baseline;gap:5mm;margin-bottom:4.4mm}
 .od-sg .st{width:28mm;text-align:justify;text-align-last:justify;font-size:4.6mm;letter-spacing:.1em}
 .od-sg .sn{font-size:5.0mm;letter-spacing:.18em;white-space:nowrap}
-.paper.ord[data-lang="en"] .od-sg{display:block;text-align:center;margin-bottom:3.6mm}
-.paper.ord[data-lang="en"] .od-sg .st{display:block;width:auto;text-align:center;text-align-last:center;font-size:4.4mm;letter-spacing:.02em}
-.paper.ord[data-lang="en"] .od-sg .sn{display:block;font-size:4.6mm;letter-spacing:.01em}
+.paper.ord[data-lang="en"] .od-sg{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:baseline;gap:0 4mm;margin-bottom:2.8mm}
+.paper.ord[data-lang="en"] .od-sg .st{display:block;width:46mm;text-align:right;text-align-last:auto;font-size:4.3mm;letter-spacing:.01em;white-space:nowrap}
+.paper.ord[data-lang="en"] .od-sg .sn{display:block;font-size:4.6mm;letter-spacing:.01em;white-space:nowrap}
 
-/* 직인 — 위치·크기는 관리자 설정(지면 mm 좌표) */
+/* 직인 — 위치·크기는 관리자 설정(지면 mm 좌표)
+   글자를 가리지 않도록 서명부 아래 빈 자리에 세 인을 나란히 놓는다. */
 .od-seal{position:absolute;z-index:3;pointer-events:none}
 .od-seal img{width:100%;height:100%;object-fit:contain;display:block}
-.od-seal.sq{left:var(--sq-l,146mm);top:var(--sq-t,214mm);width:var(--sq-s,30mm);height:var(--sq-s,30mm)}
-.od-seal.r1{left:var(--r1-l,124mm);top:var(--r1-t,236mm);width:var(--r-s,18mm);height:var(--r-s,18mm);opacity:.92}
-.od-seal.r2{left:var(--r2-l,122mm);top:var(--r2-t,252mm);width:var(--r-s,18mm);height:var(--r-s,18mm);opacity:.92}
+.od-seal.sq{left:var(--sq-l,72mm);top:var(--sq-t,252mm);width:var(--sq-s,28mm);height:var(--sq-s,28mm)}
+.od-seal.r1{left:var(--r1-l,104mm);top:var(--r1-t,258mm);width:var(--r-s,15mm);height:var(--r-s,15mm);opacity:.92}
+.od-seal.r2{left:var(--r2-l,122mm);top:var(--r2-t,258mm);width:var(--r-s,15mm);height:var(--r-s,15mm);opacity:.92}
 .od-seal[hidden]{display:none}
+
+/* 백석 엠블럼 워터마크 — 지면 가운데에 크게, 아주 옅게. 본문·사진·직인·QR 뒤에 깔린다. */
+.od-wm{
+  position:absolute;z-index:0;pointer-events:none;user-select:none;
+  left:50%;transform:translateX(-50%);top:calc(148.5mm - var(--wm-w,86mm) / 2);
+  width:var(--wm-w,86mm);height:var(--wm-w,86mm);
+  opacity:var(--wm-o,.05);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.od-wm[hidden]{display:none}
+
+/* 사진 모서리 교단 압인 — 교단 엠블럼 자산으로 만든 원형 도장(assets/seals/stamp-emblem-*.png).
+   사진 모서리에 절반 넘게 걸치고 지면으로 조금 넘쳐, 공증받은 인상처럼 보이게 한다.
+   켜기/끄기·모서리·크기·진하기·색은 관리자에서 고친다. 사진이 없으면 찍히지 않는다. */
+.od-stamp{
+  position:absolute;z-index:4;display:block;object-fit:contain;pointer-events:none;user-select:none;
+  transform:rotate(-9deg);transform-origin:center center;
+}
+.od-stamp[hidden]{display:none}
 
 /* 진위 확인 QR · Internet No. */
 .od-qr{position:absolute;right:16mm;bottom:16mm;width:30mm;height:30mm;z-index:2}
@@ -140,6 +171,8 @@ body.exporting #ordPapers{transform:none!important;position:static!important;gap
 /* ---------------------------------------------------- 인쇄: 금색 테두리 없이 */
 @media print{
   .od-frame{display:none!important}
+  /* 인쇄용에는 사진 모서리 압인(교단 엠블럼 도장)을 빼고 글자·직인만 찍는다 */
+  .od-stamp{display:none!important}
   .ord-cap{display:none!important}
   .paper-host.is-ord{height:auto!important;display:block!important}
   #ordPapers{transform:none!important;position:static!important;gap:0;width:210mm}
@@ -168,6 +201,38 @@ body.exporting #ordPapers{transform:none!important;position:static!important;gap
 .ord-num{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ord-num .field label{font-size:11px}
 .ord-undo{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+
+/* 관리자: 안수증 서식 카드는 넓게 — 항목이 많아 두 칸에 눌리지 않게 한다 */
+@media (min-width:900px){
+  #ordCard{grid-column:1 / -1}
+  #ordCard .ord-grid{grid-template-columns:1fr 1fr 1fr}
+}
+
+/* 관리자: 안수증 서식 안쪽 묶음 탭 — 항목이 많아 한 번에 다 펼치지 않는다 */
+.ord-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.ord-tab{
+  font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color:#6b6455;background:#f4f1e8;border:1px solid #ddd6c4;border-radius:999px;
+  padding:7px 11px;cursor:pointer;
+}
+.ord-tab.on{background:#8a6a1f;border-color:#8a6a1f;color:#fff}
+.ord-pane[hidden]{display:none}
+.ord-pane > h3.fmt-h:first-child{margin-top:2px}
+
+/* 안수위원 명단 편집기(추가·빼기·순서 바꾸기) */
+.oc-list{display:flex;flex-direction:column;gap:5px;margin:4px 0 6px}
+.oc-row{display:flex;align-items:center;gap:5px}
+.oc-row .oc-i{flex:0 0 16px;text-align:right;font-size:11px;color:#a49b86}
+.oc-row input{flex:1 1 auto;min-width:0}
+.oc-row button{
+  flex:0 0 auto;width:26px;height:26px;line-height:1;border:1px solid #ddd6c4;background:#fff;
+  border-radius:7px;color:#6b6455;cursor:pointer;font-size:12px;padding:0;
+}
+.oc-row button:hover{background:#f6f2e7}
+.oc-row button.oc-del{color:#a8452f;border-color:#e6cfc7}
+.oc-add{display:flex;gap:6px;align-items:center}
+.oc-add input{flex:1 1 auto;min-width:0}
+.oc-empty{font-size:11.5px;color:#a49b86;margin:2px 0 6px}
 
 @media (max-width:520px){
   .ord-grid{grid-template-columns:1fr}

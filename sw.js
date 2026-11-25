@@ -3,19 +3,19 @@
    운동일지 앱(/Church/)과는 다른 사이트이므로 그쪽 캐시·화면은 건드리지 않는다.
    네트워크가 있으면 새 파일을 먼저 받아 두고, 없으면 받아 둔 사본으로 연다. */
 
-const CACHE = 'certificate-standalone-v85';
+const CACHE = 'certificate-standalone-v86';
 const SHELL = [
   './',
   './index.html',
   './verify.html',
-  './assets/app.css?v=85',
-  './assets/ord.css?v=85',
-  './assets/app.js?v=85',
-  './assets/notice.js?v=85',
-  './assets/verify.js?v=85',
-  './assets/verify.css?v=85',
-  './assets/lock.js?v=82',
-  './assets/xlsx.js?v=85',
+  './assets/app.css?v=86',
+  './assets/ord.css?v=86',
+  './assets/app.js?v=86',
+  './assets/notice.js?v=86',
+  './assets/verify.js?v=86',
+  './assets/verify.css?v=86',
+  './assets/lock.js?v=86',
+  './assets/xlsx.js?v=86',
   './assets/fonts/nm-Regular.woff2',
   './assets/fonts/nm-Bold.woff2',
   './assets/fonts/nsr-400-0.woff2',
@@ -33,10 +33,13 @@ const SHELL = [
   './assets/logo-white.svg',
   './assets/logo-deep.svg',
   './assets/logo-navy.svg',
+  './assets/logo-watermark.svg',
   './assets/seals/seal-chair-round.png',
   './assets/seals/seal-secretary-round.png',
   './assets/seals/seal-presbytery-square.png',
   './assets/seals/seal-blind-emboss.png',
+  './assets/seals/stamp-emblem-ink.png',
+  './assets/seals/stamp-emblem-gold.png',
   './assets/band.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',

@@ -69,6 +69,7 @@
 
   function defaultOrd() {
     return {
+      ordRev: 3,
       titleKo: '목 사 안 수 증',
       titleEn: 'Certificate of Ordination',
       noKo: '서울강동 제{no}호',
@@ -85,21 +86,60 @@
       bodyEn: 'The above person passed the pastoral examination administered by the Seoul Gangdong ' +
         'Presbytery of the General Assembly of the Presbyterian Church in Korea (Baekseok) and was ' +
         'ordained as a pastor through an ordination ceremony held in accordance with the formal ' +
-        'procedures of this Presbytery. Hereby, this certificate is awarded to certify this.',
+        'procedures of this Presbytery. This certificate is hereby awarded in witness thereof.',
       commLabel: '안수위원:',
+      commLabelEn: 'Ordaining Committee:',
       commNames: '노형래, 박재용, 박정미, 오명호, 이용동, 이정말, 이진철, 조용환, 한인철, 황명구',
+      commNamesEn: 'Rev. Noh Hyeong-rae, Rev. Park Jae-yong, Rev. Park Jeong-mi, Rev. Oh Myeong-ho, ' +
+        'Rev. Lee Yong-dong, Rev. Lee Jeong-mal, Rev. Lee Jin-cheol, Rev. Cho Yong-hwan, ' +
+        'Rev. Han In-cheol, Rev. Hwang Myeong-gu',
+      commShowEn: 'off',
       dateKo: '주후 {y}년 {m}월 {d}일',
       dateEn: '{month} {d}, {y}',
       orgKo: '대한예수교장로회 서울강동노회',
-      orgEn: 'Seoul Gangdong Presbytery of the Presbyterian Church in Korea',
+      /* 영문 명의는 (Baekseok)까지 한 줄에 들어가지 않아 두 줄로 나눠 둔다(관리자에서 Enter로 고침) */
+      orgEn: 'Seoul Gangdong Presbytery\nof the Presbyterian Church in Korea (Baekseok)',
       chairTKo: '노 회 장', chairNKo: '황 명 구 목사',
       chairTEn: 'Presbytery Chairman', chairNEn: 'Rev. Hwang Myeong-gu',
       secTKo: '서   기', secNKo: '박 재 용 목사',
-      secTEn: '', secNEn: 'Rev. Park Jae-yong',
+      secTEn: 'Secretary', secNEn: 'Rev. Park Jae-yong',
+      sigOrder: 'cs',
+      phKo: '증명사진', phEn: 'PHOTO',
+      inetTpl: '(Internet No) {inet}',
+      /* 백석 엠블럼 워터마크 — 지면 폭 %, 진하기 % */
+      wmOn: 'on', wmSize: '45', wmTone: '5',
+      /* 사진 모서리 교단 압인 — 인주색 원형 도장, 오른쪽 아래, 지름 mm, 진하지 % */
+      stampOn: 'on', stampCorner: 'br', stampColor: 'ink', stampSize: '14', stampTone: '30',
       phW: 31, phL: 30, phT: 72,
-      sqS: 30, sqL: 146, sqT: 212,
-      rS: 18, r1L: 124, r1T: 236, r2L: 122, r2T: 252
+      sqS: 28, sqL: 72, sqT: 252,
+      rS: 15, r1L: 104, r1T: 258, r2L: 122, r2T: 258
     };
+  }
+
+  /* 예전 기본값에서 저장된 안수증 서식을 지금 기본값으로 옮긴다.
+     손수 고친 값은 그대로 두고, 예전 기본값 그대로인 항목만 바꿈. */
+  var ORD_OLD_ORG_EN = 'Seoul Gangdong Presbytery of the Presbyterian Church in Korea';
+  function migrateOrd(F, savedRev) {
+    if (!F || typeof F !== 'object') return F;
+    /* 저장된 값에 표시가 없으면 예전 서식이다(기본값의 ordRev를 쓰면 안 된다 — 병합되며 생김) */
+    var rev = Number(savedRev == null ? F.ordRev : savedRev) || 1;
+    if (rev < 3) {
+      if (!String(F.secTEn == null ? '' : F.secTEn).trim()) F.secTEn = 'Secretary';
+      if (String(F.orgEn || '').trim() === ORD_OLD_ORG_EN) {
+        F.orgEn = 'Seoul Gangdong Presbytery\nof the Presbyterian Church in Korea (Baekseok)';
+      }
+      F.bodyEn = String(F.bodyEn || '').replace(
+        'Hereby, this certificate is awarded to certify this.',
+        'This certificate is hereby awarded in witness thereof.');
+      if (String(F.sqS) === '30' && String(F.sqL) === '146' && String(F.sqT) === '212' &&
+          String(F.rS) === '18' && String(F.r1L) === '124' && String(F.r1T) === '236' &&
+          String(F.r2L) === '122' && String(F.r2T) === '252') {
+        F.sqS = 28; F.sqL = 72; F.sqT = 252;
+        F.rS = 15; F.r1L = 104; F.r1T = 258; F.r2L = 122; F.r2T = 258;
+      }
+      F.ordRev = 3;
+    }
+    return F;
   }
 
   var $ = function (id) { return document.getElementById(id); };
@@ -471,7 +511,10 @@
       if (saved.fmt.types && typeof saved.fmt.types === 'object') fmt.types = saved.fmt.types;
     }
     migrateFmt(fmt, saved);
-    fmt.ord = Object.assign(defaultOrd(), (fmt.ord && typeof fmt.ord === 'object') ? fmt.ord : {});
+    var savedOrd = (fmt.ord && typeof fmt.ord === 'object') ? fmt.ord : {};
+    var savedOrdRev = Number(savedOrd.ordRev) || 0;
+    fmt.ord = Object.assign(defaultOrd(), savedOrd);
+    migrateOrd(fmt.ord, savedOrdRev);
     base.fmt = fmt;
     // 예전 '본문 문구 수정' 저장값을 종류별 문구로 옮긴다
     Object.keys(base.bodies || {}).forEach(function (id) {
@@ -740,6 +783,7 @@
     if (o.docNo === undefined || o.docNo === null) o.docNo = String(state.date || todayISO()).replace(/-/g, '');
     if (o.date === undefined || o.date === null || !o.date) o.date = state.date || todayISO();
     if (o.committee === undefined || o.committee === null) o.committee = F.commNames;
+    if (o.committeeEn === undefined || o.committeeEn === null) o.committeeEn = F.commNamesEn;
     if (o.nameEn === undefined || o.nameEn === null) o.nameEn = '';
     /* 대장·확인용으로 종류별 추가입력(안수일)에도 같은 값을 남긴다 */
     if (extraOf(ORD_ID).ordainDate !== o.date) extraOf(ORD_ID).ordainDate = o.date;
@@ -778,7 +822,7 @@
       date: g('Date'), org: g('Org'),
       chairT: g('ChairT'), chairN: g('ChairN'), secT: g('SecT'), secN: g('SecN'),
       sealSq: g('SealSq'), sealR1: g('SealR1'), sealR2: g('SealR2'),
-      qr: g('Qr'), inet: g('Inet')
+      qr: g('Qr'), inet: g('Inet'), wm: g('Wm'), phPh: g('PhPh'), stamp: g('Stamp')
     };
   }
 
@@ -802,14 +846,23 @@
     ['ko', 'en'].forEach(function (lang) {
       var e = ordEls(lang), ko = lang === 'ko';
       if (!e.paper) return;
-      e.paper.style.setProperty('--sq-s', num(O.sqS, 30) + 'mm');
-      e.paper.style.setProperty('--sq-l', num(O.sqL, 146) + 'mm');
-      e.paper.style.setProperty('--sq-t', num(O.sqT, 212) + 'mm');
-      e.paper.style.setProperty('--r-s', num(O.rS, 18) + 'mm');
-      e.paper.style.setProperty('--r1-l', num(O.r1L, 124) + 'mm');
-      e.paper.style.setProperty('--r1-t', num(O.r1T, 236) + 'mm');
+      e.paper.style.setProperty('--sq-s', num(O.sqS, 28) + 'mm');
+      e.paper.style.setProperty('--sq-l', num(O.sqL, 72) + 'mm');
+      e.paper.style.setProperty('--sq-t', num(O.sqT, 252) + 'mm');
+      e.paper.style.setProperty('--r-s', num(O.rS, 15) + 'mm');
+      e.paper.style.setProperty('--r1-l', num(O.r1L, 104) + 'mm');
+      e.paper.style.setProperty('--r1-t', num(O.r1T, 258) + 'mm');
       e.paper.style.setProperty('--r2-l', num(O.r2L, 122) + 'mm');
-      e.paper.style.setProperty('--r2-t', num(O.r2T, 252) + 'mm');
+      e.paper.style.setProperty('--r2-t', num(O.r2T, 258) + 'mm');
+
+      /* 백석 엠블럼 워터마크 — 크기는 지면 폭 %, 진하기는 불투명도 % */
+      if (e.wm) {
+        var wmPct = Math.min(80, Math.max(15, num(O.wmSize, 45)));
+        var wmTone = Math.min(30, Math.max(0, num(O.wmTone, 5))) / 100;
+        e.paper.style.setProperty('--wm-w', (210 * wmPct / 100).toFixed(2) + 'mm');
+        e.paper.style.setProperty('--wm-o', String(wmTone));
+        e.wm.hidden = String(O.wmOn || 'on') === 'off';
+      }
 
       e.no.textContent = ordFill(ko ? O.noKo : O.noEn, dv);
       e.title.textContent = ko ? O.titleKo : O.titleEn;
@@ -830,11 +883,15 @@
       }
       e.body.hidden = !bodyText;
 
-      /* 안수위원(한글판만) */
+      /* 안수위원 — 한글판은 늘, 영문판은 관리자에서 ‘넣기’를 골랐을 때만 */
       if (e.comm) {
-        var names = String(o.committee || '').split(/[,\n]/).map(function (s) { return s.trim(); })
-          .filter(Boolean).join(', ');
-        e.commLb.textContent = names ? O.commLabel : '';
+        var showEn = String(O.commShowEn) === 'on' && !ko;
+        var raw = ko ? o.committee : o.committeeEn;
+        var names = (ko || showEn)
+          ? String(raw || '').split(/[,\n]/).map(function (s) { return s.trim(); })
+            .filter(Boolean).join(', ')
+          : '';
+        e.commLb.textContent = names ? (ko ? O.commLabel : O.commLabelEn) : '';
         e.commNm.textContent = names;
         e.comm.hidden = !names;
       }
@@ -849,10 +906,22 @@
       e.chairT.hidden = !String(e.chairT.textContent).trim();
       e.secT.hidden = !String(e.secT.textContent).trim();
 
+      /* 서명부 순서 — 관리자에서 노회장 먼저 / 서기 먼저를 고를 수 있다 */
+      var signBox = e.paper.querySelector('.od-sign');
+      if (signBox && e.chairT.parentNode && e.secT.parentNode) {
+        var chairRow = e.chairT.parentNode, secRow = e.secT.parentNode;
+        if (String(O.sigOrder) === 'sc') {
+          if (signBox.firstElementChild !== secRow) { signBox.appendChild(secRow); signBox.appendChild(chairRow); }
+        } else if (signBox.firstElementChild !== chairRow) {
+          signBox.appendChild(chairRow); signBox.appendChild(secRow);
+        }
+      }
+
       /* 사진 */
       e.photoBox.style.setProperty('--ph-w', phW + 'mm');
       e.photoBox.style.setProperty('--ph-l', phL + 'mm');
       e.photoBox.style.setProperty('--ph-t', phT + 'mm');
+      if (e.phPh) e.phPh.textContent = ko ? O.phKo : O.phEn;
       if (photo) {
         if (e.photo.getAttribute('src') !== photo) e.photo.setAttribute('src', photo);
         e.photoBox.setAttribute('data-empty', '0');
@@ -863,6 +932,27 @@
       /* 성명·생년월일 줄은 사진 오른쪽에 붙인다 */
       e.lines.style.left = (phL + phW + 12) + 'mm';
       e.lines.style.top = (phT + 15) + 'mm';
+
+      /* 사진 모서리 교단 압인 — 사진 모서리에 절반 넘게 걸치고 지면으로 조금 넘치게 놓는다.
+         사진이 없거나 관리자에서 ‘빼기’를 고르면 찍지 않는다(인쇄에서는 CSS가 뺀다). */
+      if (e.stamp) {
+        var stSize = Math.min(60, Math.max(6, num(O.stampSize, 14)));
+        var stTone = Math.min(100, Math.max(2, num(O.stampTone, 30))) / 100;
+        var corner = String(O.stampCorner || 'br');
+        var cx = corner.charAt(1) === 'l' ? phL : phL + phW;
+        var cy = corner.charAt(0) === 't' ? phT : phT + phW * 4 / 3;
+        var inw = stSize * 0.22;
+        cx += (corner.charAt(1) === 'l' ? inw : -inw);
+        cy += (corner.charAt(0) === 't' ? inw : -inw);
+        var stSrc = 'assets/seals/stamp-emblem-' + (String(O.stampColor) === 'gold' ? 'gold' : 'ink') + '.png';
+        if (e.stamp.getAttribute('src') !== stSrc) e.stamp.setAttribute('src', stSrc);
+        e.stamp.style.width = stSize + 'mm';
+        e.stamp.style.height = stSize + 'mm';
+        e.stamp.style.left = (cx - stSize / 2).toFixed(2) + 'mm';
+        e.stamp.style.top = (cy - stSize / 2).toFixed(2) + 'mm';
+        e.stamp.style.opacity = String(stTone);
+        e.stamp.hidden = !photo || String(O.stampOn || 'on') === 'off';
+      }
 
       /* 직인 */
       var on = state.sealsOn !== false;
@@ -878,7 +968,7 @@
       /* 진위 확인 QR · Internet No. */
       if (qr) { if (e.qr.getAttribute('src') !== qr) e.qr.setAttribute('src', qr); e.qr.hidden = false; }
       else { e.qr.hidden = true; e.qr.removeAttribute('src'); }
-      e.inet.textContent = state.inet ? '(Internet No) ' + state.inet : '';
+      e.inet.textContent = String(O.inetTpl || '').trim() ? ordFill(O.inetTpl, { inet: state.inet || '' }) : '';
     });
 
     var tag = $('pvTag');
@@ -1093,6 +1183,12 @@
     set('fOrdDocNo', o.docNo);
     set('fOrdDate', o.date);
     set('fOrdComm', o.committee);
+    set('fOrdCommEn', o.committeeEn);
+    var enField = $('fOrdCommEnField');
+    if (enField) {
+      var OE = Object.assign(defaultOrd(), state.fmt.ord || {});
+      enField.hidden = String(OE.commShowEn) !== 'on';
+    }
     renderOrdPhotoThumb();
   }
   function renderOrdPhotoThumb() {
@@ -1141,6 +1237,49 @@
     return t ? t.name : (id || '증명서');
   }
 
+  /* ------------------------------------------------- 안수위원 명단 편집기(관리자)
+     이름을 더하고, 빼고, 순서를 바꾸는 목록. 값은 서식 기본값(commNames·commNamesEn)에
+     쉼표로 이어 저장하고, 발급 화면의 지금 문서에도 같이 반영한다. */
+  function ordCommKey(lang) { return lang === 'en' ? 'commNamesEn' : 'commNames'; }
+  function ordCommList(lang) {
+    var O = Object.assign(defaultOrd(), state.fmt.ord || {});
+    return String(O[ordCommKey(lang)] == null ? '' : O[ordCommKey(lang)])
+      .split(/[,\n]/).map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+  function setOrdCommList(lang, arr, keepList) {
+    var O = state.fmt.ord || (state.fmt.ord = defaultOrd());
+    var key = ordCommKey(lang), okey = lang === 'en' ? 'committeeEn' : 'committee';
+    var prev = String(O[key] == null ? '' : O[key]);
+    var next = arr.map(function (s) { return String(s || '').trim(); }).filter(Boolean).join(', ');
+    O[key] = next;
+    var o = ordOf();
+    if (!String(o[okey] || '').trim() || String(o[okey]) === prev) o[okey] = next;
+    saveState();
+    fillOrdInputs();
+    if (!keepList) renderOrdComm();
+    renderPaper();
+  }
+  function renderOrdComm() {
+    ['ko', 'en'].forEach(function (lang) {
+      var box = $(lang === 'en' ? 'ocEnList' : 'ocKoList');
+      if (!box) return;
+      var arr = ordCommList(lang);
+      if (!arr.length) {
+        box.innerHTML = '<p class="oc-empty">아직 없습니다. 아래에 이름을 넣고 ‘+ 추가’를 누르세요.</p>';
+        return;
+      }
+      box.innerHTML = arr.map(function (nm, i) {
+        return '<div class="oc-row" data-lang="' + lang + '" data-i="' + i + '">' +
+          '<span class="oc-i">' + (i + 1) + '</span>' +
+          '<input value="' + esc(nm) + '" data-oc-name="' + lang + '" aria-label="' + (i + 1) + '번째 안수위원">' +
+          '<button type="button" data-oc-up title="위로" aria-label="위로">▲</button>' +
+          '<button type="button" data-oc-down title="아래로" aria-label="아래로">▼</button>' +
+          '<button type="button" class="oc-del" data-oc-del title="빼기" aria-label="빼기">✕</button>' +
+          '</div>';
+      }).join('');
+    });
+  }
+
   /* 관리자 화면 채우기 */
   function renderFmtForm() {
     var F = state.fmt;
@@ -1154,6 +1293,7 @@
       if (document.activeElement === inp) return;
       inp.value = F[inp.dataset.fmt] == null ? '' : F[inp.dataset.fmt];
     });
+    renderOrdComm();
     var wmV = WM_VARIANTS.indexOf(F.watermark) > -1 ? F.watermark : 'navy';
     Array.prototype.forEach.call(document.querySelectorAll('input[name="wmChoice"]'), function (r) {
       r.checked = r.value === wmV;
@@ -2787,6 +2927,7 @@
     if ($('fOrdDocNo')) $('fOrdDocNo').addEventListener('input', function () { setOrd('docNo', this.value); });
     if ($('fOrdDate')) $('fOrdDate').addEventListener('change', function () { setOrd('date', this.value || todayISO()); });
     if ($('fOrdComm')) $('fOrdComm').addEventListener('input', function () { setOrd('committee', this.value); });
+    if ($('fOrdCommEn')) $('fOrdCommEn').addEventListener('input', function () { setOrd('committeeEn', this.value); });
     if ($('ordPhotoBtn')) $('ordPhotoBtn').addEventListener('click', function () { $('ordPhotoFile').click(); });
     if ($('ordPhotoFile')) $('ordPhotoFile').addEventListener('change', function () {
       saveOrdPhotoFromFile(this.files && this.files[0]);
@@ -2969,18 +3110,76 @@
       toast('기본값으로 복원했습니다.');
     });
 
-    /* 관리자: 목사 안수증 서식 — 고친 글자·직인 자리 */
+    /* 관리자: 목사 안수증 서식 — 고친 글자·안수위원·직인·워터마크 */
     function ordTouch() {
       if (!state.fmt.ord) state.fmt.ord = defaultOrd();
       state.fmt.ordPrev = deepCopy(state.fmt.ord);
     }
+    function ordSave(inp) {
+      var O = state.fmt.ord || (state.fmt.ord = defaultOrd());
+      O[inp.dataset.ord] = inp.value;
+      saveState();
+      if (inp.dataset.ord === 'commShowEn') fillOrdInputs();
+      renderPaper();
+    }
     Array.prototype.forEach.call(document.querySelectorAll('[data-ord]'), function (inp) {
       inp.addEventListener('focus', ordTouch);
-      inp.addEventListener('input', function () {
-        var O = state.fmt.ord || (state.fmt.ord = defaultOrd());
-        O[inp.dataset.ord] = inp.value;
-        saveState();
-        renderPaper();
+      inp.addEventListener('input', function () { ordSave(inp); });
+      inp.addEventListener('change', function () { ordSave(inp); });
+    });
+
+    /* 관리자: 안수증 서식 안쪽 묶음 탭 */
+    Array.prototype.forEach.call(document.querySelectorAll('.ord-tab'), function (b) {
+      b.addEventListener('click', function () {
+        var t = b.dataset.otab;
+        Array.prototype.forEach.call(document.querySelectorAll('.ord-tab'), function (x) {
+          x.classList.toggle('on', x === b);
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.ord-pane'), function (p) {
+          p.hidden = p.dataset.opane !== t;
+        });
+      });
+    });
+
+    /* 관리자: 안수위원 명단 — 이름 고치기 · 더하기 · 빼기 · 순서 바꾸기 */
+    ['ko', 'en'].forEach(function (lang) {
+      var box = $(lang === 'en' ? 'ocEnList' : 'ocKoList');
+      if (!box) return;
+      box.addEventListener('input', function (e) {
+        var inp = e.target.closest('[data-oc-name]');
+        if (!inp) return;
+        var row = inp.closest('.oc-row');
+        var arr = ordCommList(lang);
+        arr[Number(row.dataset.i)] = inp.value;
+        setOrdCommList(lang, arr, true);
+      });
+      box.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        var row = btn.closest('.oc-row');
+        var arr = ordCommList(lang), i = Number(row.dataset.i);
+        ordTouch();
+        if (btn.hasAttribute('data-oc-del')) arr.splice(i, 1);
+        else if (btn.hasAttribute('data-oc-up') && i > 0) { var a = arr[i - 1]; arr[i - 1] = arr[i]; arr[i] = a; }
+        else if (btn.hasAttribute('data-oc-down') && i < arr.length - 1) { var b2 = arr[i + 1]; arr[i + 1] = arr[i]; arr[i] = b2; }
+        else return;
+        setOrdCommList(lang, arr);
+      });
+      var addBtn = $(lang === 'en' ? 'ocEnAdd' : 'ocKoAdd');
+      var newInp = $(lang === 'en' ? 'ocEnNew' : 'ocKoNew');
+      function addOne() {
+        var v = String(newInp.value || '').trim();
+        if (!v) { newInp.focus(); return; }
+        ordTouch();
+        var arr = ordCommList(lang);
+        arr.push(v);
+        newInp.value = '';
+        setOrdCommList(lang, arr);
+        newInp.focus();
+      }
+      if (addBtn) addBtn.addEventListener('click', addOne);
+      if (newInp) newInp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); addOne(); }
       });
     });
     if ($('ordUndo')) $('ordUndo').addEventListener('click', function () {
