@@ -3,7 +3,7 @@
    운동일지 앱(/Church/)과는 다른 사이트이므로 그쪽 캐시·화면은 건드리지 않는다.
    네트워크가 있으면 새 파일을 먼저 받아 두고, 없으면 받아 둔 사본으로 연다. */
 
-const CACHE = 'certificate-standalone-v83';
+const CACHE = 'certificate-standalone-v84';
 const SHELL = [
   './',
   './index.html',
@@ -66,6 +66,10 @@ self.addEventListener('fetch', (e) => {
 
   const scopePath = new URL(self.registration.scope).pathname;   // 예: /certificate/
   if (!url.pathname.startsWith(scopePath)) return;                // 폴더 밖 요청은 그대로 둔다
+
+  // 문서 진위 확인 페이지(verify.html · assets/verify.*)는 이 앱의 캐시·화면과 엮지 않는다.
+  // 확인하러 온 외부인에게 앱 화면(index.html)이 대신 열리면 안 되므로 손대지 않고 그대로 보낸다.
+  if (url.pathname.indexOf('verify') >= 0) return;
 
   e.respondWith(
     fetch(req, { cache: 'no-cache' })
