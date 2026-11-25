@@ -1149,8 +1149,11 @@
 
   /* --------------------------------------------------------------- 미리보기 배율 */
   function fitPreview() {
+    var card = el.host.closest ? el.host.closest('.preview-card') : null;
     var w = el.host.clientWidth;
-    if (!w) return;
+    var cw = card ? card.clientWidth - 26 : 0;   /* 카드 안쪽 폭 — 지면이 카드 밖으로 넘쳐 잰 값이 커질 때를 막는다 */
+    if (!w && !cw) return;
+    w = cw ? Math.min(w || cw, cw) : w;
     var wide = window.matchMedia('(min-width:900px)').matches;
     var maxH = wide ? Math.max(window.innerHeight - 150, 520) : Math.min(window.innerHeight * 0.40, 420);
     var s = Math.min(w / A4W, maxH / A4H);
@@ -1160,6 +1163,9 @@
     el.paper.style.transform = 'scale(' + s + ')';
     el.host.style.height = Math.round(A4H * s) + 'px';
   }
+  window.addEventListener('resize', function () { fitPreview(); });
+  window.addEventListener('orientationchange', function () { setTimeout(fitPreview, 250); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitPreview(); });
 
   /* ------------------------------------------------------------------ 크게 보기
      오버레이는 화면(100dvh)을 꽉 채우고, 지면은 화면 너비에 꽉 맞춘다.
