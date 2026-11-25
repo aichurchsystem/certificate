@@ -945,3 +945,29 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 .pe-table td.n{font-weight:700}
 .pe-table td.d{font-variant-numeric:tabular-nums;color:#4a5262}
 .pe-prev-acts{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:10px}
+
+/* ---------------- 앱 잠금 ---------------- */
+.lockmodal{
+  background:linear-gradient(170deg,#0C2138 0%,#0A1B33 55%,#071527 100%);
+  align-items:center;justify-content:center;padding:22px;
+}
+.lockmodal[hidden]{display:none}
+.lockbox{
+  width:100%;max-width:360px;text-align:center;color:#fff;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:20px;
+  padding:26px 20px 18px;box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+.lockmark{width:52px;height:52px;display:block;margin:0 auto 12px;opacity:.95}
+.lockbox h3{font-size:17px;font-weight:800;letter-spacing:-.2px}
+.lock-sub{margin:6px 0 16px;font-size:12px;color:rgba(255,255,255,.6)}
+.lockbox input{
+  width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.10);color:#fff;font-size:19px;letter-spacing:3px;text-align:center;
+}
+.lockbox input::placeholder{color:rgba(255,255,255,.45);letter-spacing:0;font-size:14px}
+.lockbox input:focus{outline:none;border-color:#7BC0E6;background:rgba(255,255,255,.16)}
+.lock-err{min-height:18px;margin:8px 0 4px;font-size:12.5px;color:#ffd7cf}
+.lock-err.bad{color:#ffb4a6;font-weight:700}
+.lock-acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}
+.lock-acts .btn{padding:14px;font-size:15.5px;background:#2F6FB0;border-color:#2F6FB0;color:#fff}
+.lock-forget{margin-top:12px;border:0;background:none;color:rgba(255,255,255,.55);font-size:12px;text-decoration:underline;text-underline-offset:3px}
