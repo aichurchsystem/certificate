@@ -736,7 +736,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-wm{position:absolute;left:50%;top:112mm;width:104mm;transform:translateX(-50%);pointer-events:none;user-select:none}
 .nt-hq{position:absolute;right:15.2mm;top:10.2mm;font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;
   font-size:3.05mm;font-weight:700;letter-spacing:.02mm;line-height:1}
-.nt-brand{position:absolute;left:15.2mm;right:15.2mm;top:14.2mm;display:flex;align-items:center;justify-content:center;gap:5.2mm}
+.nt-brand{position:absolute;left:15.2mm;right:15.2mm;top:23mm;display:flex;align-items:center;justify-content:center;gap:5.2mm}
 .nt-mark{width:13mm;height:13mm;flex:0 0 13mm;display:block}
 .nt-tt{text-align:center}
 .nt-org{font-size:7.3mm;font-weight:700;letter-spacing:.55mm;line-height:1.15;white-space:nowrap}
@@ -766,9 +766,9 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-sign{position:absolute;left:0;right:0;top:227.4mm;text-align:center}
 .nt-date{font-size:4.1mm;letter-spacing:.5mm;line-height:1}
 .nt-org2{margin-top:6.4mm;font-size:6.5mm;font-weight:700;letter-spacing:1.15mm;line-height:1;position:relative;
-  display:inline-block;padding-right:.2mm}
+  display:block;padding-right:.2mm}
 .nt-names{
-  margin:4.2mm auto 0;display:inline-grid;grid-template-columns:auto auto;column-gap:8mm;row-gap:2.5mm;
+  margin:4.2mm auto 0;display:inline-grid;vertical-align:top;grid-template-columns:auto auto;column-gap:8mm;row-gap:2.5mm;
   font-size:4mm;line-height:1;text-align:left;
 }
 .nt-names .st{letter-spacing:4.6mm}
