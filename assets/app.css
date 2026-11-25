@@ -286,7 +286,7 @@ main{padding:14px 14px 0}
 .p-qrrow{display:flex;align-items:flex-end;gap:4mm;margin:2.4mm 10mm 0 22mm}
 .p-qrrow .note{margin:0;flex:1 1 auto;min-width:0;font-size:3.1mm;letter-spacing:.02mm;line-height:1.5;color:#1b1b1b;
   white-space:nowrap}
-.p-qr{width:15mm;height:15mm;flex:0 0 15mm;image-rendering:pixelated;display:block}
+.p-qr{width:30mm;height:30mm;flex:0 0 30mm;image-rendering:pixelated;display:block}
 .p-qr[hidden]{display:none}
 
 /* ---------------- 화면 쪽 조작 요소(직인·워터마크 고르기) ---------------- */

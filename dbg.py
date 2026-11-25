@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib
-url='file://'+str(pathlib.Path('index.html').resolve())+'?v=77'
+url='file://'+str(pathlib.Path('index.html').resolve())+'?v=78'
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={'width':1200,'height':1500})
     errs=[]
