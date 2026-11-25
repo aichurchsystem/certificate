@@ -2181,6 +2181,15 @@
       if (card && card.scrollIntoView) card.scrollIntoView({ block: 'start' });
     });
     if ($('coverBtn')) $('coverBtn').addEventListener('click', function () { switchView('cover'); });
+    /* 상단 막대(교단명·노회 문서)와 ⌂ 홈 — 어느 화면에서나 표지로 */
+    var goHome = function () { switchView('cover'); };
+    if ($('brandHome')) {
+      $('brandHome').addEventListener('click', goHome);
+      $('brandHome').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHome(); }
+      });
+    }
+    if ($('homeBtn')) $('homeBtn').addEventListener('click', goHome);
 
     /* 지면의 글자를 누르면 관리자의 그 입력칸으로 — 드래그(선택)일 때는 옮기지 않는다 */
     if (el.paper) {
