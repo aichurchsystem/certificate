@@ -54,7 +54,51 @@
       photoStampTone: '0.32',
       note1: '본 증명서의 진위 여부는 대한예수교장로회(백석) 서울강동노회로 문의하시기 바랍니다',
       note2: '발급일로부터 90일까지 유효합니다',
-      types: {}
+      types: {},
+      ord: defaultOrd()
+    };
+  }
+
+  /* ---------------------------------------------------------- 목사 안수증 서식
+     금색 테두리 양식(한글 1쪽 + 영문 1쪽). 관리자에서 고치는 글자·직인·사진 자리 기본값은
+     state.fmt.ord 에 담고 이 기기에 저장한다(다른 서식과 같은 방식). */
+  var ORD_ID = 'ordination-cert';
+  var KEY_ORD_PHOTO = 'cert.v1.ordphoto';
+  var MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function defaultOrd() {
+    return {
+      titleKo: '목 사 안 수 증',
+      titleEn: 'Certificate of Ordination',
+      noKo: '서울강동 제{no}호',
+      noEn: 'Seoul Gangdong No. {no}',
+      lbNameKo: '성 명', lbBirthKo: '생년월일',
+      lbNameEn: 'Name', lbBirthEn: 'Date of birth',
+      nameKo: '{name} {position}',
+      nameEn: '{nameEn}',
+      birthKo: '{y}년 {m}월 {d}일생',
+      birthEn: '{month} {d}, {y}',
+      bodyKo: '위 사람은 대한예수교장로회총회(백석) 서울강동노회에서 시행한 목사고시에 합격하였으며, ' +
+        '본 노회의 정식 절차에 따라 거행된 안수식을 통해 목사로 안수를 받았음을 확인합니다. ' +
+        '이에 본 증서를 수여하여 이를 증명합니다.',
+      bodyEn: 'The above person passed the pastoral examination administered by the Seoul Gangdong ' +
+        'Presbytery of the General Assembly of the Presbyterian Church in Korea (Baekseok) and was ' +
+        'ordained as a pastor through an ordination ceremony held in accordance with the formal ' +
+        'procedures of this Presbytery. Hereby, this certificate is awarded to certify this.',
+      commLabel: '안수위원:',
+      commNames: '노형래, 박재용, 박정미, 오명호, 이용동, 이정말, 이진철, 조용환, 한인철, 황명구',
+      dateKo: '주후 {y}년 {m}월 {d}일',
+      dateEn: '{month} {d}, {y}',
+      orgKo: '대한예수교장로회 서울강동노회',
+      orgEn: 'Seoul Gangdong Presbytery of the Presbyterian Church in Korea',
+      chairTKo: '노 회 장', chairNKo: '황 명 구 목사',
+      chairTEn: 'Presbytery Chairman', chairNEn: 'Rev. Hwang Myeong-gu',
+      secTKo: '서   기', secNKo: '박 재 용 목사',
+      secTEn: '', secNEn: 'Rev. Park Jae-yong',
+      phW: 31, phL: 30, phT: 72,
+      sqS: 30, sqL: 146, sqT: 212,
+      rS: 18, r1L: 124, r1T: 236, r2L: 122, r2T: 252
     };
   }
 
@@ -246,6 +290,8 @@
       var src = sealSrc(s.key);
       if (img.getAttribute('src') !== src) img.setAttribute('src', src);
     });
+    /* 안수증 지면도 같은 직인을 쓴다 */
+    if (state && state.typeId === ORD_ID) renderOrd();
   }
 
   function renderSealSlots() {
@@ -365,7 +411,7 @@
       date: iso, no: '', inet: makeInet(), docNo: '', title: '', noticeId: '',
       noEdited: false, inetEdited: false,
       sealsOn: true,
-      extras: {}, bodies: {}, fmt: defaultFmt()
+      extras: {}, bodies: {}, ord: {}, fmt: defaultFmt()
     };
   }
 
@@ -425,6 +471,7 @@
       if (saved.fmt.types && typeof saved.fmt.types === 'object') fmt.types = saved.fmt.types;
     }
     migrateFmt(fmt, saved);
+    fmt.ord = Object.assign(defaultOrd(), (fmt.ord && typeof fmt.ord === 'object') ? fmt.ord : {});
     base.fmt = fmt;
     // 예전 '본문 문구 수정' 저장값을 종류별 문구로 옮긴다
     Object.keys(base.bodies || {}).forEach(function (id) {
@@ -614,27 +661,30 @@
      찍으면 verify.html?no=자체번호&inet=문서확인번호 로 열려 서버가 발급 기록과 대조한다.
      (인쇄된 지면만으로는 확인할 수 없고, 대장의 같은 줄과 두 값이 맞아야 확인된다.) */
   var QR_VERIFY_BASE = 'https://aichurchsystem.github.io/certificate/verify.html';
-  var qrCacheKey = '';
-  function drawVerifyQr(T, F) {
-    F = F || state.fmt || defaultFmt();
-    var img = el.pQr;
-    if (!img) return;
-    if (typeof qrcode !== 'function') { img.hidden = true; return; }
+  var qrCacheKey = '', qrCacheUrl = '';
+  function verifyQrDataUrl() {
     var no = String(state.no || '').trim();
     var inet = String(state.inet || '').replace(/\s+/g, '').toUpperCase();
-    var text = (no && inet)
-      ? QR_VERIFY_BASE + '?no=' + encodeURIComponent(no) + '&inet=' + encodeURIComponent(inet)
-      : '';
-    if (!text) { qrCacheKey = ''; img.hidden = true; return; }
-    if (text === qrCacheKey) return;
-    qrCacheKey = text;
+    if (!no || !inet || typeof qrcode !== 'function') return '';
+    var text = QR_VERIFY_BASE + '?no=' + encodeURIComponent(no) + '&inet=' + encodeURIComponent(inet);
+    if (text === qrCacheKey) return qrCacheUrl;
     try {
       var q = qrcode(0, 'M');
       q.addData(text, 'Byte');
       q.make();
-      img.src = q.createDataURL(4, 0);
-      img.hidden = false;
-    } catch (e) { img.hidden = true; }
+      qrCacheUrl = q.createDataURL(4, 0);
+      qrCacheKey = text;
+    } catch (e) { qrCacheUrl = ''; qrCacheKey = ''; }
+    return qrCacheUrl;
+  }
+  function drawVerifyQr(T, F) {
+    F = F || state.fmt || defaultFmt();
+    var img = el.pQr;
+    if (!img) return;
+    var url = verifyQrDataUrl();
+    if (!url) { img.hidden = true; img.removeAttribute('src'); return; }
+    if (img.getAttribute('src') !== url) img.setAttribute('src', url);
+    img.hidden = false;
   }
 
   function rowValue(row) {
@@ -678,7 +728,168 @@
     img.hidden = false;
   }
 
+  /* ------------------------------------------------------ 목사 안수증 지면 그리기 */
+  function isOrdType() { return state && state.typeId === ORD_ID; }
+  function num(v, d) {
+    var n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) ? n : d;
+  }
+  function ordOf() {
+    if (!state.ord || typeof state.ord !== 'object') state.ord = {};
+    var o = state.ord, F = Object.assign(defaultOrd(), state.fmt.ord || {});
+    if (o.docNo === undefined || o.docNo === null) o.docNo = String(state.date || todayISO()).replace(/-/g, '');
+    if (o.date === undefined || o.date === null || !o.date) o.date = state.date || todayISO();
+    if (o.committee === undefined || o.committee === null) o.committee = F.commNames;
+    if (o.nameEn === undefined || o.nameEn === null) o.nameEn = '';
+    /* 대장·확인용으로 종류별 추가입력(안수일)에도 같은 값을 남긴다 */
+    if (extraOf(ORD_ID).ordainDate !== o.date) extraOf(ORD_ID).ordainDate = o.date;
+    return o;
+  }
+  function ordPhoto() {
+    var o = ordOf();
+    var mine = '';
+    try { mine = localStorage.getItem(KEY_ORD_PHOTO) || ''; } catch (e) {}
+    if (mine) return mine;
+    if (o.photoOff) return '';
+    var p = personById(state.personId);
+    if (p) return photoFor(p.id) || String(p.photo || '') || '';
+    return '';
+  }
+  function ordDateParts(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (m) return { y: Number(m[1]), m: Number(m[2]), d: Number(m[3]) };
+    var d = new Date();
+    return { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+  }
+  function ordFill(tpl, vars) {
+    return String(tpl == null ? '' : tpl).replace(/\{(\w+)\}/g, function (m, k) {
+      return (vars[k] === undefined || vars[k] === null) ? '' : String(vars[k]);
+    });
+  }
+  function ordEls(lang) {
+    var pre = lang === 'en' ? 'odEn' : 'odKo';
+    var g = function (s) { return document.getElementById(pre + s); };
+    return {
+      paper: document.getElementById(lang === 'en' ? 'ordEn' : 'ordKo'),
+      no: g('No'), title: g('Title'),
+      photoBox: g('PhotoBox'), photo: g('Photo'), lines: g('Lines'),
+      lbName: g('LbName'), lbBirth: g('LbBirth'), name: g('Name'), birth: g('Birth'),
+      body: g('Body'), comm: g('Comm'), commLb: g('CommLb'), commNm: g('CommNm'),
+      date: g('Date'), org: g('Org'),
+      chairT: g('ChairT'), chairN: g('ChairN'), secT: g('SecT'), secN: g('SecN'),
+      sealSq: g('SealSq'), sealR1: g('SealR1'), sealR2: g('SealR2'),
+      qr: g('Qr'), inet: g('Inet')
+    };
+  }
+
+  function renderOrd() {
+    if (!document.getElementById('ordKo')) return;
+    var O = Object.assign(defaultOrd(), state.fmt.ord || {}), o = ordOf();
+    var dd = ordDateParts(o.date), bb = ordDateParts(state.birth);
+    var nameKo = [String(state.name || '').trim(), String(state.position || '').trim()]
+      .filter(Boolean).join(' ');
+    var nameEn = String(o.nameEn || '').trim() || String(state.name || '').trim();
+    var base = {
+      name: String(state.name || '').trim(), position: String(state.position || '').trim(),
+      nameEn: nameEn, no: String(o.docNo || '').trim()
+    };
+    var dv = Object.assign({}, base, { y: dd.y, m: dd.m, d: dd.d, month: MONTHS_EN[dd.m - 1] || '' });
+    var bv = Object.assign({}, base, { y: bb.y, m: bb.m, d: bb.d, month: MONTHS_EN[bb.m - 1] || '' });
+    var phW = num(O.phW, 31), phL = num(O.phL, 30), phT = num(O.phT, 72);
+    var photo = ordPhoto();
+    var qr = verifyQrDataUrl();
+
+    ['ko', 'en'].forEach(function (lang) {
+      var e = ordEls(lang), ko = lang === 'ko';
+      if (!e.paper) return;
+      e.paper.style.setProperty('--sq-s', num(O.sqS, 30) + 'mm');
+      e.paper.style.setProperty('--sq-l', num(O.sqL, 146) + 'mm');
+      e.paper.style.setProperty('--sq-t', num(O.sqT, 212) + 'mm');
+      e.paper.style.setProperty('--r-s', num(O.rS, 18) + 'mm');
+      e.paper.style.setProperty('--r1-l', num(O.r1L, 124) + 'mm');
+      e.paper.style.setProperty('--r1-t', num(O.r1T, 236) + 'mm');
+      e.paper.style.setProperty('--r2-l', num(O.r2L, 122) + 'mm');
+      e.paper.style.setProperty('--r2-t', num(O.r2T, 252) + 'mm');
+
+      e.no.textContent = ordFill(ko ? O.noKo : O.noEn, dv);
+      e.title.textContent = ko ? O.titleKo : O.titleEn;
+      e.lbName.textContent = ko ? O.lbNameKo : O.lbNameEn;
+      e.lbBirth.textContent = ko ? O.lbBirthKo : O.lbBirthEn;
+      e.name.textContent = ko ? ordFill(O.nameKo, dv) : ordFill(O.nameEn, bv);
+      e.birth.textContent = ordFill(ko ? O.birthKo : O.birthEn, bv);
+
+      /* 본문 */
+      var bodyText = String((ko ? O.bodyKo : O.bodyEn) || '').trim();
+      e.body.innerHTML = '';
+      if (bodyText) {
+        bodyText.split(/\n+/).forEach(function (line) {
+          var p = document.createElement('p');
+          p.textContent = line;
+          e.body.appendChild(p);
+        });
+      }
+      e.body.hidden = !bodyText;
+
+      /* 안수위원(한글판만) */
+      if (e.comm) {
+        var names = String(o.committee || '').split(/[,\n]/).map(function (s) { return s.trim(); })
+          .filter(Boolean).join(', ');
+        e.commLb.textContent = names ? O.commLabel : '';
+        e.commNm.textContent = names;
+        e.comm.hidden = !names;
+      }
+
+      e.date.textContent = ordFill(ko ? O.dateKo : O.dateEn, dv);
+      e.org.textContent = ko ? O.orgKo : O.orgEn;
+      e.paper.style.setProperty('--org-sp', ko ? '0.34em' : '0');
+      e.chairT.textContent = ko ? O.chairTKo : O.chairTEn;
+      e.chairN.textContent = ko ? O.chairNKo : O.chairNEn;
+      e.secT.textContent = ko ? O.secTKo : O.secTEn;
+      e.secN.textContent = ko ? O.secNKo : O.secNEn;
+      e.chairT.hidden = !String(e.chairT.textContent).trim();
+      e.secT.hidden = !String(e.secT.textContent).trim();
+
+      /* 사진 */
+      e.photoBox.style.setProperty('--ph-w', phW + 'mm');
+      e.photoBox.style.setProperty('--ph-l', phL + 'mm');
+      e.photoBox.style.setProperty('--ph-t', phT + 'mm');
+      if (photo) {
+        if (e.photo.getAttribute('src') !== photo) e.photo.setAttribute('src', photo);
+        e.photoBox.setAttribute('data-empty', '0');
+      } else {
+        e.photo.removeAttribute('src');
+        e.photoBox.setAttribute('data-empty', '1');
+      }
+      /* 성명·생년월일 줄은 사진 오른쪽에 붙인다 */
+      e.lines.style.left = (phL + phW + 12) + 'mm';
+      e.lines.style.top = (phT + 15) + 'mm';
+
+      /* 직인 */
+      var on = state.sealsOn !== false;
+      [[e.sealSq, 'presbytery'], [e.sealR1, 'chair'], [e.sealR2, 'secretary']].forEach(function (pair) {
+        var box = pair[0], key = pair[1];
+        if (!box) return;
+        var im = box.querySelector('img');
+        var src = sealSrc(key);
+        if (im && src && im.getAttribute('src') !== src) im.setAttribute('src', src);
+        box.hidden = !on;
+      });
+
+      /* 진위 확인 QR · Internet No. */
+      if (qr) { if (e.qr.getAttribute('src') !== qr) e.qr.setAttribute('src', qr); e.qr.hidden = false; }
+      else { e.qr.hidden = true; e.qr.removeAttribute('src'); }
+      e.inet.textContent = state.inet ? '(Internet No) ' + state.inet : '';
+    });
+
+    var tag = $('pvTag');
+    if (tag) tag.textContent = 'A4 2쪽';
+  }
+
   function renderPaper() {
+    if (el.host) el.host.classList.toggle('is-ord', isOrdType());
+    if (isOrdType()) { renderOrd(); return; }
+    var tag = $('pvTag');
+    if (tag) tag.textContent = 'A4 1장';
     var F = state.fmt, def = currentDef(), T = typeText(def);
 
     el.pOrg.textContent = F.org || '';
@@ -826,6 +1037,11 @@
       }).join('');
     }
     el.type.value = def.id;
+    var isOrd = def.id === ORD_ID;
+    if ($('ordPanel')) $('ordPanel').hidden = !isOrd;
+    if ($('extraBox')) $('extraBox').hidden = isOrd;   /* 안수일은 전용 칸에서 받는다 */
+    if ($('certForm')) $('certForm').classList.toggle('is-ord', isOrd);
+    if (isOrd) fillOrdInputs();
     var isChurch = def.kind === 'church';
     el.nameLabel.textContent = isChurch ? '대표자' : '성명';
 
@@ -866,6 +1082,53 @@
     });
   }
 
+  /* 목사 안수증 입력칸 채우기 */
+  function fillOrdInputs() {
+    var o = ordOf();
+    var set = function (id, val) {
+      var inp = $(id);
+      if (inp && document.activeElement !== inp) inp.value = val == null ? '' : val;
+    };
+    set('fNameEn', o.nameEn);
+    set('fOrdDocNo', o.docNo);
+    set('fOrdDate', o.date);
+    set('fOrdComm', o.committee);
+    renderOrdPhotoThumb();
+  }
+  function renderOrdPhotoThumb() {
+    var box = $('ordPhotoThumb');
+    if (!box) return;
+    var src = ordPhoto();
+    box.innerHTML = src ? '<img src="' + esc(src) + '" alt="">' : '없음';
+  }
+
+  /* 안수증 사진 — 기기에서 고른 사진을 3:4로 잘라 이 기기에만 저장한다 */
+  function saveOrdPhotoFromFile(file) {
+    if (!file) return;
+    if (file.type.indexOf('image/') !== 0) { toast('이미지 파일을 골라 주세요.'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var tw = 360, th = 480, ratio = tw / th;
+        var sw = im.width, sh = im.height, cw = sw, ch = sh;
+        if (sw / sh > ratio) cw = sh * ratio; else ch = sw / ratio;
+        var sx = (sw - cw) / 2, sy = (sh - ch) / 2;
+        var cv = document.createElement('canvas');
+        cv.width = tw; cv.height = th;
+        cv.getContext('2d').drawImage(im, sx, sy, cw, ch, 0, 0, tw, th);
+        var data = cv.toDataURL('image/jpeg', 0.82);
+        try { localStorage.setItem(KEY_ORD_PHOTO, data); } catch (e) { toast('저장 공간이 부족해 사진을 저장하지 못했습니다.'); return; }
+        ordOf().photoOff = false;
+        saveState(); renderOrdPhotoThumb(); renderOrd();
+        toast('사진을 넣었습니다. 이 기기에만 저장됩니다.');
+      };
+      im.onerror = function () { toast('이미지를 읽지 못했습니다.'); };
+      im.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   function render() {
     if ($('fDocNo') && document.activeElement !== $('fDocNo')) $('fDocNo').value = state.docNo || '';
     if ($('fTitle') && document.activeElement !== $('fTitle')) $('fTitle').value = state.title || '';
@@ -881,6 +1144,12 @@
   /* 관리자 화면 채우기 */
   function renderFmtForm() {
     var F = state.fmt;
+    var O = Object.assign(defaultOrd(), state.fmt.ord || {});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ord]'), function (inp) {
+      if (document.activeElement === inp) return;
+      var ov = O[inp.dataset.ord];
+      inp.value = ov == null ? '' : ov;
+    });
     Array.prototype.forEach.call(document.querySelectorAll('[data-fmt]'), function (inp) {
       if (document.activeElement === inp) return;
       inp.value = F[inp.dataset.fmt] == null ? '' : F[inp.dataset.fmt];
@@ -1186,6 +1455,17 @@
     w = cw ? Math.min(w || cw, cw) : w;
     var wide = window.matchMedia('(min-width:900px)').matches;
     var maxH = wide ? Math.max(window.innerHeight - 150, 520) : Math.min(window.innerHeight * 0.40, 420);
+    if (isOrdType()) {
+      /* 두 쪽을 이어 보여 준다 — 한 화면에 들어오도록 배율을 잡는다 */
+      var wrap = $('ordPapers');
+      var gap = 24, total = A4H * 2 + gap;
+      var maxTotal = wide ? Math.max(window.innerHeight - 120, 640) : Math.min(window.innerHeight * 1.02, 820);
+      var s2 = Math.min(w / A4W, maxTotal / total);
+      wrap.style.transform = 'scale(' + s2 + ')';
+      wrap.style.left = Math.round((w - A4W * s2) / 2) + 'px';
+      el.host.style.height = Math.round(total * s2) + 'px';
+      return;
+    }
     var s = Math.min(w / A4W, maxH / A4H);
     el.paper.style.position = 'absolute';
     el.paper.style.top = '0';
@@ -1200,7 +1480,7 @@
   /* ------------------------------------------------------------------ 크게 보기
      오버레이는 화면(100dvh)을 꽉 채우고, 지면은 화면 너비에 꽉 맞춘다.
      화면보다 길면 오버레이 안에서 위아래로 스크롤되고, 뒤 화면은 잠근다. */
-  var zoomBase = 1, zoomStep = 1;
+  var zoomBase = 1, zoomStep = 1, zoomCount = 1, zoomGapPx = 0;
 
   function lockScroll(on) {
     document.documentElement.classList.toggle('lock', on);
@@ -1216,11 +1496,16 @@
     var body = $('zoomBody');
     var stage = body.querySelector('.zoom-stage');
     if (!stage) return;
-    var clone = stage.firstElementChild;
     var s = zoomBase * zoomStep;
     stage.style.width = (A4W * s) + 'px';
-    stage.style.height = (A4H * s) + 'px';
-    clone.style.transform = 'scale(' + s + ')';
+    stage.style.height = ((A4H * zoomCount + zoomGapPx * (zoomCount - 1)) * s) + 'px';
+    var i = 0;
+    Array.prototype.forEach.call(stage.children, function (clone) {
+      clone.style.transform = 'scale(' + s + ')';
+      clone.style.left = '0';
+      clone.style.top = (i * (A4H + zoomGapPx) * s) + 'px';
+      i++;
+    });
     $('zoomPct').textContent = Math.round(s * 100) + '%';
   }
 
@@ -1232,12 +1517,18 @@
 
     var stage = document.createElement('div');
     stage.className = 'zoom-stage';
-    var clone = el.paper.cloneNode(true);
-    Array.prototype.forEach.call(clone.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
-    clone.removeAttribute('id');
-    /* 미리보기에서 쓰던 배율·위치를 지우고 오버레이 안에서 새로 놓는다 */
-    clone.style.position = ''; clone.style.left = ''; clone.style.top = ''; clone.style.transform = '';
-    stage.appendChild(clone);
+    var nodes = isOrdType() ? [document.getElementById('ordKo'), document.getElementById('ordEn')] : [el.paper];
+    nodes = nodes.filter(Boolean);
+    zoomCount = nodes.length;
+    zoomGapPx = nodes.length > 1 ? 24 : 0;
+    nodes.forEach(function (node) {
+      var clone = node.cloneNode(true);
+      Array.prototype.forEach.call(clone.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+      clone.removeAttribute('id');
+      /* 미리보기에서 쓰던 배율·위치를 지우고 오버레이 안에서 새로 놓는다 */
+      clone.style.position = 'absolute'; clone.style.left = '0'; clone.style.top = '0'; clone.style.transform = '';
+      stage.appendChild(clone);
+    });
     body.appendChild(stage);
 
     zoomBase = Math.max(0.2, body.clientWidth / A4W);   /* 가로를 꽉 채운다 */
@@ -1777,18 +2068,33 @@
     return w >= 800 ? 2.5 : 2;
   }
 
-  function paperCanvas() {
+  function paperCanvasOf(node) {
     if (typeof html2canvas !== 'function') return Promise.reject(new Error('이미지 도구를 불러오지 못했습니다.'));
     document.body.classList.add('exporting');
     return new Promise(function (resolve, reject) {
       setTimeout(function () {
-        html2canvas(el.paper, {
+        html2canvas(node, {
           scale: exportScale(), backgroundColor: '#ffffff', useCORS: true, logging: false,
           width: Math.round(A4W), height: Math.round(A4H),
           windowWidth: Math.round(A4W), windowHeight: Math.round(A4H)
         }).then(resolve, reject);
       }, 140);
     });
+  }
+  function paperCanvas() { return paperCanvasOf(el.paper); }
+  /* 안수증은 한글·영문 두 쪽 */
+  function ordNodes() {
+    return [document.getElementById('ordKo'), document.getElementById('ordEn')].filter(Boolean);
+  }
+  /* 지금 종류의 지면들 — 보통은 한 장, 안수증은 두 쪽 */
+  function sheetNodes() { return isOrdType() ? ordNodes() : [el.paper]; }
+  function sheetCanvases() {
+    var nodes = sheetNodes();
+    return nodes.reduce(function (p, node) {
+      return p.then(function (list) {
+        return paperCanvasOf(node).then(function (c) { list.push(c); return list; });
+      });
+    }, Promise.resolve([]));
   }
 
   function endExport() {
@@ -1803,8 +2109,8 @@
     return arr;
   }
 
-  /* JPEG 한 장을 A4 한 쪽짜리 PDF 파일로 묶는다(다른 라이브러리 없이) */
-  function buildPdf(jpeg, imgW, imgH) {
+  /* JPEG을 쪽 수만큼 묶어 한 PDF로 만든다(다른 라이브러리 없이) */
+  function buildPdfPages(pages) {
     var enc = new TextEncoder();
     var parts = [], offsets = {}, size = 0, PW = '595.28', PH = '841.89';
     function put(x) {
@@ -1814,32 +2120,51 @@
     function obj(n, body) { offsets[n] = size; put(n + ' 0 obj\n' + body + '\nendobj\n'); }
     function pad(n) { var s = String(n); while (s.length < 10) s = '0' + s; return s; }
 
+    var n = pages.length;
+    var kids = pages.map(function (_, i) { return (3 + i * 3) + ' 0 R'; }).join(' ');
+    var total = 2 + n * 3;
+
     put('%PDF-1.4\n');
     obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
-    obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-    obj(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] ' +
-            '/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
-    offsets[4] = size;
-    put('4 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + imgW + ' /Height ' + imgH +
-        ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpeg.length + ' >>\nstream\n');
-    put(jpeg);
-    put('\nendstream\nendobj\n');
-    var content = 'q ' + PW + ' 0 0 ' + PH + ' 0 0 cm /Im0 Do Q\n';
-    obj(5, '<< /Length ' + content.length + ' >>\nstream\n' + content + 'endstream');
+    obj(2, '<< /Type /Pages /Kids [' + kids + '] /Count ' + n + ' >>');
+    pages.forEach(function (pg, i) {
+      var base = 3 + i * 3;
+      obj(base, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] ' +
+        '/Resources << /XObject << /Im0 ' + (base + 1) + ' 0 R >> >> /Contents ' + (base + 2) + ' 0 R >>');
+      offsets[base + 1] = size;
+      put((base + 1) + ' 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + pg.w + ' /Height ' + pg.h +
+        ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + pg.jpeg.length + ' >>\nstream\n');
+      put(pg.jpeg);
+      put('\nendstream\nendobj\n');
+      var content = 'q ' + PW + ' 0 0 ' + PH + ' 0 0 cm /Im0 Do Q\n';
+      obj(base + 2, '<< /Length ' + content.length + ' >>\nstream\n' + content + 'endstream');
+    });
     var xref = size;
-    var table = 'xref\n0 6\n0000000000 65535 f \n';
-    for (var i = 1; i <= 5; i++) table += pad(offsets[i]) + ' 00000 n \n';
+    var table = 'xref\n0 ' + (total + 1) + '\n0000000000 65535 f \n';
+    for (var i = 1; i <= total; i++) table += pad(offsets[i]) + ' 00000 n \n';
     put(table);
-    put('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+    put('trailer\n<< /Size ' + (total + 1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
 
     var out = new Uint8Array(size), pos = 0;
     parts.forEach(function (b) { out.set(b, pos); pos += b.length; });
     return out;
   }
 
+  /* JPEG 한 장을 A4 한 쪽짜리 PDF 파일로 묶는다(다른 라이브러리 없이) */
+  function buildPdf(jpeg, imgW, imgH) {
+    return buildPdfPages([{ jpeg: jpeg, w: imgW, h: imgH }]);
+  }
+
   function exportName(ext) {
     var who = currentDef().kind === 'church' ? state.representative : state.name;
     return typeText(currentDef()).title.replace(/\s/g, '') + '_' + String(who || '').trim() + '_' + state.date + '.' + ext;
+  }
+  /* 안수증은 장별 이름 — …_한글.jpg / …_영문.jpg */
+  function exportNameOrd(ext, part) {
+    var who = String(state.name || '').trim();
+    var when = ordOf().date || state.date;      /* 지면에 찍히는 안수일 */
+    var base = typeText(currentDef()).title.replace(/\s/g, '') + '_' + who + '_' + when;
+    return part ? base + '_' + part + '.' + ext : base + '.' + ext;
   }
 
   /* ------------------------------------------------------------ 저장 환경 판별
@@ -2106,6 +2431,7 @@
     if (!ensure()) return;
     if (needGuide(doPng)) return;
     if (typeof html2canvas !== 'function') { toast('이미지 저장 도구를 불러오지 못했습니다.'); return; }
+    if (isOrdType()) { doPngOrd(); return; }
     var btn = $('btnPng');
     btn.disabled = true;
     toast('이미지를 만드는 중…');
@@ -2140,6 +2466,7 @@
     if (!ensure()) return;
     if (needGuide(doPdf)) return;
     if (typeof html2canvas !== 'function') { toast('PDF 저장 도구를 불러오지 못했습니다.'); return; }
+    if (isOrdType()) { doPdfOrd(); return; }
     var btn = $('btnPdf');
     btn.disabled = true;
     toast('PDF를 만드는 중…');
@@ -2156,6 +2483,70 @@
         msg: 'A4 한 장짜리 PDF 파일을 만들었습니다.',
         blob: blob, url: url, name: exportName('pdf'), file: true, kind: 'pdf',
         fileNote: 'A4 한 장 · ' + Math.round(blob.size / 1024) + 'KB',
+        print: true,
+        warn: inAppBrowser() ? '앱 안의 브라우저에서 열려 있어 파일 내려받기가 막힐 수 있습니다. 오른쪽 위 ⋮ → ‘다른 브라우저로 열기’로 크롬에서 열면 확실합니다.' : '',
+        hint: '<b>저장</b>을 누르면 휴대폰의 <b>다운로드</b> 폴더에 들어갑니다. 안 되면 <b>새 창에서 열기</b>로 크롬 PDF 화면을 띄운 뒤 <b>오른쪽 위 내려받기</b>를 누르세요.'
+      });
+      recordIssue();
+      cloudIssue();
+      advanceNo();
+    }).catch(function (e) {
+      console.error(e);
+      btn.disabled = false;
+      endExport();
+      toast('PDF를 만들지 못했습니다. [인쇄]를 눌러 ‘PDF로 저장’을 골라 주세요.');
+    });
+  }
+
+  /* --------------------------------------------------------- 목사 안수증 내보내기
+     한글판·영문판을 한 번에 처리한다. PDF는 두 쪽 한 파일, 이미지는 장별 파일. */
+  function doPngOrd() {
+    var btn = $('btnPng');
+    btn.disabled = true;
+    toast('한글판·영문판 이미지를 만드는 중…');
+    sheetCanvases().then(function (canvases) {
+      return Promise.all(canvases.map(function (c) {
+        return new Promise(function (res) { c.toBlob(function (b) { res(b); }, 'image/jpeg', 0.94); });
+      }));
+    }).then(function (blobs) {
+      btn.disabled = false;
+      endExport();
+      var bad = blobs.some(function (b) { return !b || b.size < 8000; });
+      if (blobs.length < 2 || bad) { toast('이미지를 만들지 못했습니다. 잠시 뒤 다시 눌러 주세요.'); return; }
+      var parts = ['한글', '영문'];
+      blobs.forEach(function (b, i) {
+        setTimeout(function () { downloadBlob(b, exportNameOrd('jpg', parts[i])); }, i * 700);
+      });
+      toast('한글판·영문판 두 장을 내려받았습니다. 휴대폰 다운로드 폴더를 확인해 주세요.');
+      recordIssue();
+      cloudIssue();
+      advanceNo();
+    }).catch(function (e) {
+      console.error(e);
+      btn.disabled = false;
+      endExport();
+      toast('이미지를 만들지 못했습니다. [PDF 저장]으로 받아 주세요.');
+    });
+  }
+
+  function doPdfOrd() {
+    var btn = $('btnPdf');
+    btn.disabled = true;
+    toast('한글판·영문판 두 쪽 PDF를 만드는 중…');
+    sheetCanvases().then(function (canvases) {
+      var pages = canvases.map(function (c) {
+        return { jpeg: dataUrlBytes(c.toDataURL('image/jpeg', 0.92)), w: c.width, h: c.height };
+      });
+      var blob = new Blob([buildPdfPages(pages)], { type: 'application/pdf' });
+      btn.disabled = false;
+      endExport();
+      if (!blob.size) { toast('PDF를 만들지 못했습니다. 잠시 뒤 다시 눌러 주세요.'); return; }
+      var url = URL.createObjectURL(blob);
+      openSheet({
+        title: 'PDF 저장',
+        msg: '한글판·영문판 두 쪽이 한 파일로 들어 있습니다.',
+        blob: blob, url: url, name: exportNameOrd('pdf'), file: true, kind: 'pdf',
+        fileNote: 'A4 2쪽 · ' + Math.round(blob.size / 1024) + 'KB',
         print: true,
         warn: inAppBrowser() ? '앱 안의 브라우저에서 열려 있어 파일 내려받기가 막힐 수 있습니다. 오른쪽 위 ⋮ → ‘다른 브라우저로 열기’로 크롬에서 열면 확실합니다.' : '',
         hint: '<b>저장</b>을 누르면 휴대폰의 <b>다운로드</b> 폴더에 들어갑니다. 안 되면 <b>새 창에서 열기</b>로 크롬 PDF 화면을 띄운 뒤 <b>오른쪽 위 내려받기</b>를 누르세요.'
@@ -2326,6 +2717,7 @@
     el.person.addEventListener('change', function () {
       var p = personById(el.person.value);
       if (!p) { state.personId = ''; saveState(); render(); return; }
+      ordOf().photoOff = false;      /* 사람을 바꾸면 그 사람 사진을 따라간다 */
       applyPerson(p);
       if (el.nameHint) {
         el.nameHint.textContent = p.name + ' 님의 정보를 불러왔습니다.';
@@ -2382,6 +2774,36 @@
     });
     el.no.addEventListener('input', function () { state.no = el.no.value; state.noEdited = true; saveState(); renderPaper(); });
     el.inet.addEventListener('input', function () { state.inet = el.inet.value; state.inetEdited = true; saveState(); renderPaper(); });
+
+    /* 목사 안수증 입력 */
+    function setOrd(k, v) {
+      var o = ordOf();
+      o[k] = v;
+      if (k === 'date') extraOf(ORD_ID).ordainDate = v;
+      saveState();
+      renderOrd();
+    }
+    if ($('fNameEn')) $('fNameEn').addEventListener('input', function () { setOrd('nameEn', this.value); });
+    if ($('fOrdDocNo')) $('fOrdDocNo').addEventListener('input', function () { setOrd('docNo', this.value); });
+    if ($('fOrdDate')) $('fOrdDate').addEventListener('change', function () { setOrd('date', this.value || todayISO()); });
+    if ($('fOrdComm')) $('fOrdComm').addEventListener('input', function () { setOrd('committee', this.value); });
+    if ($('ordPhotoBtn')) $('ordPhotoBtn').addEventListener('click', function () { $('ordPhotoFile').click(); });
+    if ($('ordPhotoFile')) $('ordPhotoFile').addEventListener('change', function () {
+      saveOrdPhotoFromFile(this.files && this.files[0]);
+      this.value = '';
+    });
+    if ($('ordPhotoList')) $('ordPhotoList').addEventListener('click', function () {
+      try { localStorage.removeItem(KEY_ORD_PHOTO); } catch (e) {}
+      ordOf().photoOff = false;
+      saveState(); renderOrdPhotoThumb(); renderOrd();
+      toast(ordPhoto() ? '명단의 증명사진을 불러왔습니다.' : '명단에 사진이 없습니다. ‘사진 넣기’로 사진을 넣어 주세요.');
+    });
+    if ($('ordPhotoDel')) $('ordPhotoDel').addEventListener('click', function () {
+      try { localStorage.removeItem(KEY_ORD_PHOTO); } catch (e) {}
+      ordOf().photoOff = true;
+      saveState(); renderOrdPhotoThumb(); renderOrd();
+      toast('사진을 뺐습니다. 지면에는 빈 사진 자리가 남습니다.');
+    });
 
     /* 직인 */
     Array.prototype.forEach.call(document.querySelectorAll('input[name="sealOnOff"]'), function (r) {
@@ -2545,6 +2967,35 @@
       if (!state.noEdited) state.no = nextNo(state.date);
       saveState(); renderFmtForm(); render(); el.no.value = state.no;
       toast('기본값으로 복원했습니다.');
+    });
+
+    /* 관리자: 목사 안수증 서식 — 고친 글자·직인 자리 */
+    function ordTouch() {
+      if (!state.fmt.ord) state.fmt.ord = defaultOrd();
+      state.fmt.ordPrev = deepCopy(state.fmt.ord);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ord]'), function (inp) {
+      inp.addEventListener('focus', ordTouch);
+      inp.addEventListener('input', function () {
+        var O = state.fmt.ord || (state.fmt.ord = defaultOrd());
+        O[inp.dataset.ord] = inp.value;
+        saveState();
+        renderPaper();
+      });
+    });
+    if ($('ordUndo')) $('ordUndo').addEventListener('click', function () {
+      if (!state.fmt.ordPrev) { toast('되돌릴 값이 없습니다.'); return; }
+      state.fmt.ord = state.fmt.ordPrev;
+      delete state.fmt.ordPrev;
+      saveState(); renderFmtForm(); renderPaper();
+      toast('바로 전 값으로 되돌렸습니다.');
+    });
+    if ($('ordReset')) $('ordReset').addEventListener('click', function () {
+      if (!confirm('목사 안수증 서식을 처음 상태로 되돌릴까요?\n(발급 이력·명단은 그대로 남습니다)')) return;
+      ordTouch();
+      state.fmt.ord = defaultOrd();
+      saveState(); renderFmtForm(); renderPaper();
+      toast('목사 안수증 서식을 기본값으로 복원했습니다.');
     });
 
     /* 관리자: 사람 명단 */
@@ -2779,7 +3230,8 @@
     if (!box || !TYPES.length) return;
     var shortNames = {
       'employment': '재직', 'membership': '소속', 'church-plant': '개척확인', 'church-found': '설립',
-      'assembly-attend': '노회 참석', 'dues': '노회비 납부', 'ordination': '목사 안수'
+      'assembly-attend': '노회 참석', 'dues': '노회비 납부', 'ordination': '목사 안수',
+      'ordination-cert': '목사 안수증'
     };
     var names = TYPES.map(function (t) {
       var n = shortNames[t.id] || String(t.name || '').replace(/\s*(증명서|확인서)$/, '').replace(/^교회\s*/, '');
@@ -2821,7 +3273,7 @@
   window.CertApp = {
     apiGet: apiGet, apiPost: apiPost, apiKey: apiKey, setApiKey: setApiKey,
     toast: toast, openSheet: openSheet, downloadBlob: downloadBlob,
-    buildPdf: buildPdf, dataUrlBytes: dataUrlBytes,
+    buildPdf: buildPdf, buildPdfPages: buildPdfPages, dataUrlBytes: dataUrlBytes,
     needGuide: needGuide, inAppBrowser: inAppBrowser,
     switchView: switchView, switchAdmin: switchAdmin, esc: esc, todayISO: todayISO, fmtDateWide: fmtDateWide,
     loadNotices: loadNotices, A4W: A4W, A4H: A4H,
