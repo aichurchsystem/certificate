@@ -63,7 +63,7 @@
 .od-line .od-lb,.od-line .od-cl,.od-line .od-vl{flex:0 0 auto}
 .od-line + .od-line{margin-top:3.4mm}
 .od-line .od-lb{font-size:4.6mm;letter-spacing:.22em;white-space:nowrap;min-width:20mm}
-.paper.ord[data-lang="en"] .od-line .od-lb{letter-spacing:.01em}
+.paper.ord[data-lang="en"] .od-line .od-lb{letter-spacing:.01em;min-width:0}
 .paper.ord[data-lang="en"] .od-line .od-cl{margin:0 2.4mm 0 .4mm}
 .od-line .od-cl{margin:0 1.8mm 0 .8mm;font-size:4.4mm}
 .od-line .od-vl{font-size:4.6mm;letter-spacing:.02em}
