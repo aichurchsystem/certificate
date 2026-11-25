@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="노회 문서">
-<link rel="stylesheet" href="assets/app.css?v=43">
+<link rel="stylesheet" href="assets/app.css?v=44">
 </head>
 <body>
 
@@ -460,6 +460,14 @@
           <div class="field"><label for="ntaEmail">E-mail</label><input id="ntaEmail" data-nta="email"></div>
           <div class="field"><label for="ntaRuleColor">가로선 색 <small class="hint-inline">(기본 고동색)</small></label><input id="ntaRuleColor" type="color" data-nta="ruleColor" value="#1B3A5A"></div>
           <div class="field"><label for="ntaDisclosure">공개 구분 <small class="hint-inline">(지면 아래 시행일자 옆)</small></label><input id="ntaDisclosure" data-nta="disclosure" placeholder="공개"></div>
+
+          <h3 class="fmt-h">붙임 표기</h3>
+          <div class="seg" role="radiogroup" aria-label="붙임 표기">
+            <label><input type="radio" name="ntaAttach" value="on"><span>붙임 찍기</span></label>
+            <label><input type="radio" name="ntaAttach" value="off"><span>붙임 없이</span></label>
+          </div>
+          <div class="field"><label for="ntaAttachNote">첨부가 없을 때 문구 <small class="hint-inline">(비우면 줄 자체를 뺍니다)</small></label><input id="ntaAttachNote" data-nta="attachNote" placeholder="예: 붙임 : 1부"></div>
+          <p class="hint" style="margin:-2px 2px 4px">파일을 붙이면 그 파일 이름이 <b>붙임 : 파일이름 1부</b>로 본문 끝에 들어갑니다.</p>
 
           <h3 class="fmt-h">문서번호 규칙</h3>
           <div class="row2">
@@ -922,9 +930,9 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="vendor/html2canvas.min.js?v=43"></script>
-<script src="assets/xlsx.js?v=43"></script>
-<script src="assets/app.js?v=43"></script>
-<script src="assets/notice.js?v=43"></script>
+<script src="vendor/html2canvas.min.js?v=44"></script>
+<script src="assets/xlsx.js?v=44"></script>
+<script src="assets/app.js?v=44"></script>
+<script src="assets/notice.js?v=44"></script>
 </body>
 </html>

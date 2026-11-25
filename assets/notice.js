@@ -56,6 +56,8 @@
       noPrefix: '서울강동 제',
       noNext: '1102603-17',
       disclosure: '공개',
+      attachOn: 'on',
+      attachNote: '',
       ruleColor: '#1B3A5A'
     };
   }
@@ -371,11 +373,22 @@
     });
   }
 
+  /* 본문 끝에 '붙임' 표기 — 첨부 파일이 있으면 파일 이름으로, 없으면 관리자 기본 문구 */
+  function bodyWithAttach() {
+    var body = String(D.body || '');
+    if (S.attachOn === 'off') return body;
+    var line = '';
+    if (ATT && ATT.name) line = '붙임 : ' + String(ATT.name).replace(/\.[^.]+$/, '') + ' 1부';
+    else line = trim(S.attachNote || '');
+    if (!line) return body;
+    return body.replace(/\s+$/, '') + '\n\n' + line;
+  }
+
   function renderInto(container) {
     if (!container) return 0;
     container.style.setProperty('--rule', S.ruleColor || '#1B3A5A');
     container.style.setProperty('--rule-lite', S.ruleColor || '#42618A');
-    var pages = paginate(D.body);
+    var pages = paginate(bodyWithAttach());
     var html = pages.map(function (p, i) { return pageHtml(p, i, pages.length); }).join('');
     container.innerHTML = html;
     fitFoot(container);
@@ -1078,6 +1091,8 @@
     });
     var seg = document.querySelectorAll('input[name="ntaSeal"]');
     Array.prototype.forEach.call(seg, function (r) { r.checked = (r.value === (S.seal === 'off' ? 'off' : 'on')); });
+    var att = document.querySelectorAll('input[name="ntaAttach"]');
+    Array.prototype.forEach.call(att, function (r) { r.checked = (r.value === (S.attachOn === 'off' ? 'off' : 'on')); });
     var wm = document.querySelectorAll('input[name="ntaWm"]');
     Array.prototype.forEach.call(wm, function (r) { r.checked = String(r.value) === String(S.watermark || '0'); });
     var th = $('ntaSealThumb');
@@ -1306,6 +1321,13 @@
     Array.prototype.forEach.call(document.querySelectorAll('input[name="ntaSeal"]'), function (r) {
       r.addEventListener('change', function () {
         S.seal = r.value === 'off' ? 'off' : 'on';
+        saveSettings();
+        renderPages();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="ntaAttach"]'), function (r) {
+      r.addEventListener('change', function () {
+        S.attachOn = (r.value === 'off' ? 'off' : 'on');
         saveSettings();
         renderPages();
       });
