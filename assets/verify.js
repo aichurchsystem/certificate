@@ -8,7 +8,7 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var res = $('vres'), badge = $('vbadge'), msg = $('vmsg'), list = $('vlist'), hint = $('vhint');
-  var form = $('vform'), fNo = $('fNo'), fInet = $('fInet'), btn = $('vgo'), err = $('verr');
+  var form = $('vform'), fNo = $('fNo'), fInet = $('fInet'), btn = $('vgo'), err = $('verr'), more = $('vmore');
   var busy = false;
 
   var OK_SVG = '<svg class="vico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>';
@@ -45,6 +45,8 @@
     list.hidden = false;
     hint.hidden = !d.canceled;
     if (d.canceled) hint.textContent = '발급이 취소된 문서입니다. 내용을 확인하시려면 노회로 문의해 주세요.';
+    form.hidden = true;
+    more.hidden = false;
     try { res.scrollIntoView({ block: 'nearest' }); } catch (e) {}
   }
 
@@ -55,11 +57,15 @@
     msg.textContent = '일치하는 발급 기록을 찾지 못했습니다. 번호를 다시 확인하시거나 노회로 문의해 주세요.';
     list.hidden = true;
     hint.hidden = true;
+    form.hidden = false;
+    more.hidden = true;
     try { res.scrollIntoView({ block: 'nearest' }); } catch (e) {}
   }
 
   function showNetFail() {
     res.hidden = true;
+    form.hidden = false;
+    more.hidden = true;
     showErr('확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
   }
 
@@ -114,6 +120,14 @@
       btn.textContent = '확인하기';
     });
   }
+
+  more.addEventListener('click', function () {
+    resetResult();
+    form.hidden = false;
+    more.hidden = true;
+    fInet.focus();
+    fInet.select();
+  });
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
