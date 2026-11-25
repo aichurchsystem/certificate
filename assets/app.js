@@ -1,5 +1,6 @@
 /* ==========================================================================
-   증명서 발급 앱 (대한예수교장로회(백석) 서울강동노회)
+   노회 문서 앱 (대한예수교장로회(백석) 서울강동노회)
+   - 표지: 증명서 발급 / 노회 공문 발급 두 갈래
    - 증명서 종류별 정의: data/types.json (제목·항목·본문·추가 입력·워터마크)
    - 지면에 찍히는 고정 글자: state.fmt (관리자 화면에서 고치고 이 기기에 저장)
    - 사람·교회 명단: data/people.json + 이 기기 저장값(cert.v1.people)
@@ -44,6 +45,10 @@
       noPrefix: '노회(증)',
       watermark: 'slate',
       signSeal: '1',
+      photoStamp: 'on',
+      photoStampSize: '15',
+      photoStampCorner: 'br',
+      photoStampTone: '0.32',
       note1: '본 증명서의 진위 여부는 대한예수교장로회(백석) 서울강동노회로 문의하시기 바랍니다',
       note2: '발급일로부터 90일까지 유효합니다',
       types: {}
@@ -611,6 +616,29 @@
     return v;
   }
 
+  /* 사진 압인 — 사진 폭의 절반 크기로 모서리에 절반씩 걸치게 놓는다 */
+  function applyPhotoStamp(hasPhoto) {
+    var img = $('pStamp');
+    if (!img) return;
+    var F = state.fmt || {};
+    if (!hasPhoto || F.photoStamp === 'off') { img.hidden = true; img.removeAttribute('src'); return; }
+    var size = Number(F.photoStampSize) || 15;
+    var corner = String(F.photoStampCorner || 'br');
+    var PL = 162, PT = 84.6, PWd = 30, PHt = 40;    /* 지면의 사진 자리(mm) */
+    var inset = 1.6;
+    var cx = (corner === 'tl' || corner === 'bl') ? PL + inset : PL + PWd - inset;
+    var cy = (corner === 'tl' || corner === 'tr') ? PT + inset : PT + PHt - inset;
+    if (img.getAttribute('src') !== 'assets/seals/seal-blind-emboss.png') {
+      img.setAttribute('src', 'assets/seals/seal-blind-emboss.png');
+    }
+    img.style.width = size + 'mm';
+    img.style.height = size + 'mm';
+    img.style.left = (cx - size / 2).toFixed(2) + 'mm';
+    img.style.top = (cy - size / 2).toFixed(2) + 'mm';
+    img.style.opacity = String(F.photoStampTone || '0.32');
+    img.hidden = false;
+  }
+
   function renderPaper() {
     var F = state.fmt, def = currentDef(), T = typeText(def);
 
@@ -674,6 +702,8 @@
       el.pPhoto.removeAttribute('src');
       el.paper.classList.remove('has-photo');
     }
+    /* 사진 압인(철인) — 사진 모서리에 걸쳐 눌린 자국만 남긴다 */
+    applyPhotoStamp(!!photo);
 
     // 발신처 · 수신처 (빈 줄은 찍지 않는다)
     el.pFrom.textContent = state.sender || '';
@@ -789,6 +819,18 @@
     Array.prototype.forEach.call(document.querySelectorAll('input[name="signSeal"]'), function (r) {
       r.checked = r.value === (F.signSeal === '2' ? '2' : '1');
     });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stOn"]'), function (r) {
+      r.checked = r.value === (F.photoStamp === 'off' ? 'off' : 'on');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stSize"]'), function (r) {
+      r.checked = String(r.value) === String(F.photoStampSize || '15');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stCorner"]'), function (r) {
+      r.checked = r.value === String(F.photoStampCorner || 'br');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stTone"]'), function (r) {
+      r.checked = String(r.value) === String(F.photoStampTone || '0.32');
+    });
 
     if (!TYPES.length) return;
     var sel = $('fmType');
@@ -810,24 +852,193 @@
     }).join('');
   }
 
-  /* 사람 명단 (관리자) */
+  /* 사람 명단 (관리자) — 대표자·기도처 시작일·설립일·안수일을 한눈에 */
   function renderPeopleList() {
     var box = $('peList');
     if (!box) return;
     if (!people.length) {
-      box.innerHTML = '<p class="empty">명단이 비어 있습니다. ‘새로 넣기’로 사람을 더해 두세요.</p>';
+      box.innerHTML = '<p class="empty">명단이 비어 있습니다. ‘새로 넣기’로 사람을 더해 두거나, 아래 ‘엑셀에서 명단 가져오기’로 한꺼번에 넣으세요.</p>';
       return;
     }
     box.innerHTML = people.map(function (p) {
       var sub = [p.position, p.church].filter(Boolean).join(' · ');
-      var sub2 = [p.birth, p.address].filter(Boolean).join(' · ');
+      var facts = [
+        ['대표자', p.representative],
+        ['기도처 시작일', p.plantDate],
+        ['설립일', p.foundDate],
+        ['안수일', p.ordainDate]
+      ].map(function (f) {
+        var v = String(f[1] || '');
+        return '<div><dt>' + f[0] + '</dt><dd class="' + (v ? '' : 'none') + '">' + esc(v || '—') + '</dd></div>';
+      }).join('');
       return '<div class="hitem" data-person="' + esc(p.id) + '">' +
         '<div class="who"><b>' + esc(p.name) + '</b>' +
-        '<small>' + esc(sub) + (sub2 ? ' · ' + esc(sub2) : '') + '</small></div>' +
+        (sub ? '<small>' + esc(sub) + '</small>' : '') +
+        '<dl class="pfacts">' + facts + '</dl></div>' +
         '<button type="button" class="mini" data-pedit="' + esc(p.id) + '">고치기</button>' +
         '<button type="button" class="del" data-pdel="' + esc(p.id) + '" aria-label="명단에서 지우기">✕</button>' +
         '</div>';
     }).join('');
+  }
+
+  /* ---------------------------------------------------------- 엑셀 명단 가져오기
+     샘플 엑셀(data/명단-샘플.xlsx)과 같은 열 이름이면 순서가 달라도 읽는다.
+     파일은 브라우저 안에서만 읽고 어디에도 올리지 않는다. */
+  var PE_COLS = [
+    { key: 'name', label: '이름', aliases: ['이름', '성명', '목사명'] },
+    { key: 'position', label: '직분', aliases: ['직분', '직책'] },
+    { key: 'birth', label: '생년월일', aliases: ['생년월일', '생일', '출생일'], date: true },
+    { key: 'church', label: '교회명', aliases: ['교회명', '교회', '담임교회'] },
+    { key: 'churchAddress', label: '교회 주소', aliases: ['교회주소', '교회 주소'] },
+    { key: 'address', label: '주소(개인)', aliases: ['주소(개인)', '개인주소', '주소'] },
+    { key: 'representative', label: '대표자', aliases: ['대표자', '대표'] },
+    { key: 'plantDate', label: '기도처 시작일', aliases: ['기도처시작일', '기도처 시작일', '개척일'], date: true },
+    { key: 'foundDate', label: '설립일', aliases: ['설립일'], date: true },
+    { key: 'ordainDate', label: '안수일', aliases: ['안수일'], date: true }
+  ];
+
+  function peKey(s) { return String(s == null ? '' : s).replace(/[\s()·._-]/g, '').toLowerCase(); }
+
+  function peYmd(y, m, d) {
+    var yy = Number(y), mm = Number(m), dd = Number(d);
+    if (!(yy >= 1900 && yy <= 2200) || !(mm >= 1 && mm <= 12) || !(dd >= 1 && dd <= 31)) return '';
+    var dt = new Date(Date.UTC(yy, mm - 1, dd));
+    if (dt.getUTCMonth() + 1 !== mm || dt.getUTCDate() !== dd) return '';
+    return yy + '-' + (mm < 10 ? '0' : '') + mm + '-' + (dd < 10 ? '0' : '') + dd;
+  }
+
+  function peDate(v) {
+    var s = String(v == null ? '' : v).replace(/^\s+|\s+$/g, '');
+    if (!s) return '';
+    var m;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return peYmd(s.slice(0, 4), s.slice(5, 7), s.slice(8, 10));
+    m = /^(\d{4})\s*[.\-\/년]\s*(\d{1,2})\s*[.\-\/월]\s*(\d{1,2})/.exec(s);
+    if (m) return peYmd(m[1], m[2], m[3]);
+    m = /^(\d{4})(\d{2})(\d{2})$/.exec(s);
+    if (m) return peYmd(m[1], m[2], m[3]);
+    if (/^\d+(\.\d+)?$/.test(s) && window.SheetRead) {
+      var d = window.SheetRead.serialToDate(s);
+      if (d) return d;
+    }
+    return '';
+  }
+
+  function readAsArrayBuffer(file) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(r.result); };
+      r.onerror = function () { rej(new Error('파일을 읽지 못했습니다.')); };
+      r.readAsArrayBuffer(file);
+    });
+  }
+  function readAsTextFile(file) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(String(r.result || '')); };
+      r.onerror = function () { rej(new Error('파일을 읽지 못했습니다.')); };
+      r.readAsText(file);
+    });
+  }
+
+  var PE_IMP = null;
+
+  function pePreview(rows) {
+    if (!window.SheetRead) { toast('엑셀 읽기 도구를 불러오지 못했습니다.'); return; }
+    if (!rows || !rows.length) { toast('엑셀에서 내용을 찾지 못했습니다.'); return; }
+
+    /* 머리글 줄 찾기(앞 6줄 안에서 이름·성명 열이 있는 줄) */
+    var headAt = -1, colMap = {};
+    for (var r = 0; r < Math.min(rows.length, 6); r++) {
+      var map = {}, hit = 0;
+      (rows[r] || []).forEach(function (cell, ci) {
+        var k = peKey(cell);
+        if (!k) return;
+        PE_COLS.forEach(function (col) {
+          if (map[col.key] !== undefined) return;
+          for (var a = 0; a < col.aliases.length; a++) {
+            if (k === peKey(col.aliases[a])) { map[col.key] = ci; hit++; return; }
+          }
+        });
+      });
+      if (map.name !== undefined) { headAt = r; colMap = map; break; }
+    }
+    if (headAt < 0) {
+      toast('이름 열을 찾지 못했습니다. [샘플 엑셀 받기]로 받은 파일의 열 이름을 그대로 써 주세요.');
+      return;
+    }
+
+    var recs = [], warn = [], seen = {};
+    for (var i = headAt + 1; i < rows.length; i++) {
+      var row = rows[i] || [], rec = {}, bad = [];
+      PE_COLS.forEach(function (col) {
+        var ci = colMap[col.key];
+        var raw = ci === undefined ? '' : row[ci];
+        var v = String(raw == null ? '' : raw).replace(/^\s+|\s+$/g, '');
+        if (col.date) {
+          var dv = peDate(v);
+          if (v && !dv) bad.push(col.label);
+          rec[col.key] = dv;
+        } else rec[col.key] = v;
+      });
+      if (!rec.name) continue;
+      if (seen[peKey(rec.name)]) warn.push((i + 1) + '번째 줄: 이름 ‘' + rec.name + '’이 파일 안에서 겹칩니다.');
+      seen[peKey(rec.name)] = 1;
+      if (bad.length) warn.push((i + 1) + '번째 줄 ' + rec.name + ': ' + bad.join('·') + ' 날짜를 읽지 못해 비웠습니다.');
+      recs.push(rec);
+    }
+    if (!recs.length) { toast('이름이 적힌 줄이 없습니다.'); return; }
+
+    PE_IMP = { recs: recs, warn: warn };
+    var head = '<tr><th>이름</th><th>직분</th><th>교회명</th><th>대표자</th><th>기도처 시작일</th><th>설립일</th><th>안수일</th></tr>';
+    var body = recs.map(function (p) {
+      return '<tr><td class="n">' + esc(p.name) + '</td><td>' + esc(p.position || '') + '</td><td>' + esc(p.church || '') +
+        '</td><td>' + esc(p.representative || '') + '</td><td class="d">' + esc(p.plantDate || '—') +
+        '</td><td class="d">' + esc(p.foundDate || '—') + '</td><td class="d">' + esc(p.ordainDate || '—') + '</td></tr>';
+    }).join('');
+    $('pePrevTable').innerHTML = head + body;
+    $('pePrevTitle').textContent = '미리 보기 · ' + recs.length + '명';
+    $('pePrevSave').textContent = '이 ' + recs.length + '명을 명단에 넣기';
+    var w = $('pePrevWarn');
+    if (warn.length) {
+      w.hidden = false;
+      w.innerHTML = warn.slice(0, 6).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') +
+        (warn.length > 6 ? '<span>… 외 ' + (warn.length - 6) + '건</span>' : '');
+    } else w.hidden = true;
+    $('pePrev').hidden = false;
+    if ($('pePrev').scrollIntoView) $('pePrev').scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  function peCommit() {
+    if (!PE_IMP) return;
+    var mode = $('peMerge') ? $('peMerge').value : 'skip';
+    var added = 0, changed = 0, skipped = 0;
+    PE_IMP.recs.forEach(function (rec, i) {
+      var k = normalize(rec.name);
+      var cur = people.filter(function (p) { return normalize(p.name) === k; })[0];
+      if (cur && mode === 'skip') { skipped++; return; }
+      if (cur) {
+        PE_COLS.forEach(function (col) {
+          var v = rec[col.key];
+          if (v) cur[col.key] = v;
+        });
+        changed++;
+        return;
+      }
+      var np = { id: 'p' + Date.now() + i, name: rec.name };
+      PE_COLS.forEach(function (col) { if (rec[col.key]) np[col.key] = rec[col.key]; });
+      people.push(np);
+      added++;
+    });
+    savePeople();
+    syncPeople();
+    renderPeopleOptions();
+    renderPeopleList();
+    renderPersonForm();
+    $('pePrev').hidden = true;
+    PE_IMP = null;
+    toast('엑셀에서 ' + added + '명을 넣었습니다' +
+      (changed ? ' · ' + changed + '명 고침' : '') +
+      (skipped ? ' · 같은 이름 ' + skipped + '명 건너뜀' : '') + '.');
   }
 
   var PE_FIELDS = ['Name', 'Position', 'Birth', 'Church', 'ChurchAddr', 'Address', 'Rep', 'Plant', 'Found', 'Ordain'];
@@ -1839,18 +2050,23 @@
   }
 
   /* ------------------------------------------------------------------ 화면 */
+  var VIEWS = ['cover', 'issue', 'notice', 'notice-admin', 'history', 'format'];
+
   function switchView(name) {
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       b.classList.toggle('on', b.dataset.view === name);
     });
-    $('view-cover').hidden = name !== 'cover';
-    $('view-issue').hidden = name !== 'issue';
-    $('view-history').hidden = name !== 'history';
-    $('view-format').hidden = name !== 'format';
+    VIEWS.forEach(function (v) {
+      var s = $('view-' + v);
+      if (s) s.hidden = (v !== name);
+    });
     document.body.classList.toggle('cover-mode', name === 'cover');
-    el.actionBar.style.display = name === 'issue' ? '' : 'none';
+    document.body.classList.toggle('notice-mode', name === 'notice' || name === 'notice-admin');
+    if (el.actionBar) el.actionBar.style.display = name === 'issue' ? '' : 'none';
     if (name === 'format') { renderFmtForm(); renderPeopleList(); renderSealSlots(); }
     if (name === 'issue') { renderPaper(); fitPreview(); }
+    if (name === 'notice' && window.CertNotice) window.CertNotice.enter();
+    if (name === 'notice-admin' && window.CertNotice) window.CertNotice.enterAdmin();
   }
 
   /* ------------------------------------------------------------------ 설정 파일 */
@@ -1892,6 +2108,7 @@
 
     /* 표지 */
     if ($('cvGo')) $('cvGo').addEventListener('click', function () { switchView('issue'); });
+    if ($('cvNotice')) $('cvNotice').addEventListener('click', function () { switchView('notice'); });
     if ($('cvPeople')) $('cvPeople').addEventListener('click', function () {
       switchView('format');
       var card = $('peopleCard');
@@ -2009,6 +2226,36 @@
       });
     });
 
+    /* 사진 압인(철인) — 켜기/끄기 · 크기 · 위치 · 강도 */
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stOn"]'), function (r) {
+      r.addEventListener('change', function () {
+        if (!r.checked) return;
+        state.fmt.photoStamp = (r.value === 'off' ? 'off' : 'on');
+        saveState(); renderPaper();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stSize"]'), function (r) {
+      r.addEventListener('change', function () {
+        if (!r.checked) return;
+        state.fmt.photoStampSize = r.value;
+        saveState(); renderPaper();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stCorner"]'), function (r) {
+      r.addEventListener('change', function () {
+        if (!r.checked) return;
+        state.fmt.photoStampCorner = r.value;
+        saveState(); renderPaper();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="stTone"]'), function (r) {
+      r.addEventListener('change', function () {
+        if (!r.checked) return;
+        state.fmt.photoStampTone = r.value;
+        saveState(); renderPaper();
+      });
+    });
+
     Array.prototype.forEach.call(document.querySelectorAll('input[name="wmChoice"]'), function (r) {
       r.addEventListener('change', function () {
         if (!r.checked) return;
@@ -2096,6 +2343,35 @@
       editingPersonId = null; newPhotoData = null;
       syncPeople(); renderPersonForm(); render();
       toast('기본 명단으로 돌아갔습니다.');
+    });
+
+    /* 엑셀 샘플 받기 · 엑셀에서 명단 가져오기 */
+    if ($('peSample')) $('peSample').addEventListener('click', function () {
+      fetch('data/명단-샘플.xlsx', { cache: 'no-cache' })
+        .then(function (r) { if (!r.ok) throw new Error('없음'); return r.blob(); })
+        .then(function (b) { downloadBlob(b, '노회원-명단-샘플.xlsx'); toast('샘플 엑셀을 받았습니다. 그 파일에 명단을 채워 다시 올려 주세요.'); })
+        .catch(function () { toast('샘플 파일을 받지 못했습니다. 인터넷이 되는 곳에서 다시 눌러 주세요.'); });
+    });
+    if ($('peImport')) $('peImport').addEventListener('click', function () { $('peImportFile').click(); });
+    if ($('peImportFile')) $('peImportFile').addEventListener('change', function () {
+      var f = this.files && this.files[0];
+      this.value = '';
+      if (!f) return;
+      var ext = (String(f.name).split('.').pop() || '').toLowerCase();
+      toast('엑셀을 읽는 중…');
+      var job;
+      if (ext === 'csv') job = readAsTextFile(f).then(function (t) { return window.SheetRead.csvRows(t); });
+      else if (ext === 'xlsx') job = readAsArrayBuffer(f).then(function (b) { return window.SheetRead.rows(b); });
+      else { toast('엑셀(.xlsx)이나 CSV 파일을 골라 주세요. (.xls는 엑셀에서 .xlsx로 저장)'); return; }
+      job.then(pePreview).catch(function (e) {
+        console.error(e);
+        toast((e && e.message) || '엑셀을 읽지 못했습니다.');
+      });
+    });
+    if ($('pePrevSave')) $('pePrevSave').addEventListener('click', peCommit);
+    if ($('pePrevCancel')) $('pePrevCancel').addEventListener('click', function () {
+      PE_IMP = null;
+      $('pePrev').hidden = true;
     });
     $('peList').addEventListener('click', function (e) {
       var ed = e.target.closest('[data-pedit]');
@@ -2320,6 +2596,17 @@
       });
     } catch (e) {}
   }
+
+  /* ============================================================ 다른 파일 연결구
+     assets/notice.js(노회 공문)가 이 앱의 함수를 그대로 쓴다. */
+  window.CertApp = {
+    apiGet: apiGet, apiPost: apiPost, apiKey: apiKey, setApiKey: setApiKey,
+    toast: toast, openSheet: openSheet, downloadBlob: downloadBlob,
+    buildPdf: buildPdf, dataUrlBytes: dataUrlBytes,
+    needGuide: needGuide, inAppBrowser: inAppBrowser,
+    switchView: switchView, esc: esc, todayISO: todayISO, fmtDateWide: fmtDateWide,
+    loadNotices: loadNotices, A4W: A4W, A4H: A4H
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

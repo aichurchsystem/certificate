@@ -1,21 +1,25 @@
-/* 증명서 발급 앱 전용 서비스 워커
+/* 노회 문서 앱 전용 서비스 워커
    이 사이트(https://aichurchsystem.github.io/certificate/) 범위만 담당한다.
    운동일지 앱(/Church/)과는 다른 사이트이므로 그쪽 캐시·화면은 건드리지 않는다.
    네트워크가 있으면 새 파일을 먼저 받아 두고, 없으면 받아 둔 사본으로 연다. */
 
-const CACHE = 'certificate-standalone-v1';
+const CACHE = 'certificate-standalone-v2';
 const SHELL = [
   './',
   './index.html',
-  './assets/app.css?v=20',
-  './assets/app.js?v=20',
+  './assets/app.css?v=30',
+  './assets/app.js?v=30',
+  './assets/notice.js?v=30',
+  './assets/xlsx.js?v=30',
   './assets/fonts/nm-Regular.woff2',
   './assets/fonts/nm-Bold.woff2',
   './assets/logo-sky.svg',
   './assets/logo-white.svg',
+  './assets/logo-deep.svg',
   './assets/seals/seal-chair-round.png',
   './assets/seals/seal-secretary-round.png',
   './assets/seals/seal-presbytery-square.png',
+  './assets/seals/seal-blind-emboss.png',
   './assets/band.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
@@ -24,6 +28,7 @@ const SHELL = [
   './data/people.json',
   './data/types.json',
   './data/config.json',
+  './data/명단-샘플.xlsx',
   './manifest.webmanifest',
   './vendor/html2canvas.min.js'
 ];

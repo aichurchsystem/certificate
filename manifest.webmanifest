@@ -1,8 +1,8 @@
 {
   "id": "/certificate/",
-  "name": "증명서 발급",
-  "short_name": "증명서",
-  "description": "대한예수교장로회(백석) 서울강동노회 증명서를 만들어 인쇄·PDF·이미지로 받는 앱",
+  "name": "노회 문서",
+  "short_name": "노회",
+  "description": "대한예수교장로회(백석) 서울강동노회의 증명서와 노회 공문을 만들어 인쇄·PDF·이미지로 받고 드라이브에 보관하는 앱",
   "lang": "ko",
   "dir": "ltr",
   "start_url": "./",

@@ -85,7 +85,7 @@
           "src": "rep"
         },
         {
-          "label": "개척일",
+          "label": "기도처 시작일",
           "src": "plantDate",
           "fmt": "date"
         }
@@ -97,7 +97,7 @@
       "extra": [
         {
           "key": "plantDate",
-          "label": "개척일",
+          "label": "기도처 시작일",
           "type": "date",
           "required": true
         }
