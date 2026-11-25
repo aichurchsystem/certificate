@@ -1459,7 +1459,7 @@
       /* 두 쪽을 이어 보여 준다 — 한 화면에 들어오도록 배율을 잡는다 */
       var wrap = $('ordPapers');
       var gap = 24, total = A4H * 2 + gap;
-      var maxTotal = wide ? Math.max(window.innerHeight - 120, 640) : Math.min(window.innerHeight * 1.02, 820);
+      var maxTotal = wide ? Math.max(window.innerHeight - 60, 1000) : Math.min(window.innerHeight * 1.02, 820);
       var s2 = Math.min(w / A4W, maxTotal / total);
       wrap.style.transform = 'scale(' + s2 + ')';
       wrap.style.left = Math.round((w - A4W * s2) / 2) + 'px';
