@@ -278,7 +278,7 @@
   },
   {
    "id": "ordination-cert",
-   "name": "목사 안수증",
+   "name": "목사 안수증 발급",
    "kind": "person",
    "title": "목사 안수증",
    "rows": [
