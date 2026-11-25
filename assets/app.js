@@ -45,6 +45,8 @@
       noPrefix: '노회(증)',
       watermark: 'slate',
       signSeal: '1',
+      slogan: '',
+      logoSize: '16',
       photoStamp: 'on',
       photoStampSize: '15',
       photoStampCorner: 'br',
@@ -663,6 +665,17 @@
     $('pTelGap').hidden = !(tel && !el.pNohoeAddr.hidden);
     $('pFaxGap').hidden = !(fax && tel);
     el.pNohoeAddrRow.hidden = el.pNohoeAddr.hidden && !tel && !fax;
+
+    /* 성구 한 줄(비우면 빠짐)과 로고 크기 */
+    var holy = $('pHolyline');
+    if (holy) {
+      holy.textContent = F.slogan || '';
+      holy.hidden = !String(F.slogan || '').trim();
+      el.paper.classList.toggle('has-holy', !holy.hidden);
+    }
+    var logo = Number(F.logoSize) || 16;
+    el.paper.style.setProperty('--logo', logo + 'mm');
+    el.paper.style.setProperty('--logo-half', (logo / 2) + 'mm');
 
     el.pNo.textContent = state.no || '';
     /* 서명부 직인 배치: 1안(글자 위) / 2안(이름 어깨) */
@@ -1614,6 +1627,46 @@
     loadNoConfig(); refreshNextNo(); loadNotices(); renderHistory();
   }
 
+  /* 지면 문구 설정을 드라이브 '설정' 탭과 맞춘다(다른 기기에서도 같은 문구) */
+  var KV_TS = 'cert.settings.ts';
+  function localTs() { var v = Number(loadJSON(KV_TS, 0)); return isNaN(v) ? 0 : v; }
+  function settingsPayload() {
+    var p = { fmt: state.fmt, ts: Date.now() };
+    if (window.CertNotice && window.CertNotice.settings) p.notice = window.CertNotice.settings();
+    return p;
+  }
+  function pushSettings() {
+    if (!apiKey()) return Promise.resolve();
+    var p = settingsPayload();
+    try { localStorage.setItem(KV_TS, String(p.ts)); } catch (e) {}
+    return apiPost({ action: 'settings-save', settings: JSON.stringify(p), ts: p.ts })
+      .then(function (r) { if (r && r.ok) chip('ok', '지면 문구를 드라이브 설정에도 저장했습니다.'); })
+      .catch(function () {});
+  }
+  function pullSettings() {
+    if (!apiKey()) return Promise.resolve();
+    return apiGet({ action: 'settings-get' }).then(function (r) {
+      if (!r || !r.ok || !r.settings) return;
+      var s = r.settings;
+      if (Number(s._ts || 0) <= localTs()) return;        /* 이 기기 값이 더 새로움 */
+      if (s.fmt && typeof s.fmt === 'object') {
+        var fmt = defaultFmt();
+        Object.keys(fmt).forEach(function (k) {
+          if (k !== 'types' && s.fmt[k] !== undefined && s.fmt[k] !== null) fmt[k] = s.fmt[k];
+        });
+        if (s.fmt.types && typeof s.fmt.types === 'object') fmt.types = s.fmt.types;
+        state.fmt = fmt;
+        saveState();
+        try { localStorage.setItem(KV_TS, String(s._ts || 0)); } catch (e) {}
+        renderPaper(); renderFmtForm();
+        toast('드라이브에 저장해 둔 지면 문구를 불러왔습니다.');
+      }
+      if (s.notice && window.CertNotice && window.CertNotice.applySettings) {
+        window.CertNotice.applySettings(s.notice);
+      }
+    }).catch(function () {});
+  }
+
   function cloudBoot() {
     if ($('apiKeyState')) $('apiKeyState').textContent = apiKey() ? ('연결됨 (키 ' + apiKey().slice(0, 4) + '…' + apiKey().slice(-4) + ')') : '아직 연결하지 않았습니다';
     if (!apiKey()) { pendingChip(); return; }
@@ -2116,6 +2169,31 @@
     });
     if ($('coverBtn')) $('coverBtn').addEventListener('click', function () { switchView('cover'); });
 
+    /* 지면의 글자를 누르면 관리자의 그 입력칸으로 — 드래그(선택)일 때는 옮기지 않는다 */
+    if (el.paper) {
+      el.paper.addEventListener('click', function (e) {
+        var sel = window.getSelection ? String(window.getSelection()) : '';
+        if (sel) return;
+        var t = e.target;
+        while (t && t !== el.paper && !(t.getAttribute && t.getAttribute('data-cf'))) t = t.parentNode;
+        if (!t || !t.getAttribute) return;
+        var key = t.getAttribute('data-cf');
+        if (!key) return;
+        var MAP = {
+          org: 'fmOrg', presbytery: 'fmPresb', presbyteryAddress: 'fmNohoeAddr', tel: 'fmTel',
+          fax: 'fmFax', postalCode: 'fmPostal', note1: 'fmNote1', note2: 'fmNote2',
+          slogan: 'fmSlogan', logoSize: 'fmLogoSize', chairName: 'fmChairName', signerName: 'fmSigner',
+          chairTitle: 'fmChairTitle', signerTitle: 'fmSignTitle', typeTitle: 'fmTitle', typeBody: 'fmBody'
+        };
+        var box = $(MAP[key] || '');
+        if (!box) return;
+        switchView('format');
+        if (box.scrollIntoView) box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        box.focus();
+        try { var p2 = box.value.length; box.setSelectionRange(p2, p2); } catch (ex) {}
+      });
+    }
+
     /* 발급 폼 */
     el.type.addEventListener('change', function () {
       state.typeId = el.type.value;
@@ -2265,12 +2343,26 @@
     });
 
     Array.prototype.forEach.call(document.querySelectorAll('[data-fmt]'), function (inp) {
+      inp.addEventListener('change', function () {
+        var key2 = inp.dataset.fmt;
+        state.fmt[key2] = inp.value;
+        saveState(); renderPaper();
+      });
       inp.addEventListener('input', function () {
         var key = inp.dataset.fmt;
         state.fmt[key] = inp.value;
         if (key === 'noPrefix' && !state.noEdited) state.no = nextNo(state.date);
         saveState(); renderPaper();
-        if (key === 'signerTitle' || key === 'signerName' || key === 'chairTitle' || key === 'chairName') renderFmtForm();
+        if (key === 'signerTitle' || key === 'signerName' || key === 'chairTitle' || key === 'chairName') {
+          /* 종류별로 저장해 둔 예전 성명·직함이 있으면 함께 맞춘다(지면에 묻히지 않게) */
+          Object.keys(state.fmt.types || {}).forEach(function (id) {
+            var o = state.fmt.types[id];
+            if (!o) return;
+            if (key === 'signerName' && o.signerName !== undefined) o.signerName = state.fmt.signerName;
+            if (key === 'signerTitle' && o.signTitle !== undefined) o.signTitle = state.fmt.signerTitle;
+          });
+          saveState(); renderPaper(); renderFmtForm();
+        }
         if (key === 'noPrefix') el.no.value = state.no;
       });
     });
@@ -2312,6 +2404,7 @@
       saveState();
       renderPaper();
       toast('양식을 저장했습니다. 이 기기 브라우저에 남습니다.');
+      pushSettings();
     });
     $('fmtTypeReset').addEventListener('click', function () {
       var id = $('fmType').value;
@@ -2605,7 +2698,8 @@
     buildPdf: buildPdf, dataUrlBytes: dataUrlBytes,
     needGuide: needGuide, inAppBrowser: inAppBrowser,
     switchView: switchView, esc: esc, todayISO: todayISO, fmtDateWide: fmtDateWide,
-    loadNotices: loadNotices, A4W: A4W, A4H: A4H
+    loadNotices: loadNotices, A4W: A4W, A4H: A4H,
+    pushSettings: pushSettings, pullSettings: pullSettings
   };
 
   if (document.readyState === 'loading') {

@@ -30,7 +30,7 @@
 
   var PAGE_W = 210, PAGE_H = 297;
   var EDGE = 15.2;
-  var BODY_TOP = 55, BODY_H = 171;
+  var BODY_TOP = 60.4, BODY_H = 165;
   var LINE_MM = 5.2;
   var BODY_W = PAGE_W - EDGE * 2;                 /* 179.6mm */
   var CAP = Math.floor(BODY_H / LINE_MM);         /* 한 장에 들어가는 줄 수 */
@@ -54,7 +54,8 @@
       seal: 'on',
       watermark: '8',
       noPrefix: '서울강동 제',
-      noNext: '1102603-17'
+      noNext: '1102603-17',
+      disclosure: '공개'
     };
   }
 
@@ -211,6 +212,7 @@
   }
 
   function paginate(body) {
+    layout();
     var pages = [[]], used = 0, i, k;
     function newPage() { pages.push([]); used = 0; }
     function put(p, indent) {
@@ -224,18 +226,18 @@
       var indent = Math.min(lead * 1.35, 24);
       var txt = line.replace(/^[ \t]+/, '');
       if (!txt) {
-        if (used + 1 > CAP) newPage();
+        if (used + 1 > LAY.cap) newPage();
         pages[pages.length - 1].push({ t: '', i: 0, blank: true });
         used += 1;
         continue;
       }
       var need = linesOf(txt, indent);
-      if (used + need <= CAP) { put(txt, indent); continue; }
+      if (used + need <= LAY.cap) { put(txt, indent); continue; }
       /* 이 장에 남은 줄만 채우고 다음 장으로 */
       var rest = txt, ind = indent;
       while (rest) {
-        var room = CAP - used;
-        if (room <= 0) { newPage(); room = CAP; }
+        var room = LAY.cap - used;
+        if (room <= 0) { newPage(); room = LAY.cap; }
         var n = linesOf(rest, ind);
         if (n <= room) { put(rest, ind); break; }
         var cut = cutToFit(rest, ind, room);
@@ -245,7 +247,7 @@
         ind = ind;      /* 이어지는 줄도 같은 들여쓰기로 */
         if (rest) newPage();
       }
-      if (used >= CAP && i < raw.length - 1) newPage();
+      if (used >= LAY.cap && i < raw.length - 1) newPage();
     }
     /* 마지막 장이 비어 있으면 지운다 */
     for (k = pages.length - 1; k > 0; k--) {
@@ -255,8 +257,33 @@
     return pages;
   }
 
+  /* 수신은 줄 단위로 여러 명을 적을 수 있다(빈 줄은 지면에서 빠진다) */
+  function recipients() {
+    return String(D.recipient || '').split(/\n+/).map(function (t) { return trim(t); })
+      .filter(function (t) { return t; });
+  }
+
+  /* 지면 조판 — 수신 줄 수에 따라 제목·본문이 밀리지 않게 자리를 다시 계산한다 */
+  var LAY = { recips: [], rowH: 5.4, bodyTop: 60.4, bodyH: 165, cap: 31 };
+  function layout() {
+    var rec = recipients();
+    var rows = Math.max(1, rec.length) + 1;            /* 수신(최소 1) + 제목 */
+    var top = 48.6, limit = 58.2;
+    var avail = limit - top;
+    var rowH = 5.4;
+    if (rows * rowH > avail) rowH = Math.max(3.9, avail / rows);
+    var used = rows * rowH;
+    var bodyTop = limit + Math.max(0, used - avail) + 2.2;
+    var bodyH = 226 - bodyTop;
+    LAY = {
+      recips: rec, rowH: rowH, bodyTop: bodyTop, bodyH: bodyH,
+      cap: Math.max(10, Math.floor(bodyH / LINE_MM))
+    };
+    return LAY;
+  }
+
   function pageHtml(paras, idx, total) {
-    var s = S;
+    var s = S, L = LAY;
     var wmPct = Number(s.watermark || 0);
     var wm = wmPct > 0
       ? '<img class="nt-wm" src="' + LOGO + '" alt="" style="opacity:' + (wmPct / 100) + '">'
@@ -268,52 +295,62 @@
       return '<div class="nt-p" style="padding-left:' + p.i + 'mm">' + esc(p.t) + '</div>';
     }).join('');
 
-    var meta = idx === 0
-      ? '<div class="nt-meta">' +
-          '<div class="nt-row" data-f="recipient"><span class="mk">수 신</span><span class="cl">:</span>' +
-            '<span class="mv">' + esc(D.recipient || '') + '</span></div>' +
-          '<div class="nt-row" data-f="title"><span class="mk">제 목</span><span class="cl">:</span>' +
-            '<span class="mv">' + esc(D.title || '') + '</span></div>' +
-        '</div>'
-      : '';
+    var meta = '';
+    if (idx === 0) {
+      var rows = L.recips.length ? L.recips : [''];
+      meta = '<div class="nt-meta">' + rows.map(function (r, i) {
+        return '<div class="nt-row" style="height:' + L.rowH.toFixed(2) + 'mm" data-f="recipient">' +
+          '<span class="mk">' + (i === 0 ? '수 신' : '') + '</span>' +
+          '<span class="cl">' + (i === 0 ? ':' : '') + '</span>' +
+          '<span class="mv">' + esc(r) + '</span>' +
+          (i > 0 ? '<button type="button" class="nt-x" data-rx="' + i + '" aria-label="이 수신자 지우기">×</button>' : '') +
+        '</div>';
+      }).join('') +
+        '<div class="nt-row nt-row-title" style="height:' + L.rowH.toFixed(2) + 'mm" data-f="title">' +
+          '<span class="mk">제 목</span><span class="cl">:</span>' +
+          '<span class="mv">' + esc(D.title || '') + '</span></div>' +
+      '</div>';
+    }
 
     var refDate = D.refDate ? D.refDate : dateKo(D.date);
-
     var sub1 = '(' + String(s.postal || '') + ') ' + String(s.address || '') +
       (s.tel ? '   Tel: ' + s.tel : '') + (s.email ? '   E-mail: ' + s.email : '');
+    var disc = s.disclosure || '공개';
+
     return '' +
       '<div class="nt-page" data-pg="' + (idx + 1) + '">' +
         wm +
-        '<div class="nt-band">' +
+        '<div class="nt-band" data-f="a:org">' +
           '<div class="nt-brand">' +
             '<img class="nt-mark" src="assets/logo-white.svg" alt="">' +
             '<div class="nt-org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="nt-sub">' +
+        '<div class="nt-sub" data-f="a:address">' +
           '<div class="nt-sub1">' + esc(sub1) + '</div>' +
           (s.slogan ? '<div class="nt-sub2">' + esc(s.slogan) + '</div>' : '') +
         '</div>' +
         '<i class="nt-rule nt-rule-top"></i>' +
+        '<div class="nt-docno" data-f="no">문서번호&nbsp;&nbsp;' + esc(D.no || '') + '</div>' +
         meta +
-        '<i class="nt-rule nt-rule-body"></i>' +
-        '<div class="nt-body" data-f="body">' + bodyHtml + '</div>' +
+        '<i class="nt-rule nt-rule-body" style="top:' + (L.bodyTop - 2.2).toFixed(2) + 'mm"></i>' +
+        '<div class="nt-body" data-f="body" style="top:' + L.bodyTop.toFixed(2) + 'mm;height:' + L.bodyH.toFixed(2) + 'mm">' +
+          bodyHtml + '</div>' +
         '<div class="nt-sign">' +
           '<div class="nt-date" data-f="refDate">' + esc(refDate) + '</div>' +
-          '<div class="nt-org2">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + '</div>' +
+          '<div class="nt-org2" data-f="a:org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + '</div>' +
           '<div class="nt-names">' +
-            '<span class="st">노 회 장</span><span class="sn" data-f="chair">' + esc(D.chair || '') + '</span>' +
-            '<span class="st">서 기</span><span class="sn" data-f="secretary">' + esc(D.secretary || '') + '</span>' +
+            '<span class="st">노 회 장</span><span class="sn" data-f="chair">' + esc(D.chair || s.chair || '이용동') + '</span>' +
+            '<span class="st">서 기</span><span class="sn" data-f="secretary">' + esc(D.secretary || s.secretary || '박재용') + '</span>' +
           '</div>' +
           seal +
         '</div>' +
         '<i class="nt-rule nt-rule-info"></i>' +
         '<div class="nt-info">' +
-          '<div class="nt-i1"><span class="nt-i1a">문서번호&nbsp;&nbsp;' + esc(D.no || '') + '</span>' +
-            '<span class="nt-i1b">(시행일자 : ' + esc(dateKoShort(D.date)) + ' : 공개)</span></div>' +
-          '<div class="nt-i2">☎ ' + esc((s.postal || '') + ' ' + (s.address || '')) +
+          '<div class="nt-i1" data-f="date"><span class="nt-i1b">(시행일자 : ' + esc(dateKoShort(D.date)) + ' : ' + esc(disc) + ')</span></div>' +
+          '<div class="nt-i2" data-f="a:address">☎ ' + esc((s.postal || '') + ' ' + (s.address || '')) +
             (s.tel ? ' 전화 : ' + esc(s.tel) : '') + '</div>' +
-          '<div class="nt-i3">' + (s.email ? 'E-mail : ' + esc(s.email) : '') + '</div>' +
+          '<div class="nt-i3" data-f="a:email">' + (s.email ? 'E-mail : ' + esc(s.email) : '') + '</div>' +
         '</div>' +
         '<i class="nt-rule nt-rule-foot"></i>' +
         (total > 1 ? '<div class="nt-pgno">' + (idx + 1) + ' / ' + total + '</div>' : '') +
@@ -373,6 +410,23 @@
       no: 'ntNo', date: 'ntDate', recipient: 'ntTo', title: 'ntTitle', body: 'ntBody',
       chair: 'ntChair', secretary: 'ntSigner', refDate: 'ntRefDate'
     };
+    if (f.indexOf('a:') === 0) {
+      /* 공문 관리자(서식)의 칸으로 */
+      var amap = {
+        org: 'ntaOrg', presbytery: 'ntaPresb', address: 'ntaAddr', tel: 'ntaTel',
+        email: 'ntaEmail', slogan: 'ntaSlogan', postal: 'ntaPostal', noPrefix: 'ntaNoPrefix',
+        disclosure: 'ntaDisclosure'
+      };
+      var ae = $(amap[f.slice(2)] || '');
+      A.switchView('notice-admin');
+      if (!ae) return;
+      setTimeout(function () {
+        if (ae.scrollIntoView) ae.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        ae.focus();
+        try { var p2 = ae.value.length; ae.setSelectionRange(p2, p2); } catch (ex) {}
+      }, 60);
+      return;
+    }
     var el = $(map[f] || '');
     if (!el) return;
     if (f === 'chair' || f === 'secretary' || f === 'refDate') {
@@ -456,7 +510,9 @@
       var add = trim(text);
       if (!add) { chip('warn', '파일에서 글자를 찾지 못했습니다.'); return; }
       LAST_BODY = D.body;
-      D.body = add;
+      /* 직접 쓴 본문이 있으면 그대로 두고 파일 내용을 뒤에 덧붙인다 */
+      var had = trim(D.body);
+      D.body = had ? (had + '\n\n' + add) : add;
       ATT = { file: file, name: name, size: file.size };
       $('ntBody').value = D.body;
       $('ntFileInfo').textContent = name + ' · ' + Math.max(1, Math.round(file.size / 1024)) + 'KB';
@@ -464,7 +520,7 @@
       saveDraft();
       countBody();
       renderPages();
-      chip('ok', '본문을 채웠습니다 · ' + name);
+      chip('ok', (had ? '본문 뒤에 덧붙였습니다 · ' : '본문을 채웠습니다 · ') + name);
     }).catch(function (e) {
       console.error(e);
       chip('warn', (e && e.message) || '파일을 읽지 못했습니다.');
@@ -1077,14 +1133,54 @@
     var pagesBox = $('ntPages');
     if (pagesBox) {
       pagesBox.addEventListener('click', function (e) {
+        var sel = window.getSelection ? String(window.getSelection()) : '';
+        if (sel) return;                       /* 드래그로 고른 글자는 그대로 둔다(복사용) */
+        var x = e.target.closest ? e.target.closest('.nt-x') : null;
+        if (x) {
+          var i = Number(x.getAttribute('data-rx'));
+          var list = recipients();
+          list.splice(i, 1);
+          D.recipient = list.join('\n');
+          saveDraft();
+          if ($('ntTo')) $('ntTo').value = D.recipient;
+          renderPages();
+          return;
+        }
         var t = e.target;
-        while (t && t !== pagesBox && !t.getAttribute('data-f')) t = t.parentNode;
+        while (t && t !== pagesBox && !(t.getAttribute && t.getAttribute('data-f'))) t = t.parentNode;
         if (t && t.getAttribute) {
           var f = t.getAttribute('data-f');
           if (f) focusField(f);
         }
       });
     }
+
+    /* 전체 텍스트 복사 — 제목·수신·본문·문서번호·시행일자를 줄바꿈 그대로 */
+    if ($('ntCopyBtn')) $('ntCopyBtn').addEventListener('click', function () {
+      var rec = recipients();
+      var lines = [];
+      if (D.no) lines.push('[문서번호] ' + D.no);
+      if (rec.length) lines.push('[수신] ' + rec[0]);
+      for (var i = 1; i < rec.length; i++) lines.push('       ' + rec[i]);
+      if (D.title) lines.push('[제목] ' + D.title);
+      lines.push('');
+      lines.push(String(D.body || ''));
+      lines.push('');
+      lines.push(String(D.refDate || dateKo(D.date)));
+      lines.push(String(S.org || '') + ' ' + String(S.presbytery || ''));
+      lines.push('노회장 ' + (D.chair || S.chair || '이용동') + '   서기 ' + (D.secretary || S.secretary || '박재용'));
+      var text = lines.join('\n');
+      var done = function (ok) {
+        A.toast(ok ? '공문 전체 글자를 복사했습니다. 메일·한글·워드에 붙여넣으세요.' : '복사가 막혔습니다. 지면 글자를 길게 눌러 직접 복사해 주세요.');
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () {
+          legacyCopy(text) ? done(true) : done(false);
+        });
+      } else {
+        legacyCopy(text) ? done(true) : done(false);
+      }
+    });
 
     /* 크게 보기 */
     if ($('ntZoomBtn')) $('ntZoomBtn').addEventListener('click', function () {
@@ -1179,6 +1275,7 @@
       saveSettings();
       renderPages();
       A.toast('공문 서식을 저장했습니다.');
+      if (A.pushSettings) A.pushSettings();
     });
     if ($('ntaReset')) $('ntaReset').addEventListener('click', function () {
       if (!window.confirm('공문 서식을 처음 값으로 되돌릴까요?')) return;
@@ -1289,7 +1386,37 @@
     }
   }
 
-  window.CertNotice = { enter: enter, enterAdmin: enterAdmin, openPdf: openNoticePdf, loadList: loadList };
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  window.CertNotice = {
+    enter: enter,
+    enterAdmin: enterAdmin,
+    openPdf: openNoticePdf,
+    loadList: loadList,
+    settings: function () { return S; },
+    applySettings: function (obj) {
+      if (!obj || typeof obj !== 'object') return;
+      Object.keys(obj).forEach(function (k) {
+        if (k.charAt(0) === '_') return;
+        S[k] = obj[k];
+      });
+      saveSettings();
+      renderAdminForm();
+      if (document.body.classList.contains('notice-mode')) renderPages();
+    }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

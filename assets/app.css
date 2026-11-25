@@ -136,6 +136,7 @@ main{padding:14px 14px 0}
    가운데(번호·제목·항목·본문·날짜·서명부)만 늘고 준다. */
 .paper{
   position:relative;
+  -webkit-user-select:text;user-select:text;
   width:210mm;height:297mm;
   background:#fff;color:#101010;
   font-family:"Nanum Myeongjo Cert","Nanum Myeongjo","Noto Serif KR","Noto Serif CJK KR","Noto Serif CJK","Batang","바탕",AppleMyungjo,serif;
@@ -174,7 +175,7 @@ main{padding:14px 14px 0}
   max-width:100%;min-width:0;
 }
 .p-mark{
-  flex:0 0 16mm;width:16mm;height:16mm;display:block;
+  flex:0 0 var(--logo,16mm);width:var(--logo,16mm);height:var(--logo,16mm);display:block;
 }
 .hl1{
   /* 교단명·노회명: 띠 높이(30mm)는 그대로 두고 글자만 9mm로 키웠다(전 5.2mm, 1.73배). */
@@ -196,6 +197,8 @@ main{padding:14px 14px 0}
 .p-sub .hl2 span[hidden]{display:none}
 .gap-tel{display:inline-block;width:6mm}
 .gap-tel[hidden]{display:none}
+.p-holy{margin:1.4mm 0 0;font-size:3.2mm;line-height:1.4;letter-spacing:.02mm;color:#333;white-space:nowrap;overflow:hidden}
+.p-holy[hidden]{display:none}
 .p-rule{display:block;height:0;margin:5.12mm 0 0;border-top:.55mm solid #2E7BB8}
 /* 총회 주소까지 두 줄이 되면 그만큼 줄 간격을 좁혀 아래 괘선 자리를 지킨다 */
 .paper.has-hq .p-sub{padding-top:1.8mm}
@@ -246,7 +249,7 @@ main{padding:14px 14px 0}
 .sg2wrap{margin-top:var(--sg-gap);display:flex;justify-content:center}
 .sg1wrap{margin-bottom:1.5mm}
 .sg2{display:grid;grid-template-columns:max-content max-content;
-  column-gap:5mm;row-gap:3.2mm;align-items:baseline;text-align:left}
+  column-gap:5.5mm;row-gap:4mm;align-items:baseline;text-align:left}
 /* 직함은 오른쪽 끝을 맞춘다 — '노회장'의 '장'과 '서기'의 '기'가 같은 세로선에 선다 */
 .sg2 .st{font-size:4.6mm;letter-spacing:.15mm;line-height:1;text-align:right;margin-right:-.15mm}
 .sg2 .sn{position:relative;font-size:5mm;letter-spacing:.12mm;line-height:1;white-space:nowrap}
@@ -258,7 +261,7 @@ main{padding:14px 14px 0}
 .seal-hold-org{right:.2mm;top:50%}
 .seal-hold-name{left:calc(100% + 2.2mm);top:50%}
 .seal-org{width:20mm;height:20mm;opacity:.6}
-.seal-name{width:8mm;height:8mm;opacity:.55}
+.seal-name{width:7.4mm;height:7.4mm;opacity:.55}
 /* 2안(판독 우선): 사각 인은 '노회' 글자에 조금만, 원형 인은 이름 오른쪽 어깨에 살짝 걸친다 */
 .paper[data-sg="2"] .seal-hold-org{right:.6mm}
 .paper[data-sg="2"] .seal-hold-name{left:calc(100% + 1.4mm)}
@@ -730,6 +733,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-pages{position:absolute;left:0;top:0;width:210mm;transform-origin:top left;will-change:transform}
 .nt-page{
   position:relative;width:210mm;height:297mm;overflow:hidden;background:#fff;color:#111;
+  -webkit-user-select:text;user-select:text;
   font-family:"Nanum Myeongjo Cert","Nanum Myeongjo","Noto Serif KR",Batang,serif;
   -webkit-font-smoothing:antialiased;
 }
@@ -755,16 +759,22 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 .nt-rule{position:absolute;left:15.2mm;right:15.2mm;height:0;display:block;font-style:normal}
 .nt-rule-top{top:41.6mm;border-top:.55mm solid #2E7BB8}
 .nt-rule-mid{display:none}
-.nt-rule-body{top:52.6mm;border-top:.9mm solid #111}
+.nt-rule-body{top:58.2mm;border-top:.9mm solid #111}
 .nt-rule-info{top:259.4mm;border-top:1.1mm solid #6f6f6f}
 .nt-rule-foot{top:281.6mm;left:10mm;right:10mm;border-top:1mm solid #111}
-.nt-meta{position:absolute;left:15.2mm;right:15.2mm;top:43.8mm}
+.nt-docno{position:absolute;right:15.2mm;top:43.4mm;font-size:3.3mm;letter-spacing:.02mm;line-height:1}
+.nt-meta{position:absolute;left:15.2mm;right:15.2mm;top:48.6mm}
 .nt-row{display:flex;align-items:baseline;height:5.4mm;font-size:3.9mm;line-height:1}
 .nt-row .mk{flex:0 0 12mm;font-weight:700;letter-spacing:.6mm;white-space:nowrap}
 .nt-row .cl{flex:0 0 5mm;text-align:center}
 .nt-row .mv{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nt-x{
+  flex:0 0 auto;margin-left:2mm;width:4.6mm;height:4.6mm;line-height:1;border:0;border-radius:1.2mm;
+  background:#eceae2;color:#8a7f6a;font-size:3.2mm;padding:0;cursor:pointer;
+}
+.nt-x:hover{background:#e3dfd2;color:#6f6455}
 .nt-body{
-  position:absolute;left:15.2mm;width:179.6mm;top:55mm;height:171mm;overflow:hidden;
+  position:absolute;left:15.2mm;width:179.6mm;top:60.4mm;height:165mm;overflow:hidden;
   font-size:3.6mm;line-height:5.2mm;letter-spacing:0;white-space:normal;
 }
 .nt-p{display:block;white-space:pre-wrap;overflow-wrap:anywhere;text-indent:0;min-height:5.2mm}
@@ -790,7 +800,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;
   font-size:2.9mm;line-height:4.4mm;letter-spacing:-.01mm;
 }
-.nt-i1{display:flex;justify-content:space-between;gap:4mm}
+.nt-i1{display:flex;justify-content:center;gap:4mm}
 .nt-i2,.nt-i3{margin-top:.5mm}
 .nt-pgno{position:absolute;right:15.2mm;top:287.5mm;font-size:2.7mm;color:#777;
   font-family:-apple-system,BlinkMacSystemFont,sans-serif}
@@ -874,7 +884,8 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 
 /* --- 공문 인쇄: 지면만 A4로 --- */
 @media print{
-  .nt-head,.nt-prev .preview-head,.nt-prev .pv-foot,.nt-drive,.nt-past,.cloud-hint,.cloud-chip{display:none!important}
+  .nt-x,.nt-head,.nt-prev .preview-head,.nt-prev .pv-foot,.nt-drive,.nt-past,.cloud-hint,.cloud-chip{display:none!important}
+  ::selection{background:transparent}
   .nt-host{position:static!important;height:auto!important;overflow:visible!important;box-shadow:none!important;border-radius:0!important}
   .nt-pages{position:static!important;transform:none!important;left:auto!important;width:210mm!important}
   .nt-page{box-shadow:none!important;margin:0!important;page-break-after:always;break-after:page}
