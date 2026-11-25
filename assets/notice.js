@@ -30,7 +30,7 @@
 
   var PAGE_W = 210, PAGE_H = 297;
   var EDGE = 15.2;
-  var BODY_TOP = 60.4, BODY_H = 165;
+  var BODY_TOP = 55.4, BODY_H = 170.6;
   var LINE_MM = 5.2;
   var BODY_W = PAGE_W - EDGE * 2;                 /* 179.6mm */
   var CAP = Math.floor(BODY_H / LINE_MM);         /* 한 장에 들어가는 줄 수 */
@@ -268,7 +268,7 @@
   function layout() {
     var rec = recipients();
     var rows = Math.max(1, rec.length) + 1;            /* 수신(최소 1) + 제목 */
-    var top = 48.6, limit = 58.2;
+    var top = 43.4, limit = 53.2;
     var avail = limit - top;
     var rowH = 5.4;
     if (rows * rowH > avail) rowH = Math.max(3.9, avail / rows);
@@ -326,10 +326,7 @@
             '<div class="nt-org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="nt-sub" data-f="a:address">' +
-          '<div class="nt-sub1">' + esc(sub1) + '</div>' +
-          (s.slogan ? '<div class="nt-sub2">' + esc(s.slogan) + '</div>' : '') +
-        '</div>' +
+        (s.slogan ? '<div class="nt-sub" data-f="a:slogan"><div class="nt-sub2">' + esc(s.slogan) + '</div></div>' : '') +
         '<i class="nt-rule nt-rule-top"></i>' +
         '<div class="nt-docno" data-f="no">문서번호&nbsp;&nbsp;' + esc(D.no || '') + '</div>' +
         meta +

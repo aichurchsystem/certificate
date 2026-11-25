@@ -11,7 +11,7 @@
   'use strict';
 
   var A4W = 793.7, A4H = 1122.5, MM = 3.7795;
-  var FIELDS_TOP = 84, DATE_TOP = 221.5;   /* 지면 조판 기준점(mm) */
+  var FIELDS_TOP = 80, DATE_TOP = 221.5;   /* 지면 조판 기준점(mm) */
 
   var SEALS = [
     { key: 'chair',      name: '노회장 인',    def: 'assets/seals/seal-chair-round.png' },
@@ -651,8 +651,8 @@
     el.pHq.textContent = F.hqAddress || '';
     el.pHq.hidden = !String(F.hqAddress || '').trim();
     el.paper.classList.toggle('has-hq', !el.pHq.hidden);
-    el.pNohoeAddr.textContent = F.presbyteryAddress || '';
-    el.pNohoeAddr.hidden = !String(F.presbyteryAddress || '').trim();
+    el.pNohoeAddr.textContent = '';
+    el.pNohoeAddr.hidden = true;                       /* 상단에는 주소를 찍지 않는다(아래 한 번만) */
     var postal = String(F.postalCode || '').trim();
     $('pPostal').textContent = postal ? '(' + postal + ')' : '';
     $('pPostal').hidden = !postal;
@@ -664,7 +664,17 @@
     /* 주소·전화·팩스는 한 줄 — 값이 빠진 칸 앞의 간격도 함께 빠진다 */
     $('pTelGap').hidden = !(tel && !el.pNohoeAddr.hidden);
     $('pFaxGap').hidden = !(fax && tel);
-    el.pNohoeAddrRow.hidden = el.pNohoeAddr.hidden && !tel && !fax;
+    el.pNohoeAddrRow.hidden = true;                    /* 상단 주소·전화 줄은 쓰지 않는다 */
+    var cLine = $('pContact');
+    if (cLine) {
+      var bits = [];
+      if (postal) bits.push('(' + postal + ')');
+      if (String(F.presbyteryAddress || '').trim()) bits.push(String(F.presbyteryAddress).trim());
+      if (tel) bits.push(tel.replace(/^Tel:\s*/i, '전화 '));
+      if (fax) bits.push(fax.replace(/^Fax:\s*/i, '팩스 '));
+      cLine.textContent = bits.join(' · ');
+      cLine.hidden = !bits.length;
+    }
 
     /* 성구 한 줄(비우면 빠짐)과 로고 크기 */
     var holy = $('pHolyline');
