@@ -107,7 +107,7 @@
       phKo: '증명사진', phEn: 'PHOTO',
       inetTpl: '(Internet No) {inet}',
       /* 백석 엠블럼 워터마크 — 지면 폭 %, 진하기 % */
-      wmOn: 'on', wmSize: '45', wmTone: '5',
+      wmOn: 'on', wmSize: '45', wmTone: '4',
       /* 사진 모서리 교단 압인 — 인주색 원형 도장, 오른쪽 아래, 지름 mm, 진하지 % */
       stampOn: 'on', stampCorner: 'br', stampColor: 'ink', stampSize: '14', stampTone: '30',
       phW: 31, phL: 30, phT: 72,
@@ -858,7 +858,7 @@
       /* 백석 엠블럼 워터마크 — 크기는 지면 폭 %, 진하기는 불투명도 % */
       if (e.wm) {
         var wmPct = Math.min(80, Math.max(15, num(O.wmSize, 45)));
-        var wmTone = Math.min(30, Math.max(0, num(O.wmTone, 5))) / 100;
+        var wmTone = Math.min(30, Math.max(0, num(O.wmTone, 4))) / 100;
         e.paper.style.setProperty('--wm-w', (210 * wmPct / 100).toFixed(2) + 'mm');
         e.paper.style.setProperty('--wm-o', String(wmTone));
         e.wm.hidden = String(O.wmOn || 'on') === 'off';

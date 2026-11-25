@@ -127,8 +127,10 @@
 /* 백석 엠블럼 워터마크 — 지면 가운데에 크게, 아주 옅게. 본문·사진·직인·QR 뒤에 깔린다. */
 .od-wm{
   position:absolute;z-index:0;pointer-events:none;user-select:none;
-  left:50%;transform:translateX(-50%);top:calc(148.5mm - var(--wm-w,86mm) / 2);
-  width:var(--wm-w,86mm);height:var(--wm-w,86mm);
+  left:50%;transform:translateX(-50%);
+  /* 지면 가운데에 놓되, 사진 자리(아래 113mm)보다 내려와 겹치지 않게 한다 */
+  top:max(114mm, calc(148.5mm - var(--wm-w,94.5mm) / 2));
+  width:var(--wm-w,94.5mm);height:var(--wm-w,94.5mm);
   opacity:var(--wm-o,.05);
   -webkit-print-color-adjust:exact;print-color-adjust:exact;
 }
