@@ -203,7 +203,7 @@ main{padding:14px 14px 0}
 .gap-tel[hidden]{display:none}
 .p-holy{margin:1.4mm 0 0;font-size:3.2mm;line-height:1.4;letter-spacing:.02mm;color:#333;white-space:nowrap;overflow:hidden}
 .p-holy[hidden]{display:none}
-.p-rule{display:block;height:0;margin:5.12mm 0 0;border-top:.45mm solid var(--rule-lite,#42618A)}
+.p-rule{display:none}
 /* 총회 주소까지 두 줄이 되면 그만큼 줄 간격을 좁혀 아래 괘선 자리를 지킨다 */
 .paper.has-hq .p-sub{padding-top:1.8mm}
 .paper.has-hq .p-sub .hl2{line-height:1.35}
