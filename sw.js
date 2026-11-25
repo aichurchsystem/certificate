@@ -3,17 +3,32 @@
    운동일지 앱(/Church/)과는 다른 사이트이므로 그쪽 캐시·화면은 건드리지 않는다.
    네트워크가 있으면 새 파일을 먼저 받아 두고, 없으면 받아 둔 사본으로 연다. */
 
-const CACHE = 'certificate-standalone-v84';
+const CACHE = 'certificate-standalone-v85';
 const SHELL = [
   './',
   './index.html',
-  './assets/app.css?v=62',
-  './assets/app.js?v=62',
-  './assets/notice.js?v=62',
-  './assets/lock.js?v=62',
-  './assets/xlsx.js?v=62',
+  './verify.html',
+  './assets/app.css?v=85',
+  './assets/ord.css?v=85',
+  './assets/app.js?v=85',
+  './assets/notice.js?v=85',
+  './assets/verify.js?v=85',
+  './assets/verify.css?v=85',
+  './assets/lock.js?v=82',
+  './assets/xlsx.js?v=85',
   './assets/fonts/nm-Regular.woff2',
   './assets/fonts/nm-Bold.woff2',
+  './assets/fonts/nsr-400-0.woff2',
+  './assets/fonts/nsr-400-1.woff2',
+  './assets/fonts/nsr-400-2.woff2',
+  './assets/fonts/nsr-400-3.woff2',
+  './assets/fonts/nsr-400-4.woff2',
+  './assets/fonts/nsr-700-0.woff2',
+  './assets/fonts/nsr-700-1.woff2',
+  './assets/fonts/nsr-700-2.woff2',
+  './assets/fonts/nsr-700-3.woff2',
+  './assets/fonts/nsr-700-4.woff2',
+  './assets/ord-frame.svg',
   './assets/logo-sky.svg',
   './assets/logo-white.svg',
   './assets/logo-deep.svg',
