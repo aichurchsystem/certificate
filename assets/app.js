@@ -2215,9 +2215,16 @@
     });
 
     /* 표지 */
-    if ($('cvGo')) $('cvGo').addEventListener('click', function () { switchView('issue'); });
-    if ($('cvNotice')) $('cvNotice').addEventListener('click', function () { switchView('notice'); });
-    if ($('cvAdmin')) $('cvAdmin').addEventListener('click', function () { switchAdmin('cert'); });
+    /* 표지는 그대로 열리고, 발급·관리자로 들어갈 때만 잠금(숫자 4자리)을 묻는다 */
+    function withLock(fn) {
+      return function () {
+        if (window.CertLock && window.CertLock.require) window.CertLock.require(fn);
+        else fn();
+      };
+    }
+    if ($('cvGo')) $('cvGo').addEventListener('click', withLock(function () { switchView('issue'); }));
+    if ($('cvNotice')) $('cvNotice').addEventListener('click', withLock(function () { switchView('notice'); }));
+    if ($('cvAdmin')) $('cvAdmin').addEventListener('click', withLock(function () { switchAdmin('cert'); }));
     Array.prototype.forEach.call(document.querySelectorAll('.atab'), function (b) {
       b.addEventListener('click', function () { switchAdmin(b.dataset.atab); });
     });

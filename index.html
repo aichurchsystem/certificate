@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="노회 문서">
-<link rel="stylesheet" href="assets/app.css?v=49">
+<link rel="stylesheet" href="assets/app.css?v=51">
 </head>
 <body>
 
@@ -954,25 +954,32 @@
   </div>
 </div>
 
-<!-- 앱 잠금 화면 -->
+<!-- 앱 잠금 화면 (숫자 4자리) -->
 <div class="modal lockmodal" id="lockModal" hidden>
   <div class="lockbox">
     <img class="lockmark" src="assets/logo-white.svg" alt="">
-    <h3 id="lockTitle">비밀번호를 입력해 주세요</h3>
+    <h3 id="lockTitle">비밀번호 4자리</h3>
     <p class="lock-sub">대한예수교장로회(백석) 서울강동노회 문서함</p>
-    <input id="lockPass" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호" aria-label="비밀번호">
+    <div class="lock-dots" id="lockDots"><i></i><i></i><i></i><i></i></div>
+    <input id="lockPass" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="비밀번호 4자리" class="lock-hidden-input">
     <p class="lock-err" id="lockErr"></p>
-    <div class="lock-acts"><button type="button" class="btn primary" id="lockGo">들어가기</button></div>
-    <button type="button" class="lock-forget" id="lockForget">비밀번호를 잊으셨나요?</button>
+    <div class="lock-pad" id="lockPad">
+      <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+      <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+      <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+      <button type="button" class="wide" data-k="0">0</button>
+      <button type="button" data-k="del" aria-label="지우기">⌫</button>
+    </div>
+    <button type="button" class="lock-cancel" id="lockCancel">닫기</button>
   </div>
 </div>
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="vendor/html2canvas.min.js?v=49"></script>
-<script src="assets/xlsx.js?v=49"></script>
-<script src="assets/app.js?v=49"></script>
-<script src="assets/notice.js?v=49"></script>
-<script src="assets/lock.js?v=49"></script>
+<script src="vendor/html2canvas.min.js?v=51"></script>
+<script src="assets/xlsx.js?v=51"></script>
+<script src="assets/app.js?v=51"></script>
+<script src="assets/notice.js?v=51"></script>
+<script src="assets/lock.js?v=51"></script>
 </body>
 </html>
