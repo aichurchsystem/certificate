@@ -262,9 +262,9 @@ main{padding:14px 14px 0}
 .seal-hold img{position:absolute;left:0;top:0;transform:translate(-50%,-50%);object-fit:contain;display:block}
 .seal-hold[hidden]{display:none}
 /* 1안(정석): 노회 사각 인은 '노회' 글자 위, 원형 인은 이름 끝 글자 위에 반투명으로 얹는다 */
-.seal-hold-org{right:.2mm;top:50%}
+.seal-hold-org{right:2.6mm;top:50%}
 .seal-hold-name{left:calc(100% + 2.2mm);top:50%}
-.seal-org{width:24mm;height:24mm;opacity:.6}
+.seal-org{width:28.8mm;height:28.8mm;opacity:.6}
 .seal-name{width:7.4mm;height:7.4mm;opacity:.55}
 /* 2안(판독 우선): 사각 인은 '노회' 글자에 조금만, 원형 인은 이름 오른쪽 어깨에 살짝 걸친다 */
 .paper[data-sg="2"] .seal-hold-org{right:.6mm}
@@ -799,15 +799,16 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 }
 .nt-sign{position:absolute;left:0;right:0;top:220.5mm;text-align:center}
 .nt-date{font-size:4.1mm;letter-spacing:.5mm;line-height:1}
-.nt-org2{margin-top:6.4mm;font-size:6.5mm;font-weight:700;letter-spacing:1.15mm;line-height:1;position:relative;
-  display:block;padding-right:.2mm}
+.nt-org2wrap{margin-top:6.4mm;text-align:center}
+.nt-org2{font-size:6.5mm;font-weight:700;letter-spacing:1.15mm;line-height:1;position:relative;
+  display:inline-block;padding-right:.2mm}
 .nt-names{
   margin:4.2mm auto 0;display:inline-grid;vertical-align:top;grid-template-columns:auto auto;column-gap:8mm;row-gap:2.5mm;
   font-size:4mm;line-height:1;text-align:left;
 }
-.nt-names .st{letter-spacing:4.6mm}
+.nt-names .st{letter-spacing:2.2mm;margin-right:-2.2mm}
 .nt-names .sn{letter-spacing:.4mm}
-.nt-seal{position:absolute;right:26mm;top:2.4mm;width:24mm;height:24mm;object-fit:contain;opacity:.88}
+.nt-seal{position:absolute;right:-5.5mm;top:50%;transform:translateY(-50%);width:28.8mm;height:28.8mm;object-fit:contain;opacity:.86;z-index:3}
 .nt-info{
   position:absolute;left:15.2mm;right:15.2mm;top:256.4mm;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;

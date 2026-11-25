@@ -344,12 +344,11 @@
           bodyHtml + '</div>' +
         '<div class="nt-sign">' +
           '<div class="nt-date" data-f="refDate">' + esc(refDate) + '</div>' +
-          '<div class="nt-org2" data-f="a:org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + '</div>' +
+          '<div class="nt-org2wrap"><span class="nt-org2" data-f="a:org">' + esc((s.org || '') + ' ' + (s.presbytery || '')) + seal + '</span></div>' +
           '<div class="nt-names">' +
             '<span class="st">노 회 장</span><span class="sn" data-f="chair">' + esc(D.chair || s.chair || '이용동') + '</span>' +
             '<span class="st">서 기</span><span class="sn" data-f="secretary">' + esc(D.secretary || s.secretary || '박재용') + '</span>' +
           '</div>' +
-          seal +
         '</div>' +
         '<i class="nt-rule nt-rule-info"></i>' +
         '<div class="nt-info">' +
