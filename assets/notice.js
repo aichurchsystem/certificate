@@ -52,7 +52,7 @@
       tel: '010 5328 3683',
       email: 'pjypjy323@hanmail.net',
       seal: 'on',
-      watermark: '8',
+      watermark: '4',
       noPrefix: '서울강동 제',
       noNext: '1102603-17',
       disclosure: '공개',

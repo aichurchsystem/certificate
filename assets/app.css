@@ -152,12 +152,12 @@ main{padding:14px 14px 0}
 }
 /* 워터마크는 머리글 띠 아래 본문 영역에만 깔린다 */
 .wm{
-  position:absolute;z-index:0;left:50%;top:106mm;width:96mm;
+  position:absolute;z-index:0;left:50%;top:98mm;width:134mm;
   transform:translateX(-50%);
-  opacity:.45;pointer-events:none;user-select:none;
+  opacity:.30;pointer-events:none;user-select:none;
 }
-.paper[data-wm="slate"] .wm{opacity:.38}
-.paper[data-wm="ink"] .wm{opacity:.30}
+.paper[data-wm="slate"] .wm{opacity:.26}
+.paper[data-wm="ink"] .wm{opacity:.20}
 .paper[data-wm="none"] .wm{display:none}
 
 /* ---- 위: 머리글 띠 ---- */
@@ -264,7 +264,7 @@ main{padding:14px 14px 0}
 /* 1안(정석): 노회 사각 인은 '노회' 글자 위, 원형 인은 이름 끝 글자 위에 반투명으로 얹는다 */
 .seal-hold-org{right:.2mm;top:50%}
 .seal-hold-name{left:calc(100% + 2.2mm);top:50%}
-.seal-org{width:20mm;height:20mm;opacity:.6}
+.seal-org{width:24mm;height:24mm;opacity:.6}
 .seal-name{width:7.4mm;height:7.4mm;opacity:.55}
 /* 2안(판독 우선): 사각 인은 '노회' 글자에 조금만, 원형 인은 이름 오른쪽 어깨에 살짝 걸친다 */
 .paper[data-sg="2"] .seal-hold-org{right:.6mm}
@@ -750,7 +750,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
   -webkit-font-smoothing:antialiased;
 }
 .nt-page + .nt-page{margin-top:8mm}
-.nt-wm{position:absolute;left:50%;top:104mm;width:72mm;transform:translateX(-50%);pointer-events:none;user-select:none}
+.nt-wm{position:absolute;left:50%;top:96mm;width:100mm;transform:translateX(-50%);pointer-events:none;user-select:none}
 /* 머리글 — 증명서(.p-band/.p-sub)와 같은 틀: 좌측 백석 로고 + 가운데 교단명·노회명, 그 아래 주소·전화 한 줄 */
 .nt-band{
   position:absolute;left:0;right:0;top:0;height:30mm;
@@ -806,7 +806,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
 }
 .nt-names .st{letter-spacing:4.6mm}
 .nt-names .sn{letter-spacing:.4mm}
-.nt-seal{position:absolute;right:24mm;top:-1mm;width:20mm;height:20mm;object-fit:contain;opacity:.88}
+.nt-seal{position:absolute;right:26mm;top:2.4mm;width:24mm;height:24mm;object-fit:contain;opacity:.88}
 .nt-info{
   position:absolute;left:15.2mm;right:15.2mm;top:264mm;text-align:center;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;
