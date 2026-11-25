@@ -104,6 +104,7 @@
       secTKo: '서   기', secNKo: '박 재 용 목사',
       secTEn: 'Secretary', secNEn: 'Rev. Park Jae-yong',
       sigOrder: 'cs',
+      labelSep: ':',
       phKo: '증명사진', phEn: 'PHOTO',
       inetTpl: '(Internet No) {inet}',
       /* 백석 엠블럼 워터마크 — 지면 폭 %, 진하기 % */
@@ -868,6 +869,12 @@
       e.title.textContent = ko ? O.titleKo : O.titleEn;
       e.lbName.textContent = ko ? O.lbNameKo : O.lbNameEn;
       e.lbBirth.textContent = ko ? O.lbBirthKo : O.lbBirthEn;
+      /* 라벨과 값 사이 표기(기본 ‘:’) — 관리자에서 바꾸거나 비우면 빠진다 */
+      var sep = O.labelSep == null ? ':' : String(O.labelSep);
+      Array.prototype.forEach.call(e.paper.querySelectorAll('.od-cl'), function (n) {
+        n.textContent = sep;
+        n.style.display = sep ? '' : 'none';
+      });
       e.name.textContent = ko ? ordFill(O.nameKo, dv) : ordFill(O.nameEn, bv);
       e.birth.textContent = ordFill(ko ? O.birthKo : O.birthEn, bv);
 
