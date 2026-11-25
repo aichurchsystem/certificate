@@ -718,7 +718,7 @@
     var wm = el.paper.querySelector('.wm');
     if (wm) {
       el.paper.dataset.wm = wmVariant;
-      var wsrc = 'assets/logo-sky.svg';
+      var wsrc = 'assets/logo-navy.svg';   /* 워터마크는 남색 계열 */
       if (wm.getAttribute('src') !== wsrc) wm.setAttribute('src', wsrc);
       wm.style.display = (def.watermark === false || wmVariant === 'none') ? 'none' : '';
     }

@@ -35,7 +35,7 @@
   var BODY_W = PAGE_W - EDGE * 2;                 /* 179.6mm */
   var CAP = Math.floor(BODY_H / LINE_MM);         /* 한 장에 들어가는 줄 수 */
 
-  var LOGO = 'assets/logo-sky.svg';
+  var LOGO = 'assets/logo-navy.svg';   /* 지면 가운데 워터마크(남색) */
   var DEF_SEAL = 'assets/seals/seal-presbytery-square.png';
   var FOLDER = '노회공문';
 
