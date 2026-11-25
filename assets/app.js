@@ -613,7 +613,8 @@
   /* 지면 오른쪽 아래 진위 확인 QR — 확인번호·성명·종류·발급일을 담는다.
      찍으면 휴대폰에 그 내용이 그대로 뜨고, 노회에 문의할 때 대조할 수 있다. */
   var qrCacheKey = '';
-  function drawVerifyQr(T) {
+  function drawVerifyQr(T, F) {
+    F = F || state.fmt || defaultFmt();
     var img = el.pQr;
     if (!img) return;
     if (typeof qrcode !== 'function') { img.hidden = true; return; }
@@ -750,7 +751,7 @@
     if (n1 && n2 && !/[.!?]$/.test(n1)) n1 += '.';
     el.pNoteLine.textContent = [n1, n2].filter(Boolean).join(' ');
     el.pInet.textContent = state.inet || '';
-    drawVerifyQr(T);
+    drawVerifyQr(T, F);
 
     // 엠블럼 워터마크: 종류별 켜기·끄기 + 지면 전체 시안(네이비·회청·먹색·없음)
     var wmVariant = WM_VARIANTS.indexOf(F.watermark) < 0 ? 'slate' : F.watermark;
