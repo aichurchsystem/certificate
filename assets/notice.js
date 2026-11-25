@@ -352,19 +352,15 @@
             '<span class="st">서 기</span><span class="sn" data-f="secretary">' + esc(D.secretary || s.secretary || '박재용') + '</span>' +
           '</div>' +
         '</div>' +
-        '<i class="nt-rule nt-rule-info"></i>' +
-        '<div class="nt-info">' +
-          '<div class="nt-i1" data-f="a:address">' + esc(footLine()) + '</div>' +
-        '</div>' +
-        '<i class="nt-rule nt-rule-foot"></i>' +
+        '<div class="nt-foot" data-f="a:address"><span class="fl">' + esc(footLine()) + '</span></div>' +
         (total > 1 ? '<div class="nt-pgno">' + (idx + 1) + ' / ' + total + '</div>' : '') +
       '</div>';
   }
 
   /* 하단 주소 줄을 한 줄에 담기게 — 10pt부터 시작해 9pt·8.5pt·8pt로만 내린다 */
   function fitFoot(container) {
-    var steps = ['3.53mm', '3.175mm', '3.0mm', '2.82mm'];
-    Array.prototype.forEach.call(container.querySelectorAll('.nt-i1'), function (box) {
+    var steps = ['2.6mm', '2.45mm', '2.3mm', '2.2mm'];
+    Array.prototype.forEach.call(container.querySelectorAll('.nt-foot .fl'), function (box) {
       box.style.fontSize = '';
       for (var i = 0; i < steps.length; i++) {
         box.style.fontSize = steps[i];

@@ -274,7 +274,7 @@ main{padding:14px 14px 0}
 .sign img[hidden]{display:none}
 
 /* ---- 아래: 지면 바닥에 붙는 블록 ---- */
-.p-bottom{position:absolute;z-index:1;left:0;right:0;bottom:8.5mm;
+.p-bottom{position:absolute;z-index:1;left:0;right:0;bottom:16mm;
   display:flex;flex-direction:column;justify-content:flex-end}
 .p-contact{margin:0 15.2mm 1.6mm;padding-top:1.8mm;border-top:.4mm solid var(--rule-lite,#42618A);font-size:2.75mm;line-height:1.5;letter-spacing:-.01mm;color:#3a3a3a;
   font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;text-align:center;
@@ -797,7 +797,7 @@ body.cover-mode main{padding:0;max-width:none;margin:0}
   font-size:3.6mm;line-height:5.2mm;white-space:pre-wrap;overflow-wrap:anywhere;
   font-family:"Nanum Myeongjo Cert","Nanum Myeongjo","Noto Serif KR",Batang,serif;
 }
-.nt-sign{position:absolute;left:0;right:0;top:220.5mm;text-align:center}
+.nt-sign{position:absolute;left:0;right:0;top:246mm;text-align:center}
 .nt-date{font-size:4.1mm;letter-spacing:.5mm;line-height:1}
 .nt-org2wrap{margin-top:6.4mm;text-align:center}
 .nt-org2{font-size:6.5mm;font-weight:700;letter-spacing:1.15mm;line-height:1;position:relative;
@@ -990,3 +990,20 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 }
 .atab.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .cv-small{font-size:13.5px;color:rgba(255,255,255,.62);min-height:36px}
+
+/* ---- 지면 맨 아래 군청 띠 (위 머리글 띠와 짝) ---- */
+.nt-foot{
+  position:absolute;left:0;right:0;bottom:0;height:14mm;z-index:2;
+  display:flex;align-items:center;justify-content:center;padding:0 10mm;
+  background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);color:#fff;
+}
+.nt-foot .fl{font-size:2.6mm;letter-spacing:-.02mm;line-height:1.35;color:rgba(255,255,255,.94);
+  white-space:nowrap;overflow:hidden;text-align:center;
+  font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif}
+.p-foot{
+  position:absolute;left:0;right:0;bottom:0;height:13mm;z-index:2;
+  display:flex;align-items:center;justify-content:center;padding:0 12mm;
+  background:linear-gradient(100deg,#12344F 0%,#16456A 58%,#1E5C86 100%);color:#fff;
+}
+.p-footline{font-size:2.6mm;line-height:1.35;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;letter-spacing:-.02mm}

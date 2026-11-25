@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="노회 문서">
-<link rel="stylesheet" href="assets/app.css?v=51">
+<link rel="stylesheet" href="assets/app.css?v=52">
 </head>
 <body>
 
@@ -265,12 +265,12 @@
 
               <!-- ===== 아래: 지면 바닥에 고정 ===== -->
               <div class="p-bottom">
-                <div class="p-contact" id="pContact"></div>
-                <div class="band"><img src="assets/band.png" alt=""></div>
+                <div class="band" hidden><img src="assets/band.png" alt=""></div>
                 <div class="inet">(Internet No) <span id="pInet">NBDF191948314</span></div>
                 <div class="note" id="pNoteLine" data-cf="note1">본 증명서의 진위 여부는 대한예수교장로회(백석) 서울강동노회로 문의하시기 바랍니다 발급일로부터 90일까지 유효합니다</div>
               </div>
             </div>
+              <div class="p-foot"><span class="p-footline" id="pContact"></span></div>
             <!-- ===== /A4 지면 ===== -->
           </div>
 
@@ -755,10 +755,10 @@
             <label><input type="radio" name="lockOn" value="on"><span>잠금 켜기</span></label>
             <label><input type="radio" name="lockOn" value="off"><span>잠금 끄기</span></label>
           </div>
-          <div class="field"><label for="lockCur">지금 비밀번호</label><input id="lockCur" type="password" autocomplete="off" inputmode="numeric"></div>
+          <div class="field"><label for="lockCur">지금 비밀번호</label><input id="lockCur" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>
           <div class="row2">
-            <div class="field"><label for="lockNew">새 비밀번호 (4~12자)</label><input id="lockNew" type="password" autocomplete="off"></div>
-            <div class="field"><label for="lockNew2">새 비밀번호 확인</label><input id="lockNew2" type="password" autocomplete="off"></div>
+            <div class="field"><label for="lockNew">새 비밀번호 (숫자 4자리)</label><input id="lockNew" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>
+            <div class="field"><label for="lockNew2">새 비밀번호 확인 (숫자 4자리)</label><input id="lockNew2" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>
           </div>
           <div class="fmt-actions"><button type="button" class="btn primary" id="lockSave">비밀번호 바꾸기</button></div>
           <p class="hint">한 번 풀면 10분 동안 다시 묻지 않고, 앱을 닫았다 열면 다시 묻습니다.</p>
@@ -976,10 +976,10 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="vendor/html2canvas.min.js?v=51"></script>
-<script src="assets/xlsx.js?v=51"></script>
-<script src="assets/app.js?v=51"></script>
-<script src="assets/notice.js?v=51"></script>
-<script src="assets/lock.js?v=51"></script>
+<script src="vendor/html2canvas.min.js?v=52"></script>
+<script src="assets/xlsx.js?v=52"></script>
+<script src="assets/app.js?v=52"></script>
+<script src="assets/notice.js?v=52"></script>
+<script src="assets/lock.js?v=52"></script>
 </body>
 </html>
