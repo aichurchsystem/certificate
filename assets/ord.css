@@ -109,10 +109,10 @@
 .od-sign{position:absolute;left:0;right:0;top:231mm}
 .paper.ord[data-lang="en"] .od-sign{top:228mm}
 /* 줄 사이를 넉넉히 띄운다 — 직함·성명 위에 인이 겹쳐도 두 인이 서로 닿지 않게(13mm 인 기준) */
-.od-sg{display:flex;justify-content:center;align-items:baseline;gap:5mm;margin-bottom:7mm}
+.od-sg{display:flex;justify-content:center;align-items:baseline;gap:5mm;margin-bottom:4.2mm}
 .od-sg .st{width:28mm;text-align:justify;text-align-last:justify;font-size:4.6mm;letter-spacing:.1em}
 .od-sg .sn{font-size:5.0mm;letter-spacing:.18em;white-space:nowrap}
-.paper.ord[data-lang="en"] .od-sg{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:baseline;gap:0 4mm;margin-bottom:7.9mm}
+.paper.ord[data-lang="en"] .od-sg{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:baseline;gap:0 4mm;margin-bottom:4.7mm}
 .paper.ord[data-lang="en"] .od-sg .st{display:block;width:46mm;text-align:right;text-align-last:auto;font-size:4.3mm;letter-spacing:.01em;white-space:nowrap}
 .paper.ord[data-lang="en"] .od-sg .sn{display:block;font-size:4.6mm;letter-spacing:.01em;white-space:nowrap}
 
@@ -120,17 +120,15 @@
    글자를 가리지 않도록 서명부 아래 빈 자리에 세 인을 나란히 놓는다. */
 .od-seal{position:absolute;z-index:3;pointer-events:none}
 .od-seal img{width:100%;height:100%;object-fit:contain;display:block}
-.od-seal.sq{left:var(--sq-l,32mm);top:var(--sq-t,230mm);width:var(--sq-s,28mm);height:var(--sq-s,28mm)}
-.od-seal.r1{left:var(--r1-l,115mm);top:var(--r1-t,228.1mm);width:var(--r-s,13mm);height:var(--r-s,13mm);opacity:.92}
-.od-seal.r2{left:var(--r2-l,115mm);top:var(--r2-t,242.5mm);width:var(--r-s,13mm);height:var(--r-s,13mm);opacity:.92}
+.od-seal.sq{left:var(--sq-l,147mm);top:var(--sq-t,210.8mm);width:var(--sq-s,26mm);height:var(--sq-s,26mm)}
+.od-seal.r1{left:var(--r1-l,131.1mm);top:var(--r1-t,229.1mm);width:var(--r-s,11mm);height:var(--r-s,11mm);opacity:.92}
+.od-seal.r2{left:var(--r2-l,131.1mm);top:var(--r2-t,240.8mm);width:var(--r-s,11mm);height:var(--r-s,11mm);opacity:.92}
 .od-seal[hidden]{display:none}
 
-/* 영문 지면은 서명부가 한글판보다 3.1mm 위에, 이름 가운데가 8.5mm 오른쪽에 있다(직함 표기가 길어
-   줄이 오른쪽으로 밀린다). 인은 관리자 값(한글판 기준)에 이 차이만 더해 같은 방식으로 얹는다.
-   사각 인은 영문 직함(‘Presbytery Chairman’)이 왼쪽까지 길게 오므로 왼쪽으로 12mm 물린다. */
-.paper.ord[data-lang="en"] .od-seal.r1{left:calc(var(--r1-l,115mm) + 8.5mm);top:calc(var(--r1-t,228.1mm) - 3.1mm)}
-.paper.ord[data-lang="en"] .od-seal.r2{left:calc(var(--r2-l,115mm) + 8.5mm);top:calc(var(--r2-t,242.5mm) - 3.1mm)}
-.paper.ord[data-lang="en"] .od-seal.sq{left:calc(var(--sq-l,32mm) - 12mm);top:calc(var(--sq-t,230mm) - 3.1mm)}
+/* 영문 지면은 ‘Presbytery’ 끝(ry)과 각 영문 성명 마지막 글자(u, g)에 맞춰 좌표를 보정한다. */
+.paper.ord[data-lang="en"] .od-seal.r1{left:calc(var(--r1-l,131.1mm) + 19.4mm);top:calc(var(--r1-t,229.1mm) - 3.3mm)}
+.paper.ord[data-lang="en"] .od-seal.r2{left:calc(var(--r2-l,131.1mm) + 13.9mm);top:calc(var(--r2-t,240.8mm) - 3.4mm)}
+.paper.ord[data-lang="en"] .od-seal.sq{left:calc(var(--sq-l,147mm) - 23.3mm);top:calc(var(--sq-t,210.8mm) - 9.8mm)}
 
 /* 백석 엠블럼 워터마크 — 지면 가운데에 크게, 아주 옅게. 본문·사진·직인·QR 뒤에 깔린다. */
 .od-wm{
@@ -154,7 +152,7 @@
 .od-stamp[hidden]{display:none}
 
 /* 진위 확인 QR · Internet No. */
-.od-qr{position:absolute;right:16mm;bottom:16mm;width:30mm;height:30mm;z-index:2}
+.od-qr{position:absolute;right:16mm;bottom:16mm;width:28.5mm;height:28.5mm;z-index:2}
 .od-qr[hidden]{display:none}
 .od-inet{position:absolute;left:28mm;bottom:17mm;font-size:2.5mm;color:#6a6459;letter-spacing:.02em}
 
