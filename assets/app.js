@@ -69,7 +69,7 @@
 
   function defaultOrd() {
     return {
-      ordRev: 5,
+      ordRev: 6,
       titleKo: '목 사 안 수 증',
       titleEn: 'Certificate of Ordination',
       noKo: '서울강동 제{no}호',
@@ -114,8 +114,8 @@
       /* 사진 모서리 교단 압인 — 인주색 원형 도장, 오른쪽 아래, 지름 mm, 진하지 % */
       stampOn: 'off', stampCorner: 'br', stampColor: 'ink', stampSize: '14', stampTone: '30',
       phW: 31, phL: 30, phT: 72,
-      sqS: 26, sqL: 147, sqT: 210.8,
-      rS: 11, r1L: 131.1, r1T: 229.1, r2L: 131.1, r2T: 240.8
+      sqS: 26, sqL: 153.5, sqT: 210.8,
+      rS: 16.5, r1L: 128.3, r1T: 226.3, r2L: 128.3, r2T: 238.0
     };
   }
 
@@ -167,6 +167,17 @@
         F.rS = 11; F.r1L = 131.1; F.r1T = 229.1; F.r2L = 131.1; F.r2T = 240.8;
       }
       F.ordRev = 5;
+    }
+    /* 2026-11-26 목사님 지시 — 사각 인 오른쪽으로 조금 더, 노회장·서기 원형 인 1.5배 확대(11→16.5mm) */
+    if (rev < 6) {
+      var prevSeal5 = String(F.sqS) === '26' && String(F.sqL) === '147' && String(F.sqT) === '210.8' &&
+        String(F.rS) === '11' && String(F.r1L) === '131.1' && String(F.r1T) === '229.1' &&
+        String(F.r2L) === '131.1' && String(F.r2T) === '240.8';
+      if (prevSeal5) {
+        F.sqL = 153.5;
+        F.rS = 16.5; F.r1L = 128.3; F.r1T = 226.3; F.r2L = 128.3; F.r2T = 238.0;
+      }
+      F.ordRev = 6;
     }
     return F;
   }
@@ -939,13 +950,13 @@
       var e = ordEls(lang), ko = lang === 'ko';
       if (!e.paper) return;
       e.paper.style.setProperty('--sq-s', num(O.sqS, 26) + 'mm');
-      e.paper.style.setProperty('--sq-l', num(O.sqL, 147) + 'mm');
+      e.paper.style.setProperty('--sq-l', num(O.sqL, 153.5) + 'mm');
       e.paper.style.setProperty('--sq-t', num(O.sqT, 210.8) + 'mm');
-      e.paper.style.setProperty('--r-s', num(O.rS, 11) + 'mm');
-      e.paper.style.setProperty('--r1-l', num(O.r1L, 131.1) + 'mm');
-      e.paper.style.setProperty('--r1-t', num(O.r1T, 229.1) + 'mm');
-      e.paper.style.setProperty('--r2-l', num(O.r2L, 131.1) + 'mm');
-      e.paper.style.setProperty('--r2-t', num(O.r2T, 240.8) + 'mm');
+      e.paper.style.setProperty('--r-s', num(O.rS, 16.5) + 'mm');
+      e.paper.style.setProperty('--r1-l', num(O.r1L, 128.3) + 'mm');
+      e.paper.style.setProperty('--r1-t', num(O.r1T, 226.3) + 'mm');
+      e.paper.style.setProperty('--r2-l', num(O.r2L, 128.3) + 'mm');
+      e.paper.style.setProperty('--r2-t', num(O.r2T, 238.0) + 'mm');
 
       /* 백석 엠블럼 워터마크 — 크기는 지면 폭 %, 진하기는 불투명도 % */
       if (e.wm) {
