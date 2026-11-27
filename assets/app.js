@@ -489,6 +489,16 @@
     return state.fmt.types[id];
   }
 
+  /* 이 종류에 증명사진·사진 압인을 찍을지 — 관리자에서 고른 값이 먼저,
+     없으면 종류 기본값(types.json 의 photo, 적혀 있지 않으면 넣기)을 따른다. */
+  function photoOnFor(def) {
+    if (!def) return true;
+    var o = (state && state.fmt && state.fmt.types && state.fmt.types[def.id]) || {};
+    if (o.photo === 'off') return false;
+    if (o.photo === 'on') return true;
+    return def.photo !== false;
+  }
+
   /* --------------------------------------------------------------- 상태 */
   function blankState() {
     var iso = todayISO();
@@ -851,6 +861,7 @@
   }
   function ordPhoto() {
     var o = ordOf();
+    if (!photoOnFor(TYPE_BY_ID[ORD_ID] || { id: ORD_ID })) return '';
     var mine = '';
     try { mine = localStorage.getItem(KEY_ORD_PHOTO) || ''; } catch (e) {}
     if (mine) return mine;
@@ -1059,7 +1070,9 @@
         }
       }
 
-      /* 사진 */
+      /* 사진 — 관리자에서 ‘사진 표시 — 빼기’로 정한 종류는 사진 자리도 찍지 않는다 */
+      var photoHide = !photoOnFor(TYPE_BY_ID[ORD_ID] || { id: ORD_ID });
+      e.photoBox.hidden = photoHide;
       e.photoBox.style.setProperty('--ph-w', phW + 'mm');
       e.photoBox.style.setProperty('--ph-l', phL + 'mm');
       e.photoBox.style.setProperty('--ph-t', phT + 'mm');
@@ -1071,9 +1084,9 @@
         e.photo.removeAttribute('src');
         e.photoBox.setAttribute('data-empty', '1');
       }
-      /* 성명·생년월일 줄은 사진 오른쪽에 붙인다 */
-      e.lines.style.left = (phL + phW + 12) + 'mm';
-      e.lines.style.top = (phT + 15) + 'mm';
+      /* 성명·생년월일 줄은 사진 오른쪽에 붙인다(사진을 빼면 사진 자리에서 시작) */
+      e.lines.style.left = (photoHide ? phL : phL + phW + 12) + 'mm';
+      e.lines.style.top = (photoHide ? phT : phT + 15) + 'mm';
 
       /* 사진 모서리 교단 압인 — 사진 모서리에 절반 넘게 걸치고 지면으로 조금 넘치게 놓는다.
          사진이 없거나 관리자에서 ‘빼기’를 고르면 찍지 않는다(인쇄에서는 CSS가 뺀다). */
@@ -1199,8 +1212,9 @@
     if (headBox) {
       headBox.hidden = !isHead;
       if (isHead) {
+        /* 노회명은 어떤 문서든 하단에 찍고, 서기 줄만 빼다 */
         var withChair = signMode === 'head';
-        $('pHeadOrgWrap').hidden = withChair;
+        $('pHeadOrgWrap').hidden = false;
         $('pHeadChairTitle').hidden = !withChair;
         $('pHeadChairCell').hidden = !withChair;
         $('pHeadOrg').textContent = (F.org || '') + ' ' + (F.presbytery || '');
@@ -1211,10 +1225,13 @@
         $('pHeadChairName').textContent = chairN;
         $('pHeadDocTitle').textContent = T.signTitle || '';
         $('pHeadDocName').textContent = String(T.signerName || '').trim();
+        /* 노회 사각 인은 노회명 바로 옆에 — 서명부 직인과 같은 자리·같은 진하기 */
         var headSeal = $('sealHeadSq');
         if (headSeal) {
           var sealOn = sealAllowed();
+          var headHold = headSeal.parentNode;
           headSeal.hidden = !sealOn;
+          if (headHold && headHold.classList && headHold.classList.contains('seal-hold')) headHold.hidden = !sealOn;
           var headSealSrc = sealSrc('presbytery');
           if (sealOn && headSealSrc && headSeal.getAttribute('src') !== headSealSrc) headSeal.setAttribute('src', headSealSrc);
         }
@@ -1240,8 +1257,9 @@
       wm.style.display = (def.watermark === false || wmVariant === 'none') ? 'none' : '';
     }
 
-    // 증명사진 (있을 때만 자리를 차지한다)
-    var photo = photoFor(state.personId);
+    // 증명사진 (이 종류가 사진 넣기이고, 사진이 있을 때만 자리를 차지한다)
+    var photoAllowed = photoOnFor(def);
+    var photo = photoAllowed ? photoFor(state.personId) : '';
     if (photo) {
       el.pPhoto.src = photo;
       el.pPhoto.hidden = false;
@@ -1305,6 +1323,10 @@
     el.type.value = def.id;
     var isOrd = def.id === ORD_ID;
     if ($('ordPanel')) $('ordPanel').hidden = !isOrd;
+    /* 사진 빼기로 정한 종류는 발급 화면에서도 사진 넣는 자리를 숨기고 까닭을 적는다 */
+    var photoOn = photoOnFor(def);
+    if ($('ordPhotoPicker')) $('ordPhotoPicker').hidden = !photoOn;
+    if ($('ordPhotoOffNote')) $('ordPhotoOffNote').hidden = photoOn;
     if ($('extraBox')) $('extraBox').hidden = isOrd;   /* 안수일은 전용 칸에서 받는다 */
     if ($('certForm')) $('certForm').classList.toggle('is-ord', isOrd);
     if (isOrd) fillOrdInputs();
@@ -1524,6 +1546,7 @@
     var typeOv = (state.fmt.types && state.fmt.types[def.id]) || {};
     if ($('fmSignMode')) $('fmSignMode').value = typeOv.signMode || def.signMode || 'std';
     if ($('fmTypeSeals')) $('fmTypeSeals').value = typeOv.seals || (def.seals === false ? 'off' : 'on');
+    if ($('fmTypePhoto')) $('fmTypePhoto').value = typeOv.photo === 'on' ? 'on' : (typeOv.photo === 'off' ? 'off' : (def.photo === false ? 'off' : 'on'));
 
     $('fmLabels').innerHTML = def.rows.map(function (r) {
       var v = (T.labels && T.labels[r.src]) || r.label;
@@ -3303,6 +3326,11 @@
     $('fmTypeSeals').addEventListener('change', function () {
       typeOverride($('fmType').value, true).seals = this.value;
       saveState(); renderPaper();
+    });
+    $('fmTypePhoto').addEventListener('change', function () {
+      typeOverride($('fmType').value, true).photo = this.value;
+      saveState(); renderPaper();
+      if (el.type && el.type.value === $('fmType').value) renderForm();
     });
     $('fmLabels').addEventListener('change', function (e) {
       var cb = e.target.closest('[data-rowshow]');
