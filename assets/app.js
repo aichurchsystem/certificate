@@ -42,6 +42,9 @@
       chairName: '이용동',
       signerTitle: '서기',
       signerName: '박재용',
+      /* 고시 합격증·수료증 서명부 — 비우면 노회장 직함·성명을 그대로 쓰고 성명 뒤에 '목사'를 붙인다 */
+      eduChairTitle: '',
+      eduChairName: '',
       noPrefix: '노회(증)',
       watermark: 'slate',
       signSeal: '1',
@@ -359,12 +362,20 @@
     } catch (e) { return false; }
   }
 
+  /* 이 종류에 직인을 찍을지 — 전체 스위치 · 종류별 표시(관리자)를 함께 본다 */
+  function sealAllowed() {
+    if (!state) return true;
+    var d = currentDef();
+    var o = (state.fmt && state.fmt.types && state.fmt.types[d.id]) || {};
+    return state.sealsOn !== false && o.seals !== 'off' && d.seals !== false;
+  }
+
   function applySeal() {
     SEALS.forEach(function (s) {
       var img = $(SEAL_IMG[s.key]);
       if (!img) return;
       var hold = img.closest ? img.closest('.seal-hold') : null;   /* 직인 자리(줄 높이를 차지하지 않는 상자) */
-      if (!state.sealsOn) { img.hidden = true; if (hold) hold.hidden = true; return; }
+      if (!sealAllowed()) { img.hidden = true; if (hold) hold.hidden = true; return; }
       img.hidden = false;
       if (hold) hold.hidden = false;
       var src = sealSrc(s.key);
@@ -458,12 +469,17 @@
   /* --------------------------------------------------------------- 양식 글자 */
   function typeText(def) {
     var o = (state.fmt.types && state.fmt.types[def.id]) || {};
+    /* 종류 정의에 기본 직함·성명이 있으면 그것을 먼저 쓴다(고시위원장·교육부장처럼 서기와 다른 서명부) */
+    var signTitle = (o.signTitle != null && String(o.signTitle) !== '') ? o.signTitle
+      : (def.signTitle != null ? def.signTitle : state.fmt.signerTitle);
+    var signerName = (o.signerName != null && String(o.signerName) !== '') ? o.signerName
+      : (def.signerName !== undefined ? def.signerName : state.fmt.signerName);
     return {
       title: o.title || def.title || def.name,
       body: (o.body && o.body.length) ? o.body : def.body,
       labels: o.labels || {},
-      signTitle: o.signTitle || state.fmt.signerTitle,
-      signerName: o.signerName || state.fmt.signerName
+      signTitle: signTitle,
+      signerName: signerName
     };
   }
 
@@ -682,6 +698,10 @@
     Object.keys(ex).forEach(function (k) {
       var v = ex[k];
       m[k] = /^\d{4}-\d{2}-\d{2}$/.test(v || '') ? fmtDate(v) : (v || '');
+    });
+    /* 값이 비어 있는 항목도 빈 글자로 바꾼다 — 지면에 {examRound} 같은 표기가 남지 않게 */
+    (currentDef().extra || []).forEach(function (f) {
+      if (m[f.key] === undefined) m[f.key] = '';
     });
     return m;
   }
@@ -1166,6 +1186,40 @@
     el.pSignChair.textContent = F.chairName || '이용동';
     el.pSignTitle.textContent = T.signTitle;
     el.pSigner.textContent = T.signerName || '박재용';
+
+    /* 고시 합격증·수료증·당선증 서명부
+       head = 노회장 + 문서별 책임자 두 줄 / election = 노회 명의 + 책임자 한 줄
+       직인은 어느 쪽이든 노회 사각 인 하나만 크게 찍는다 */
+    var typeOv = (state.fmt.types && state.fmt.types[def.id]) || {};
+    var signMode = typeOv.signMode || def.signMode || 'std';
+    var isHead = signMode === 'head' || signMode === 'election';
+    var stdSign = $('pSignStd');
+    if (stdSign) stdSign.hidden = isHead;
+    var headBox = $('pSignHead');
+    if (headBox) {
+      headBox.hidden = !isHead;
+      if (isHead) {
+        var withChair = signMode === 'head';
+        $('pHeadOrgWrap').hidden = withChair;
+        $('pHeadChairTitle').hidden = !withChair;
+        $('pHeadChairCell').hidden = !withChair;
+        $('pHeadOrg').textContent = (F.org || '') + ' ' + (F.presbytery || '');
+        var chairT = String(F.eduChairTitle || '').trim() || (String(F.chairTitle || '').trim() || '노회장');
+        var chairN = String(F.eduChairName || '').trim() ||
+          ((String(F.chairName || '').trim() || '이용동') + ' 목사');
+        $('pHeadChairTitle').textContent = chairT;
+        $('pHeadChairName').textContent = chairN;
+        $('pHeadDocTitle').textContent = T.signTitle || '';
+        $('pHeadDocName').textContent = String(T.signerName || '').trim();
+        var headSeal = $('sealHeadSq');
+        if (headSeal) {
+          var sealOn = sealAllowed();
+          headSeal.hidden = !sealOn;
+          var headSealSrc = sealSrc('presbytery');
+          if (sealOn && headSealSrc && headSeal.getAttribute('src') !== headSealSrc) headSeal.setAttribute('src', headSealSrc);
+        }
+      }
+    }
     /* 안내문 두 줄을 한 줄로 이어 찍는다(폭이 모자라면 fitHead가 그 줄만 줄인다) */
     var NDEF = defaultFmt();
     var n1 = String(F.note1 || '').trim() || NDEF.note1, n2 = String(F.note2 || '').trim() || NDEF.note2;
@@ -1467,6 +1521,9 @@
     if (document.activeElement !== $('fmBody')) $('fmBody').value = T.body.join('\n');
     if (document.activeElement !== $('fmTSignTitle')) $('fmTSignTitle').value = T.signTitle;
     if (document.activeElement !== $('fmTSignName')) $('fmTSignName').value = T.signerName;
+    var typeOv = (state.fmt.types && state.fmt.types[def.id]) || {};
+    if ($('fmSignMode')) $('fmSignMode').value = typeOv.signMode || def.signMode || 'std';
+    if ($('fmTypeSeals')) $('fmTypeSeals').value = typeOv.seals || (def.seals === false ? 'off' : 'on');
 
     $('fmLabels').innerHTML = def.rows.map(function (r) {
       var v = (T.labels && T.labels[r.src]) || r.label;
@@ -3239,6 +3296,14 @@
       typeOverride($('fmType').value, true).signerName = this.value;
       saveState(); renderPaper();
     });
+    $('fmSignMode').addEventListener('change', function () {
+      typeOverride($('fmType').value, true).signMode = this.value;
+      saveState(); renderPaper();
+    });
+    $('fmTypeSeals').addEventListener('change', function () {
+      typeOverride($('fmType').value, true).seals = this.value;
+      saveState(); renderPaper();
+    });
     $('fmLabels').addEventListener('change', function (e) {
       var cb = e.target.closest('[data-rowshow]');
       if (!cb) return;
@@ -3600,14 +3665,20 @@
     var shortNames = {
       'employment': '재직', 'membership': '소속', 'church-plant': '개척확인', 'church-found': '설립',
       'assembly-attend': '노회 참석', 'dues': '노회비 납부', 'ordination': '목사 안수',
-      'ordination-cert': '목사 안수증'
+      'ordination-cert': '목사 안수증', 'evangelist-exam': '전도사 고시', 'elder-exam': '장로 고시',
+      'educator-completion': '교육자 컨퍼런스', 'chair-election': '노회장 당선', 'vice-chair-election': '부노회장 당선'
     };
     var names = TYPES.map(function (t) {
       var n = shortNames[t.id] || String(t.name || '').replace(/\s*(증명서|확인서)$/, '').replace(/^교회\s*/, '');
       return '<i>' + esc(n) + '</i>';
     });
-    var half = Math.ceil(names.length / 2);
-    box.innerHTML = names.slice(0, half).join('<em>·</em>') + '<br>' + names.slice(half).join('<em>·</em>');
+    /* 폰 폭에서 줄이 넘치지 않게 한 줄에 네 가지씩 끊고, 마지막 줄에 하나만 남으면 고르게 나눈다 */
+    var lines = [];
+    for (var i = 0; i < names.length; i += 4) lines.push(names.slice(i, i + 4));
+    if (lines.length > 1 && lines[lines.length - 1].length === 1) {
+      lines[lines.length - 1].unshift(lines[lines.length - 2].pop());
+    }
+    box.innerHTML = lines.map(function (ln) { return ln.join('<em>·</em>'); }).join('<br>');
   }
 
   function fillExtrasFromPerson() {

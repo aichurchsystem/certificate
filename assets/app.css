@@ -273,6 +273,13 @@ main{padding:14px 14px 0}
 .paper[data-sg="2"] .seal-name{opacity:.85}
 .sign img[hidden]{display:none}
 
+/* 고시 합격증·수료증 서명부 — 노회장 + 문서별 책임자 두 줄, 노회 사각 인 하나만 크게 */
+.sign-head .sg2wrap{margin-top:0}
+/* hidden 속성이 display:flex·block 규칙에 묻히지 않게 */
+.sg1wrap[hidden],.sign-head .sg2 .st[hidden],.sign-head .sg2 .sn[hidden]{display:none!important}
+.sign-head .sg2 .sn{min-width:22mm;display:inline-block}
+.seal-head-sq{position:absolute;right:16mm;bottom:24mm;width:43mm;height:43mm;object-fit:contain;opacity:.68}
+
 /* ---- 아래: 지면 바닥에 붙는 블록 ---- */
 .p-bottom{position:absolute;z-index:1;left:0;right:0;bottom:13mm;
   display:flex;flex-direction:column;justify-content:flex-end}
