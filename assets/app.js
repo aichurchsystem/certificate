@@ -822,6 +822,8 @@
   function applyPhotoStamp(hasPhoto) {
     var img = $('pStamp');
     if (!img) return;
+    /* 사진 압인은 쓰지 않는다 — 모든 문서에서 사진 위 직인 자국을 찍지 않음 */
+    img.hidden = true; img.removeAttribute('src'); return;
     var F = state.fmt || {};
     if (!hasPhoto || F.photoStamp === 'off') { img.hidden = true; img.removeAttribute('src'); return; }
     var size = Number(F.photoStampSize) || 15;
@@ -1106,7 +1108,7 @@
         e.stamp.style.left = (cx - stSize / 2).toFixed(2) + 'mm';
         e.stamp.style.top = (cy - stSize / 2).toFixed(2) + 'mm';
         e.stamp.style.opacity = String(stTone);
-        e.stamp.hidden = !photo || String(O.stampOn || 'off') === 'off';
+        e.stamp.hidden = true;   /* 사진 압인은 모든 문서에서 쓰지 않음 */
       }
 
       /* 직인 */

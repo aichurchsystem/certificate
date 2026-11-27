@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="노회 문서">
-<link rel="stylesheet" href="assets/app.css?v=93">
+<link rel="stylesheet" href="assets/app.css?v=94">
 <link rel="stylesheet" href="assets/ord.css?v=90">
 </head>
 <body>
@@ -898,32 +898,7 @@
           </div>
 
           <h3 class="fmt-h">사진 압인</h3>
-          <p class="hint" style="margin:-4px 2px 10px">증명사진이 다른 사진으로 바뀌지 않았다는 표시로, 사진 모서리에 노회 직인을 압인(철인)으로 눌러 찍습니다. 빨간 잉크가 아니라 눌린 자국으로만 남습니다. 사진이 없으면 찍지 않습니다.</p>
-          <div class="seg" id="stSegOn" role="radiogroup" aria-label="사진 압인">
-            <label><input type="radio" name="stOn" value="on" checked><span>압인 찍기</span></label>
-            <label><input type="radio" name="stOn" value="off"><span>압인 없이</span></label>
-          </div>
-          <p class="hint" style="margin:-2px 2px 6px">크기</p>
-          <div class="seg seg3" role="radiogroup" aria-label="압인 크기">
-            <label><input type="radio" name="stSize" value="12"><span>작게 12mm</span></label>
-            <label><input type="radio" name="stSize" value="15" checked><span>보통 15mm</span></label>
-            <label><input type="radio" name="stSize" value="18"><span>크게 18mm</span></label>
-          </div>
-          <p class="hint" style="margin:-2px 2px 6px">위치(사진 모서리)</p>
-          <div class="seg" role="radiogroup" aria-label="압인 위치">
-            <label><input type="radio" name="stCorner" value="tl"><span>좌상</span></label>
-            <label><input type="radio" name="stCorner" value="tr"><span>우상</span></label>
-          </div>
-          <div class="seg" role="radiogroup" aria-label="압인 위치 아래">
-            <label><input type="radio" name="stCorner" value="bl"><span>좌하</span></label>
-            <label><input type="radio" name="stCorner" value="br" checked><span>우하</span></label>
-          </div>
-          <p class="hint" style="margin:-2px 2px 6px">강도</p>
-          <div class="seg seg3" role="radiogroup" aria-label="압인 강도">
-            <label><input type="radio" name="stTone" value="0.18"><span>옅게</span></label>
-            <label><input type="radio" name="stTone" value="0.32" checked><span>보통</span></label>
-            <label><input type="radio" name="stTone" value="0.48"><span>진하게</span></label>
-          </div>
+          <p class="hint" style="margin:-4px 2px 10px">사진 압인(철인)은 쓰지 않습니다. 모든 증명서에서 사진 위 직인 자국 없이 인쇄됩니다.</p>
 
           <h3 class="fmt-h">지면 머리글</h3>
           <p class="hint" style="margin:-4px 2px 10px">교단명과 노회명은 띠 안에서 로고와 함께 가운데에 찍히고, 비운 칸의 줄은 지면에서 빠집니다. 우편번호·주소·전화·팩스는 한 줄에 나란히 찍힙니다.</p>
@@ -995,9 +970,9 @@
             </div>
           </div>
 
-          <div class="field"><label for="fmTypePhoto">사진 표시 <small class="hint-inline">(증명사진과 사진 압인)</small></label>
+          <div class="field"><label for="fmTypePhoto">사진 표시 <small class="hint-inline">(증명사진)</small></label>
             <select id="fmTypePhoto"><option value="on">넣기</option><option value="off">빼기</option></select>
-            <p class="hint" style="margin:4px 2px 0">이 종류의 증명서에 증명사진과 사진 압인을 넣을지 정합니다. 노회비 납부증명서·교회 설립증명서는 기본이 ‘빼기’입니다.</p>
+            <p class="hint" style="margin:4px 2px 0">이 종류의 증명서에 증명사진을 넣을지 정합니다. 노회비 납부증명서·교회 설립증명서는 기본이 ‘빼기’입니다.</p>
           </div>
 
           <div class="field">
@@ -1335,7 +1310,7 @@
 <script src="vendor/html2canvas.min.js?v=89"></script>
 <script src="assets/xlsx.js?v=89"></script>
 <script src="assets/roman.js?v=89"></script>
-<script src="assets/app.js?v=93"></script>
+<script src="assets/app.js?v=94"></script>
 <script src="assets/notice.js?v=89"></script>
 <script src="assets/lock.js?v=89"></script>
 </body>

@@ -1,629 +1,629 @@
 {
- "updated": "2026-11-27",
- "note": "증명서 종류별 기본값. 제목(title)·항목(rows)·본문(body)·추가 입력(extra)을 관리자 화면에서 고치면 이 기기 브라우저에 저장되고 지면에 바로 반영됩니다. 본문은 공문체(~함·~음)로 끝맺고 한 줄 40자 안쪽으로 끊습니다. 본문의 {church} {churchAddress} {rep} {position} {name} {birth} {address} {presbytery} {date} {plantDate} {foundDate} {ordainDate} {session} {dues} 는 입력값으로 바뀌고, {name:은} 처럼 쓰면 받침에 맞춰 조사가 바뀝니다. watermark(참/거짓)로 종류별 엠블럼 워터마크를 켜고 끌 수 있습니다. signMode(head·election, 비우면 노회장·서기 기본 서명부)와 seals(참/거짓)로 종류별 서명부 구성과 직인 표시를 정하고, photo(참/거짓)로 증명사진과 사진 압인을 넣을지(거짓이면 빼기) 정합니다. 관리자 › 종류별 문구에서 고른 값이 이 기본값보다 먼저입니다.",
- "types": [
-  {
-   "id": "employment",
-   "name": "재직증명서",
-   "kind": "person",
-   "title": "재직증명서",
-   "rows": [
+  "updated": "2026-11-27",
+  "note": "증명서 종류별 기본값. 제목(title)·항목(rows)·본문(body)·추가 입력(extra)을 관리자 화면에서 고치면 이 기기 브라우저에 저장되고 지면에 바로 반영됩니다. 본문은 공문체(~함·~음)로 끝맺고 한 줄 40자 안쪽으로 끊습니다. 본문의 {church} {churchAddress} {rep} {position} {name} {birth} {address} {presbytery} {date} {plantDate} {foundDate} {ordainDate} {session} {dues} 는 입력값으로 바뀌고, {name:은} 처럼 쓰면 받침에 맞춰 조사가 바뀝니다. watermark(참/거짓)로 종류별 엠블럼 워터마크를 켜고 끌 수 있습니다. signMode(head·election, 비우면 노회장·서기 기본 서명부)와 seals(참/거짓)로 종류별 서명부 구성과 직인 표시를 정하고, photo(참/거짓)로 증명사진과 사진 압인을 넣을지(거짓이면 빼기) 정합니다. 관리자 › 종류별 문구에서 고른 값이 이 기본값보다 먼저입니다.",
+  "types": [
     {
-     "label": "교회명",
-     "src": "church"
+      "id": "employment",
+      "name": "재직증명서",
+      "kind": "person",
+      "title": "재직증명서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "주소",
+          "src": "address"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회 소속으로서",
+        "{church}에서 {position:으로} 재직 중임을 증명함."
+      ],
+      "extra": [],
+      "watermark": true,
+      "photo": true
     },
     {
-     "label": "성명",
-     "src": "name"
+      "id": "membership",
+      "name": "소속증명서",
+      "kind": "church",
+      "title": "소속증명서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "주소",
+          "src": "churchAddress"
+        },
+        {
+          "label": "대표자",
+          "src": "rep"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        }
+      ],
+      "body": [
+        "위 교회는 대한예수교장로회(백석) 서울강동노회",
+        "산하에 속한 교회임을 증명함."
+      ],
+      "extra": [],
+      "watermark": true,
+      "photo": true
     },
     {
-     "label": "생년월일",
-     "src": "birth"
+      "id": "church-plant",
+      "name": "교회 개척확인증명서",
+      "kind": "church",
+      "title": "교회개척확인증명서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "주소",
+          "src": "churchAddress"
+        },
+        {
+          "label": "대표자",
+          "src": "rep"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        },
+        {
+          "label": "기도처 시작일",
+          "src": "plantDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "위 교회는 대한예수교장로회(백석) 서울강동노회 관할 아래",
+        "{plantDate}자로 개척된 교회임을 확인함."
+      ],
+      "extra": [
+        {
+          "key": "plantDate",
+          "label": "기도처 시작일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true
     },
     {
-     "label": "주소",
-     "src": "address"
+      "id": "church-found",
+      "name": "교회 설립증명서",
+      "kind": "church",
+      "title": "교회설립증명서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "주소",
+          "src": "churchAddress"
+        },
+        {
+          "label": "대표자",
+          "src": "rep"
+        },
+        {
+          "label": "설립일",
+          "src": "foundDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "위 교회는 대한예수교장로회(백석) 서울강동노회 소속 교회로",
+        "{foundDate} 설립되었음을 증명함."
+      ],
+      "extra": [
+        {
+          "key": "foundDate",
+          "label": "설립일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": false
     },
     {
-     "label": "직분",
-     "src": "position"
+      "id": "assembly-attend",
+      "name": "노회 참석 확인서",
+      "kind": "person",
+      "title": "노회참석확인서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        },
+        {
+          "label": "참석회기",
+          "src": "session"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회",
+        "{session} 정기노회에 참석하였음을 확인함."
+      ],
+      "extra": [
+        {
+          "key": "session",
+          "label": "참석 회기",
+          "type": "text",
+          "placeholder": "예: 제46회",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true
+    },
+    {
+      "id": "dues",
+      "name": "노회비 납부증명서",
+      "kind": "person",
+      "title": "노회비납부증명서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        },
+        {
+          "label": "납부내역",
+          "src": "dues"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회 노회비를",
+        "{dues}까지 납부하였음을 증명함."
+      ],
+      "extra": [
+        {
+          "key": "dues",
+          "label": "납부 내역",
+          "type": "text",
+          "placeholder": "예: 2026년도 연간",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": false
+    },
+    {
+      "id": "ordination",
+      "name": "목사 안수 증명서",
+      "kind": "person",
+      "title": "목사 안수 증명서",
+      "rows": [
+        {
+          "label": "교회명",
+          "src": "church"
+        },
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "주소",
+          "src": "address"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        },
+        {
+          "label": "안수일",
+          "src": "ordainDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회에서",
+        "{ordainDate} 목사로 안수받았음을 증명함."
+      ],
+      "extra": [
+        {
+          "key": "ordainDate",
+          "label": "안수일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true
+    },
+    {
+      "id": "ordination-cert",
+      "name": "목사 안수증 발급",
+      "kind": "person",
+      "title": "목사 안수증",
+      "rows": [
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "소속 교회",
+          "src": "church"
+        },
+        {
+          "label": "직분",
+          "src": "position"
+        },
+        {
+          "label": "안수일",
+          "src": "ordainDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "대한예수교장로회(백석) 서울강동노회는",
+        "위 사람을 {ordainDate} 목사로 안수하였기에",
+        "이 증서를 드립니다."
+      ],
+      "extra": [
+        {
+          "key": "ordainDate",
+          "label": "안수일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true
+    },
+    {
+      "id": "evangelist-exam",
+      "name": "전도사 고시 합격증",
+      "kind": "person",
+      "title": "전도사 고시 합격증",
+      "rows": [
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "소속교회",
+          "src": "church"
+        },
+        {
+          "label": "고시 회차",
+          "src": "examRound"
+        },
+        {
+          "label": "합격 연월일",
+          "src": "passDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회가",
+        "시행한 {examRound} 전도사 고시에 응시하여 합격하였음을 증명합니다."
+      ],
+      "extra": [
+        {
+          "key": "examRound",
+          "label": "고시 회차",
+          "type": "text",
+          "placeholder": "예: 제00회",
+          "required": true
+        },
+        {
+          "key": "passDate",
+          "label": "합격 연월일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true,
+      "signMode": "head",
+      "signTitle": "고시위원장",
+      "signerName": "이진철 목사"
+    },
+    {
+      "id": "elder-exam",
+      "name": "장로 고시 합격증",
+      "kind": "person",
+      "title": "장로 고시 합격증",
+      "rows": [
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "소속교회",
+          "src": "church"
+        },
+        {
+          "label": "고시 회차",
+          "src": "examRound"
+        },
+        {
+          "label": "합격 연월일",
+          "src": "passDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회가",
+        "시행한 {examRound} 장로 고시에 응시하여 합격하였음을 증명합니다."
+      ],
+      "extra": [
+        {
+          "key": "examRound",
+          "label": "고시 회차",
+          "type": "text",
+          "placeholder": "예: 제00회",
+          "required": true
+        },
+        {
+          "key": "passDate",
+          "label": "합격 연월일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true,
+      "signMode": "head",
+      "signTitle": "고시위원장",
+      "signerName": ""
+    },
+    {
+      "id": "educator-completion",
+      "name": "교육자 컨퍼런스 수료증",
+      "kind": "person",
+      "title": "교육자 컨퍼런스 수료증",
+      "rows": [
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "소속교회",
+          "src": "church"
+        },
+        {
+          "label": "과정명",
+          "src": "courseName"
+        },
+        {
+          "label": "교육 기간",
+          "src": "coursePeriod"
+        },
+        {
+          "label": "수료 연월일",
+          "src": "completeDate",
+          "fmt": "date"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회가",
+        "주최한 {courseName} 과정을 수료하였음을 증명합니다."
+      ],
+      "extra": [
+        {
+          "key": "courseName",
+          "label": "과정명",
+          "type": "text",
+          "placeholder": "예: 제00회 교육자 컨퍼런스",
+          "required": true
+        },
+        {
+          "key": "coursePeriod",
+          "label": "교육 기간",
+          "type": "text",
+          "placeholder": "예: 2026. 07. 01. ~ 07. 05.",
+          "required": true
+        },
+        {
+          "key": "completeDate",
+          "label": "수료 연월일",
+          "type": "date",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true,
+      "signMode": "head",
+      "signTitle": "교육부장",
+      "signerName": ""
+    },
+    {
+      "id": "chair-election",
+      "name": "노회장 당선증",
+      "kind": "person",
+      "title": "노회장 당선증",
+      "signMode": "election",
+      "signTitle": "선거관리위원장",
+      "signerName": "",
+      "rows": [
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "소속교회",
+          "src": "church"
+        },
+        {
+          "label": "당선 회기",
+          "src": "session"
+        },
+        {
+          "label": "당선 연월일",
+          "src": "electDate",
+          "fmt": "date"
+        },
+        {
+          "label": "임기",
+          "src": "tenure"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회",
+        "{session} 정기노회에서 노회장으로 당선되었음을 증명합니다."
+      ],
+      "extra": [
+        {
+          "key": "session",
+          "label": "당선 회기",
+          "type": "text",
+          "placeholder": "예: 제00회",
+          "required": true
+        },
+        {
+          "key": "electDate",
+          "label": "당선 연월일",
+          "type": "date",
+          "required": true
+        },
+        {
+          "key": "tenure",
+          "label": "임기",
+          "type": "text",
+          "placeholder": "예: 2027. 01. ~ 2028. 12.",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true
+    },
+    {
+      "id": "vice-chair-election",
+      "name": "부노회장 당선증",
+      "kind": "person",
+      "title": "부노회장 당선증",
+      "signMode": "election",
+      "signTitle": "선거관리위원장",
+      "signerName": "",
+      "rows": [
+        {
+          "label": "성명",
+          "src": "name"
+        },
+        {
+          "label": "생년월일",
+          "src": "birth"
+        },
+        {
+          "label": "소속교회",
+          "src": "church"
+        },
+        {
+          "label": "당선 회기",
+          "src": "session"
+        },
+        {
+          "label": "당선 연월일",
+          "src": "electDate",
+          "fmt": "date"
+        },
+        {
+          "label": "임기",
+          "src": "tenure"
+        }
+      ],
+      "body": [
+        "위 사람은 대한예수교장로회(백석) 서울강동노회",
+        "{session} 정기노회에서 부노회장으로 당선되었음을 증명합니다."
+      ],
+      "extra": [
+        {
+          "key": "session",
+          "label": "당선 회기",
+          "type": "text",
+          "placeholder": "예: 제00회",
+          "required": true
+        },
+        {
+          "key": "electDate",
+          "label": "당선 연월일",
+          "type": "date",
+          "required": true
+        },
+        {
+          "key": "tenure",
+          "label": "임기",
+          "type": "text",
+          "placeholder": "예: 2027. 01. ~ 2028. 12.",
+          "required": true
+        }
+      ],
+      "watermark": true,
+      "photo": true
     }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회 소속으로서",
-    "{church}에서 {position:으로} 재직 중임을 증명함."
-   ],
-   "extra": [],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "membership",
-   "name": "소속증명서",
-   "kind": "church",
-   "title": "소속증명서",
-   "rows": [
-    {
-     "label": "교회명",
-     "src": "church"
-    },
-    {
-     "label": "주소",
-     "src": "churchAddress"
-    },
-    {
-     "label": "대표자",
-     "src": "rep"
-    },
-    {
-     "label": "직분",
-     "src": "position"
-    }
-   ],
-   "body": [
-    "위 교회는 대한예수교장로회(백석) 서울강동노회",
-    "산하에 속한 교회임을 증명함."
-   ],
-   "extra": [],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "church-plant",
-   "name": "교회 개척확인증명서",
-   "kind": "church",
-   "title": "교회개척확인증명서",
-   "rows": [
-    {
-     "label": "교회명",
-     "src": "church"
-    },
-    {
-     "label": "주소",
-     "src": "churchAddress"
-    },
-    {
-     "label": "대표자",
-     "src": "rep"
-    },
-    {
-     "label": "직분",
-     "src": "position"
-    },
-    {
-     "label": "기도처 시작일",
-     "src": "plantDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "위 교회는 대한예수교장로회(백석) 서울강동노회 관할 아래",
-    "{plantDate}자로 개척된 교회임을 확인함."
-   ],
-   "extra": [
-    {
-     "key": "plantDate",
-     "label": "기도처 시작일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "church-found",
-   "name": "교회 설립증명서",
-   "kind": "church",
-   "title": "교회설립증명서",
-   "rows": [
-    {
-     "label": "교회명",
-     "src": "church"
-    },
-    {
-     "label": "주소",
-     "src": "churchAddress"
-    },
-    {
-     "label": "대표자",
-     "src": "rep"
-    },
-    {
-     "label": "설립일",
-     "src": "foundDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "위 교회는 대한예수교장로회(백석) 서울강동노회 소속 교회로",
-    "{foundDate} 설립되었음을 증명함."
-   ],
-   "extra": [
-    {
-     "key": "foundDate",
-     "label": "설립일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": false
-  },
-  {
-   "id": "assembly-attend",
-   "name": "노회 참석 확인서",
-   "kind": "person",
-   "title": "노회참석확인서",
-   "rows": [
-    {
-     "label": "교회명",
-     "src": "church"
-    },
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "직분",
-     "src": "position"
-    },
-    {
-     "label": "참석회기",
-     "src": "session"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회",
-    "{session} 정기노회에 참석하였음을 확인함."
-   ],
-   "extra": [
-    {
-     "key": "session",
-     "label": "참석 회기",
-     "type": "text",
-     "placeholder": "예: 제46회",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "dues",
-   "name": "노회비 납부증명서",
-   "kind": "person",
-   "title": "노회비납부증명서",
-   "rows": [
-    {
-     "label": "교회명",
-     "src": "church"
-    },
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "직분",
-     "src": "position"
-    },
-    {
-     "label": "납부내역",
-     "src": "dues"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회 노회비를",
-    "{dues}까지 납부하였음을 증명함."
-   ],
-   "extra": [
-    {
-     "key": "dues",
-     "label": "납부 내역",
-     "type": "text",
-     "placeholder": "예: 2026년도 연간",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": false
-  },
-  {
-   "id": "ordination",
-   "name": "목사 안수 증명서",
-   "kind": "person",
-   "title": "목사 안수 증명서",
-   "rows": [
-    {
-     "label": "교회명",
-     "src": "church"
-    },
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "주소",
-     "src": "address"
-    },
-    {
-     "label": "직분",
-     "src": "position"
-    },
-    {
-     "label": "안수일",
-     "src": "ordainDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회에서",
-    "{ordainDate} 목사로 안수받았음을 증명함."
-   ],
-   "extra": [
-    {
-     "key": "ordainDate",
-     "label": "안수일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "ordination-cert",
-   "name": "목사 안수증 발급",
-   "kind": "person",
-   "title": "목사 안수증",
-   "rows": [
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "소속 교회",
-     "src": "church"
-    },
-    {
-     "label": "직분",
-     "src": "position"
-    },
-    {
-     "label": "안수일",
-     "src": "ordainDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "대한예수교장로회(백석) 서울강동노회는",
-    "위 사람을 {ordainDate} 목사로 안수하였기에",
-    "이 증서를 드립니다."
-   ],
-   "extra": [
-    {
-     "key": "ordainDate",
-     "label": "안수일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "evangelist-exam",
-   "name": "전도사 고시 합격증",
-   "kind": "person",
-   "title": "전도사 고시 합격증",
-   "rows": [
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "소속교회",
-     "src": "church"
-    },
-    {
-     "label": "고시 회차",
-     "src": "examRound"
-    },
-    {
-     "label": "합격 연월일",
-     "src": "passDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회가",
-    "시행한 {examRound} 전도사 고시에 응시하여 합격하였음을 증명합니다."
-   ],
-   "extra": [
-    {
-     "key": "examRound",
-     "label": "고시 회차",
-     "type": "text",
-     "placeholder": "예: 제00회",
-     "required": true
-    },
-    {
-     "key": "passDate",
-     "label": "합격 연월일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true,
-   "signMode": "head",
-   "signTitle": "고시위원장",
-   "signerName": ""
-  },
-  {
-   "id": "elder-exam",
-   "name": "장로 고시 합격증",
-   "kind": "person",
-   "title": "장로 고시 합격증",
-   "rows": [
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "소속교회",
-     "src": "church"
-    },
-    {
-     "label": "고시 회차",
-     "src": "examRound"
-    },
-    {
-     "label": "합격 연월일",
-     "src": "passDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회가",
-    "시행한 {examRound} 장로 고시에 응시하여 합격하였음을 증명합니다."
-   ],
-   "extra": [
-    {
-     "key": "examRound",
-     "label": "고시 회차",
-     "type": "text",
-     "placeholder": "예: 제00회",
-     "required": true
-    },
-    {
-     "key": "passDate",
-     "label": "합격 연월일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true,
-   "signMode": "head",
-   "signTitle": "고시위원장",
-   "signerName": ""
-  },
-  {
-   "id": "educator-completion",
-   "name": "교육자 컨퍼런스 수료증",
-   "kind": "person",
-   "title": "교육자 컨퍼런스 수료증",
-   "rows": [
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "소속교회",
-     "src": "church"
-    },
-    {
-     "label": "과정명",
-     "src": "courseName"
-    },
-    {
-     "label": "교육 기간",
-     "src": "coursePeriod"
-    },
-    {
-     "label": "수료 연월일",
-     "src": "completeDate",
-     "fmt": "date"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회가",
-    "주최한 {courseName} 과정을 수료하였음을 증명합니다."
-   ],
-   "extra": [
-    {
-     "key": "courseName",
-     "label": "과정명",
-     "type": "text",
-     "placeholder": "예: 제00회 교육자 컨퍼런스",
-     "required": true
-    },
-    {
-     "key": "coursePeriod",
-     "label": "교육 기간",
-     "type": "text",
-     "placeholder": "예: 2026. 07. 01. ~ 07. 05.",
-     "required": true
-    },
-    {
-     "key": "completeDate",
-     "label": "수료 연월일",
-     "type": "date",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true,
-   "signMode": "head",
-   "signTitle": "교육부장",
-   "signerName": ""
-  },
-  {
-   "id": "chair-election",
-   "name": "노회장 당선증",
-   "kind": "person",
-   "title": "노회장 당선증",
-   "signMode": "election",
-   "signTitle": "선거관리위원장",
-   "signerName": "",
-   "rows": [
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "소속교회",
-     "src": "church"
-    },
-    {
-     "label": "당선 회기",
-     "src": "session"
-    },
-    {
-     "label": "당선 연월일",
-     "src": "electDate",
-     "fmt": "date"
-    },
-    {
-     "label": "임기",
-     "src": "tenure"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회",
-    "{session} 정기노회에서 노회장으로 당선되었음을 증명합니다."
-   ],
-   "extra": [
-    {
-     "key": "session",
-     "label": "당선 회기",
-     "type": "text",
-     "placeholder": "예: 제00회",
-     "required": true
-    },
-    {
-     "key": "electDate",
-     "label": "당선 연월일",
-     "type": "date",
-     "required": true
-    },
-    {
-     "key": "tenure",
-     "label": "임기",
-     "type": "text",
-     "placeholder": "예: 2027. 01. ~ 2028. 12.",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true
-  },
-  {
-   "id": "vice-chair-election",
-   "name": "부노회장 당선증",
-   "kind": "person",
-   "title": "부노회장 당선증",
-   "signMode": "election",
-   "signTitle": "선거관리위원장",
-   "signerName": "",
-   "rows": [
-    {
-     "label": "성명",
-     "src": "name"
-    },
-    {
-     "label": "생년월일",
-     "src": "birth"
-    },
-    {
-     "label": "소속교회",
-     "src": "church"
-    },
-    {
-     "label": "당선 회기",
-     "src": "session"
-    },
-    {
-     "label": "당선 연월일",
-     "src": "electDate",
-     "fmt": "date"
-    },
-    {
-     "label": "임기",
-     "src": "tenure"
-    }
-   ],
-   "body": [
-    "위 사람은 대한예수교장로회(백석) 서울강동노회",
-    "{session} 정기노회에서 부노회장으로 당선되었음을 증명합니다."
-   ],
-   "extra": [
-    {
-     "key": "session",
-     "label": "당선 회기",
-     "type": "text",
-     "placeholder": "예: 제00회",
-     "required": true
-    },
-    {
-     "key": "electDate",
-     "label": "당선 연월일",
-     "type": "date",
-     "required": true
-    },
-    {
-     "key": "tenure",
-     "label": "임기",
-     "type": "text",
-     "placeholder": "예: 2027. 01. ~ 2028. 12.",
-     "required": true
-    }
-   ],
-   "watermark": true,
-   "photo": true
-  }
- ]
+  ]
 }
