@@ -1851,14 +1851,18 @@
     fill(posSel, pos, '직분 전체', PE_FILTER.pos);
     fill(distSel, dist, '시찰 전체', PE_FILTER.dist);
   }
+  function peDay(v) {
+    var s = String(v || '');
+    return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s.replace(/-/g, '.') : s;
+  }
   function peCard(p) {
     var sub = [p.church, p.district].filter(Boolean).join(' · ');
     var photo = photoFor(p.id);
     var facts = [
       ['대표자', p.representative],
-      ['안수일', p.ordainDate],
-      ['기도처', p.plantDate],
-      ['설립일', p.foundDate]
+      ['안수일', peDay(p.ordainDate)],
+      ['기도처', peDay(p.plantDate)],
+      ['설립일', peDay(p.foundDate)]
     ].map(function (f) {
       var v = String(f[1] || '');
       return '<div><dt>' + f[0] + '</dt><dd class="' + (v ? '' : 'none') + '">' + esc(v || '—') + '</dd></div>';

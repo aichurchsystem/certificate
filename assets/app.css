@@ -918,7 +918,7 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 .pfacts{display:grid;grid-template-columns:1fr 1fr;gap:1px 12px;margin-top:5px}
 .pfacts > div{display:flex;gap:5px;align-items:baseline;min-width:0}
 .pfacts dt{flex:0 0 auto;font-size:10.5px;color:var(--faint);white-space:nowrap}
-.pfacts dd{margin:0;font-size:11.5px;color:#4a5262;min-width:0;overflow-wrap:anywhere}
+.pfacts dd{margin:0;font-size:11.5px;color:#4a5262;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pfacts dd.none{color:#c3c8d2}
 @media (max-width:370px){
   .pfacts{grid-template-columns:1fr}
