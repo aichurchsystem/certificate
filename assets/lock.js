@@ -11,7 +11,8 @@
   var KEY = 'cert.lock.v1';
   var KEY_UNLOCKED = 'cert.unlocked.ts';
   var MIN = 10 * 60 * 1000;
-  var DEFAULT_PW = '0000';
+  var DEFAULT_PW = 'churchsystem';     /* 관리자 비밀번호(문자·숫자) — 노회원 명단 잠금(1004)과 다른 열쇠 */
+  var CFG_VER = 2;                     /* 2 = 관리자 비밀번호 방식(문자 허용). 1 이전은 숫자 4자리였음 */
 
   var $ = function (id) { return document.getElementById(id); };
   var cfg = null, tries = 0, waitUntil = 0, pending = null;
@@ -52,9 +53,11 @@
 
   function ensureDefault() {
     cfg = loadLock();
-    if (cfg && cfg.hash) return;
+    /* 예전 숫자 4자리 잠금(0000 등)은 더 이상 쓰지 않는다 — 관리자 비밀번호로 새로 맞춘다 */
+    if (cfg && cfg.hash && cfg.v === CFG_VER) return;
+    var keepOn = cfg && cfg.on === false ? false : true;
     var salt = rand(16);
-    cfg = { on: true, salt: salt, hash: '', first: true, since: Date.now() };
+    cfg = { v: CFG_VER, on: keepOn, salt: salt, hash: '', first: true, since: Date.now() };
     saveLock(cfg);
     hash(DEFAULT_PW, salt).then(function (h) { cfg.hash = h; saveLock(cfg); });
   }
@@ -110,7 +113,7 @@
           cfg.first = false; saveLock(cfg);
           setTimeout(function () {
             if (window.CertApp && window.CertApp.toast) {
-              window.CertApp.toast('기본 비밀번호 0000입니다. 관리자 › 연결·설정에서 꼭 바꿔 주세요.');
+              window.CertApp.toast('관리자 비밀번호는 churchsystem입니다. 연결·설정에서 바꿀 수 있습니다.');
             }
           }, 400);
         }
@@ -130,17 +133,18 @@
   }
 
   function syncInput() {
-    var v = String($('lockPass') ? $('lockPass').value : '').replace(/[^0-9]/g, '').slice(0, 4);
-    if ($('lockPass') && $('lockPass').value !== v) $('lockPass').value = v;
-    dots(v.length);
-    if (v.length === 4) setTimeout(function () { tryUnlock(v); }, 80);
+    var v = String($('lockPass') ? $('lockPass').value : '');
+    dots(v.length > 4 ? 4 : v.length);
   }
 
   function bind() {
     if (!$('lockModal')) return;
     if ($('lockPass')) $('lockPass').addEventListener('input', syncInput);
     if ($('lockPass')) $('lockPass').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); if (String(this.value).length === 4) tryUnlock(this.value); }
+      if (e.key === 'Enter') { e.preventDefault(); tryUnlock(this.value); }
+    });
+    if ($('lockGo')) $('lockGo').addEventListener('click', function () {
+      tryUnlock(String($('lockPass') ? $('lockPass').value : ''));
     });
     var pad = $('lockPad');
     if (pad) pad.addEventListener('click', function (e) {
@@ -173,13 +177,14 @@
       var cur = String($('lockCur') ? $('lockCur').value : '');
       var p1 = String($('lockNew') ? $('lockNew').value : '');
       var p2 = String($('lockNew2') ? $('lockNew2').value : '');
-      if (!/^\d{4}$/.test(p1)) { alert('새 비밀번호는 숫자 4자리로 정해 주세요. (예: 0000)'); return; }
+      if (String(p1).length < 4) { alert('새 비밀번호는 4자 이상으로 정해 주세요.'); return; }
+      if (/\s/.test(p1)) { alert('새 비밀번호에는 빈칸을 넣을 수 없습니다.'); return; }
       if (p1 !== p2) { alert('두 번 입력한 비밀번호가 다릅니다.'); return; }
       hash(cur, cfg.salt).then(function (h) {
         if (h !== cfg.hash) { alert('지금 비밀번호가 맞지 않습니다.'); return; }
         var salt = rand(16);
         return hash(p1, salt).then(function (nh) {
-          cfg.salt = salt; cfg.hash = nh; cfg.on = true; cfg.first = false;
+          cfg.salt = salt; cfg.hash = nh; cfg.on = true; cfg.first = false; cfg.v = CFG_VER;
           saveLock(cfg);
           clearUnlocked();
           ['lockCur', 'lockNew', 'lockNew2'].forEach(function (id) { if ($(id)) $(id).value = ''; });

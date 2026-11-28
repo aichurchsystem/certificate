@@ -370,6 +370,15 @@ label.mini{cursor:pointer}
   width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #e2dfd5;background:#fcfbf7;font-size:15px;
 }
 .hfilter input:focus,.hfilter select:focus{outline:none;border-color:var(--navy-2);background:#fff}
+/* 노회원 명단 찾기 — 이름칸은 한 줄, 직분·시찰은 나란히 */
+.pe-find{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 2px 6px}
+.pe-find input[type=search]{grid-column:1 / -1}
+.pe-find input,.pe-find select{
+  width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #e2dfd5;background:#fcfbf7;font-size:15px;
+}
+.pe-find input:focus,.pe-find select:focus{outline:none;border-color:var(--navy-2);background:#fff}
+.pe-count{margin:0 2px 4px;font-size:11.5px;color:var(--faint)}
+.pe-more{width:100%;margin:10px 0 2px}
 .hlist{display:flex;flex-direction:column;min-width:0}
 .hitem{
   display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line-2);
@@ -980,6 +989,19 @@ html.ntlock,body.ntlock{overflow:hidden!important;overscroll-behavior:none}
 .lockbox h3{font-size:17px;font-weight:800;letter-spacing:-.2px}
 .lock-sub{margin:6px 0 16px;font-size:12px;color:rgba(255,255,255,.6)}
 .lock-hidden-input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+/* 관리자 비밀번호 — 문자도 넣는 눈에 보이는 칸 */
+.lock-text{
+  display:block;width:100%;margin:10px 0 2px;padding:13px 14px;border-radius:12px;
+  border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.10);color:#fff;
+  font-size:17px;letter-spacing:.02em;text-align:center;
+}
+.lock-text::placeholder{color:rgba(255,255,255,.42);letter-spacing:.06em}
+.lock-text:focus{outline:none;border-color:#7BC0E6;background:rgba(255,255,255,.16)}
+.lock-go{
+  display:block;width:100%;margin:10px 0 2px;padding:14px;border:0;border-radius:12px;
+  background:#2F6FB0;color:#fff;font-size:15.5px;font-weight:700;
+}
+.lock-go:active{filter:brightness(1.08)}
 .lock-dots{display:flex;justify-content:center;gap:14px;margin:6px 0 4px}
 .lock-dots i{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.45);display:block}
 .lock-dots i.on{background:#7BC0E6;border-color:#7BC0E6}

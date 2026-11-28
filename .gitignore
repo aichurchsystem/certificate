@@ -1,0 +1,6 @@
+# 점검 캡처·중간물 — 노회원 정보가 담길 수 있어 저장소에 올리지 않는다
+확인/
+.build/
+
+# 인명부 평문 (tools/build_directory_seed.py 가 만드는 작업용 파일)
+data/photo/

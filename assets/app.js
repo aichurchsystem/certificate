@@ -214,9 +214,16 @@
   var KEY_PEOPLE = 'cert.v1.people';
   var KEY_SEAL = 'cert.v1.seal.';
   var KEY_PHOTO = 'cert.v1.photo.';
+  var KEY_SEED = 'cert.v1.seed.directory';    /* 노회원 명단을 이 기기에 심었는지 표시 */
+  var KEY_ROSTER = 'cert.roster';             /* 인명부를 이 기기에서 연 표시 */
+  var ROSTER_FILE = 'data/roster.enc';        /* 비밀번호로 잠근 인명부(사람·사진) */
+  var ROSTER_ITER = 400000;                   /* PBKDF2-SHA256 반복 수(tools/encrypt_roster.py 와 같아야 한다) */
+  var IDB_NAME = 'cert.photos', IDB_STORE = 'photos', IDB_META = 'meta';
 
   var TYPES = [], TYPE_BY_ID = Object.create(null);
   var people = [], basePeople = [];
+  var ROSTER = null;                          /* 복호화한 인명부(이 기기에만 남는다) */
+  var photoMem = Object.create(null);         /* 기기에 담아 둔 사람 사진(사람 id → data URI) */
   var state = null;
   var pendingSealKey = null, pendingSealInput = null, editingPersonId = null, newPhotoData = null;
 
@@ -315,6 +322,45 @@
         renderPeopleOptions();
       })
       .catch(function () { basePeople = []; people = []; });
+  }
+
+  /* ------------------------------------------------------- 노회원 명단 시드
+     풀린 인명부의 245명을 기기에 한 번만 심는다. 이미 심은 뒤에 앱에서 지운
+     사람은 KEY_SEED 표시 때문에 다시 생기지 않는다. 이미 있는 사람은
+     비어 있는 칸만 채우고, 이름이 같으면 새로 만들지 않는다. */
+  function seedDirectory(dir) {
+    if (!dir || !dir.people || !dir.people.length) return;
+    var ver = String(dir.ver || '');
+    var done = '';
+    try { done = localStorage.getItem(KEY_SEED) || ''; } catch (e) {}
+    if (ver && done === ver) return;
+    var added = 0, filled = 0;
+    dir.people.forEach(function (r) {
+      if (!r || !r.name) return;
+      var same = null;
+      for (var i = 0; i < people.length; i++) {
+        if (r.id && people[i].id === r.id) { same = people[i]; break; }
+      }
+      if (!same) {
+        for (var j = 0; j < people.length; j++) {
+          if (normalize(people[j].name) === normalize(r.name)) { same = people[j]; break; }
+        }
+      }
+      if (same) {
+        ['position', 'district', 'church', 'churchAddress', 'address', 'representative', 'ordainDate', 'birth'].forEach(function (k) {
+          if (!String(same[k] || '').trim() && String(r[k] || '').trim()) { same[k] = r[k]; filled++; }
+        });
+        return;
+      }
+      var np = { id: r.id || ('p' + Date.now() + added) };
+      ['name', 'position', 'district', 'church', 'churchAddress', 'address', 'representative', 'ordainDate', 'birth'].forEach(function (k) {
+        if (String(r[k] || '').trim()) np[k] = r[k];
+      });
+      people.push(np);
+      added++;
+    });
+    try { localStorage.setItem(KEY_SEED, ver || '1'); } catch (e) {}
+    if (added || filled) savePeople();
   }
 
   function syncPeople() {
@@ -423,19 +469,233 @@
     reader.readAsDataURL(file);
   }
 
-  /* --------------------------------------------------------------- 증명사진 */
+  /* --------------------------------------------------------------- 증명사진
+     인명부 사진 193장은 localStorage(약 5MB 한도)에 다 들지 않는다.
+     ① 관리자가 이 기기에서 넣은 사진 → localStorage (사람 id별)
+     ② 인명부에서 받은 사진 → IndexedDB(cert.photos)에 두고, 앱을 열 때 한 번
+        읽어 기억(photoMem)에 올려 photoFor 가 곧바로 꺼내 쓴다.
+     둘 다 사진 주소는 'cert.v1.photo.<id>' 하나로 본다. */
   function photoKey(id) { return KEY_PHOTO + (id || ''); }
   function photoFor(id) {
     if (!id) return '';
-    try { return localStorage.getItem(photoKey(id)) || ''; } catch (e) { return ''; }
+    var own = '';
+    try { own = localStorage.getItem(photoKey(id)) || ''; } catch (e) {}
+    return own || photoMem[id] || '';
   }
   function setPhoto(id, data) {
     if (!id) return false;
+    var ok = true;
     try {
       if (data) localStorage.setItem(photoKey(id), data);
       else localStorage.removeItem(photoKey(id));
-      return true;
-    } catch (e) { return false; }
+    } catch (e) { ok = false; }           /* 기기 저장소가 찼어도 IndexedDB에 남길 수 있다 */
+    if (data) photoMem[id] = data; else delete photoMem[id];
+    idbPut(id, data);
+    return ok || !!window.indexedDB;
+  }
+
+  /* ---- IndexedDB (사진 기억) ---- */
+  var idbPromise = null;
+  function idbOpen() {
+    if (!window.indexedDB) return Promise.reject(new Error('indexedDB 없음'));
+    if (idbPromise) return idbPromise;
+    idbPromise = new Promise(function (res, rej) {
+      var req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+        if (!db.objectStoreNames.contains(IDB_META)) db.createObjectStore(IDB_META);
+      };
+      req.onsuccess = function () { res(req.result); };
+      req.onerror = function () { idbPromise = null; rej(req.error || new Error('indexedDB 열기 실패')); };
+    });
+    return idbPromise;
+  }
+  function idbReq(store, mode, run) {
+    return idbOpen().then(function (db) {
+      return new Promise(function (res, rej) {
+        var tx = db.transaction(store, mode);
+        var req = run(tx.objectStore(store));
+        tx.oncomplete = function () { res(req ? req.result : undefined); };
+        tx.onerror = function () { rej(tx.error || new Error('indexedDB 오류')); };
+        tx.onabort = function () { rej(tx.error || new Error('indexedDB 중단')); };
+      });
+    });
+  }
+  function idbPut(id, data) {
+    if (!id) return Promise.resolve();
+    return idbReq(IDB_STORE, 'readwrite', function (st) {
+      return data ? st.put(data, id) : st.delete(id);
+    }).catch(function () {});
+  }
+  function idbPutMany(map) {
+    return idbReq(IDB_STORE, 'readwrite', function (st) {
+      Object.keys(map).forEach(function (k) { st.put(map[k], k); });
+      return null;
+    }).catch(function () {});
+  }
+  function idbLoadAll() {
+    return idbOpen().then(function (db) {
+      return new Promise(function (res, rej) {
+        var out = Object.create(null), tx = db.transaction(IDB_STORE, 'readonly');
+        var cur = tx.objectStore(IDB_STORE).openCursor();
+        cur.onsuccess = function () {
+          var c = cur.result;
+          if (c) { out[c.key] = c.value; c.continue(); }
+        };
+        tx.oncomplete = function () { res(out); };
+        tx.onerror = function () { rej(tx.error || new Error('indexedDB 오류')); };
+      });
+    });
+  }
+  function blobToDataURL(blob) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(String(r.result || '')); };
+      r.onerror = function () { rej(new Error('사진을 읽지 못했습니다.')); };
+      r.readAsDataURL(blob);
+    });
+  }
+
+  /* ------------------------------------------------------- 인명부(잠긴 명단)
+     인명부 245명과 사진은 비밀번호로 잠근 data/roster.enc 에 들어 있다.
+     기기에서 한 번 풀면 IndexedDB 에 담아 두고, 그 뒤에는 다시 묻지 않는다.
+     파일 주소로 받아도 암호문이라 사람 이름·사진이 나오지 않는다. */
+  function idbMetaGet() {
+    return idbReq(IDB_META, 'readonly', function (st) { return st.get('roster'); })
+      .catch(function () { return null; });
+  }
+  function idbMetaPut(obj) {
+    return idbReq(IDB_META, 'readwrite', function (st) { return st.put(obj, 'roster'); })
+      .catch(function () {});
+  }
+  function rosterKey(pass, salt, iter) {
+    var enc = new TextEncoder().encode(String(pass));
+    return crypto.subtle.importKey('raw', enc, 'PBKDF2', false, ['deriveKey'])
+      .then(function (k) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: salt, iterations: iter || ROSTER_ITER, hash: 'SHA-256' },
+          k, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+      });
+  }
+  /* 파일: salt(16) | 반복수(4) | iv(12) | 암호문(AES-GCM) */
+  function rosterFetch(pass) {
+    return fetch(ROSTER_FILE, { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('인명부 파일을 받지 못했습니다.');
+        return r.arrayBuffer();
+      })
+      .then(function (buf) {
+        var u = new Uint8Array(buf);
+        var salt = u.slice(0, 16);
+        var iter = (u[16] | (u[17] << 8) | (u[18] << 16) | (u[19] << 24)) >>> 0;
+        var iv = u.slice(20, 32);
+        var ct = u.slice(32);
+        return rosterKey(pass, salt, iter).then(function (key) {
+          return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
+        });
+      })
+      .then(function (pt) {
+        return JSON.parse(new TextDecoder().decode(pt));
+      });
+  }
+
+  function rosterApply(payload) {
+    if (!payload || !payload.people || !payload.people.length) return Promise.resolve(false);
+    ROSTER = payload;
+    seedDirectory({ ver: payload.ver, people: payload.people });
+    var photos = payload.photos || {};
+    var ids = Object.keys(photos);
+    ids.forEach(function (k) { if (!photoMem[k]) photoMem[k] = photos[k]; });
+    var job = ids.length ? idbPutMany(photos) : Promise.resolve();
+    return job
+      .then(function () {
+        return idbMetaPut({ ver: payload.ver, people: payload.people, photoIds: ids, ts: Date.now() });
+      })
+      .then(function () { return true; });
+  }
+
+  /* 앱을 열 때 — 이 기기에 명단이 있으면 그것을 쓰고, 없으면 잠금 화면을 띄운다 */
+  function rosterBoot() {
+    var seeded = '';
+    try { seeded = localStorage.getItem(KEY_SEED) || ''; } catch (e) {}
+    if (seeded && people.length > 1) {
+      return idbLoadAll()
+        .then(function (all) { photoMem = all; return true; })
+        .catch(function () { return true; });
+    }
+    return idbMetaGet().then(function (cached) {
+      if (cached && cached.people && cached.people.length) {
+        ROSTER = cached;
+        seedDirectory({ ver: cached.ver, people: cached.people });
+        try { localStorage.setItem(KEY_ROSTER, '1'); } catch (e) {}
+        return idbLoadAll()
+          .then(function (all) { photoMem = all; return true; })
+          .catch(function () { return true; });
+      }
+      return false;      /* 이 기기에서는 아직 잠겨 있다 */
+    }).catch(function () { return false; });
+  }
+
+  /* ---- 잠금 화면 ---- */
+  function rosterDots(n) {
+    var box = $('rosterDots');
+    if (!box) return;
+    Array.prototype.forEach.call(box.children, function (d, i) { d.className = i < n ? 'on' : ''; });
+  }
+  function rosterErr(msg) {
+    var e = $('rosterErr');
+    if (!e) return;
+    e.textContent = msg || '';
+    e.className = 'lock-err' + (msg && msg !== '여는 중…' ? ' bad' : '');
+  }
+  function rosterShowLock() {
+    var m = $('rosterModal');
+    if (!m) return;
+    m.hidden = false;
+    document.documentElement.classList.add('ntlock');
+    document.body.classList.add('ntlock');
+    if ($('rosterPass')) $('rosterPass').value = '';
+    rosterDots(0); rosterErr('');
+    setTimeout(function () { if ($('rosterPass')) $('rosterPass').focus(); }, 80);
+  }
+  function rosterHide() {
+    var m = $('rosterModal');
+    if (m) m.hidden = true;
+    document.documentElement.classList.remove('ntlock');
+    document.body.classList.remove('ntlock');
+    if ($('rosterPass')) $('rosterPass').value = '';
+    rosterDots(0); rosterErr('');
+  }
+  var rosterBusy = false;
+  function rosterTry(pass) {
+    pass = String(pass || '');
+    if (pass.length < 4) { rosterErr('비밀번호 4자리를 넣어 주세요.'); return; }
+    if (rosterBusy) return;
+    rosterBusy = true;
+    rosterErr('여는 중…');
+    rosterFetch(pass)
+      .then(function (payload) {
+        return rosterApply(payload).then(function () { return payload; });
+      })
+      .then(function (payload) {
+        rosterBusy = false;
+        try { localStorage.setItem(KEY_ROSTER, '1'); } catch (e) {}
+        ROSTER = payload;
+        savePeople();
+        rosterHide();
+        renderPeopleOptions(); renderPeopleList(); renderPersonForm(); render();
+        toast('노회원 ' + people.length + '명의 명단과 사진을 열었습니다.');
+      })
+      .catch(function (e) {
+        rosterBusy = false;
+        console.warn(e);
+        var net = e && (e.name === 'TypeError' || /받지 못했습니다/.test(String(e.message || '')));
+        rosterErr(net ? '인명부 파일을 받지 못했습니다. 인터넷을 확인해 주세요.'
+                      : '비밀번호가 맞지 않습니다. 다시 넣어 주세요.');
+        if ($('rosterPass')) $('rosterPass').value = '';
+        rosterDots(0);
+      });
   }
   function savePhotoFromFile(id, file) {
     if (!file) return;
@@ -1559,33 +1819,90 @@
     }).join('');
   }
 
-  /* 사람 명단 (관리자) — 대표자·기도처 시작일·설립일·안수일을 한눈에 */
+  /* 사람 명단 (관리자) — 245명을 이름·직분·시찰로 추려 보고, 사진을 바로 확인한다 */
+  var PE_FILTER = { q: '', pos: '', dist: '' };
+  var PE_LIMIT = 40;
+
+  function peText(p) {
+    return normalize([p.name, p.church, p.position, p.district, p.address, p.representative].join(' '));
+  }
+  function peMatch(p) {
+    if (PE_FILTER.pos && (p.position || '') !== PE_FILTER.pos) return false;
+    if (PE_FILTER.dist && (p.district || '') !== PE_FILTER.dist) return false;
+    var q = normalize(PE_FILTER.q);
+    return !q || peText(p).indexOf(q) > -1;
+  }
+  function peFillFilters() {
+    var posSel = $('pePos'), distSel = $('peDist');
+    if (!posSel || !distSel) return;
+    var pos = {}, dist = {};
+    people.forEach(function (p) {
+      if (p.position) pos[p.position] = (pos[p.position] || 0) + 1;
+      if (p.district) dist[p.district] = (dist[p.district] || 0) + 1;
+    });
+    function fill(sel, obj, allLabel, cur) {
+      var keys = Object.keys(obj).sort(function (a, b) { return obj[b] - obj[a] || a.localeCompare(b); });
+      var html = '<option value="">' + allLabel + '</option>' + keys.map(function (k) {
+        return '<option value="' + esc(k) + '">' + esc(k) + ' (' + obj[k] + ')</option>';
+      }).join('');
+      if (sel.innerHTML !== html) sel.innerHTML = html;
+      sel.value = cur || '';
+    }
+    fill(posSel, pos, '직분 전체', PE_FILTER.pos);
+    fill(distSel, dist, '시찰 전체', PE_FILTER.dist);
+  }
+  function peCard(p) {
+    var sub = [p.church, p.district].filter(Boolean).join(' · ');
+    var photo = photoFor(p.id);
+    var facts = [
+      ['대표자', p.representative],
+      ['안수일', p.ordainDate],
+      ['기도처', p.plantDate],
+      ['설립일', p.foundDate]
+    ].map(function (f) {
+      var v = String(f[1] || '');
+      return '<div><dt>' + f[0] + '</dt><dd class="' + (v ? '' : 'none') + '">' + esc(v || '—') + '</dd></div>';
+    }).join('');
+    return '<div class="hitem" data-person="' + esc(p.id) + '">' +
+      (photo
+        ? '<img class="hthumb" src="' + esc(photo) + '" alt="" loading="lazy" decoding="async">'
+        : '<span class="hthumb none">사진 없음</span>') +
+      '<div class="hmain"><b>' + esc(p.name) + '</b>' +
+      (p.position ? '<em>' + esc(p.position) + '</em>' : '') +
+      (sub ? '<small>' + esc(sub) + '</small>' : '') +
+      '<dl class="pfacts">' + facts + '</dl></div>' +
+      '<button type="button" class="mini" data-pedit="' + esc(p.id) + '">고치기</button>' +
+      '<button type="button" class="del" data-pdel="' + esc(p.id) + '" aria-label="명단에서 지우기">✕</button>' +
+      '</div>';
+  }
   function renderPeopleList() {
     var box = $('peList');
     if (!box) return;
+    peFillFilters();
+    var countEl = $('peCount'), more = $('peMore');
     if (!people.length) {
-      box.innerHTML = '<p class="empty">명단이 비어 있습니다. ‘새로 넣기’로 사람을 더해 두거나, 아래 ‘엑셀에서 명단 가져오기’로 한꺼번에 넣으세요.</p>';
+      if (countEl) countEl.textContent = '';
+      if (more) more.hidden = true;
+      box.innerHTML = '<p class="empty">명단이 비어 있습니다. 표지의 <b>노회원 명단</b>(또는 위 <b>인명부 열기</b>)에서 비밀번호를 한 번 넣으면 245명과 사진이 들어옵니다. ‘새로 넣기’로 한 사람씩 더할 수도 있습니다.</p>';
       return;
     }
-    box.innerHTML = people.map(function (p) {
-      var sub = [p.position, p.church].filter(Boolean).join(' · ');
-      var facts = [
-        ['대표자', p.representative],
-        ['기도처 시작일', p.plantDate],
-        ['설립일', p.foundDate],
-        ['안수일', p.ordainDate]
-      ].map(function (f) {
-        var v = String(f[1] || '');
-        return '<div><dt>' + f[0] + '</dt><dd class="' + (v ? '' : 'none') + '">' + esc(v || '—') + '</dd></div>';
-      }).join('');
-      return '<div class="hitem" data-person="' + esc(p.id) + '">' +
-        '<div class="who"><b>' + esc(p.name) + '</b>' +
-        (sub ? '<small>' + esc(sub) + '</small>' : '') +
-        '<dl class="pfacts">' + facts + '</dl></div>' +
-        '<button type="button" class="mini" data-pedit="' + esc(p.id) + '">고치기</button>' +
-        '<button type="button" class="del" data-pdel="' + esc(p.id) + '" aria-label="명단에서 지우기">✕</button>' +
-        '</div>';
-    }).join('');
+    var list = people.filter(peMatch);
+    if (countEl) {
+      countEl.textContent = list.length === people.length
+        ? '모두 ' + people.length + '명'
+        : people.length + '명 중 ' + list.length + '명';
+    }
+    if (!list.length) {
+      if (more) more.hidden = true;
+      box.innerHTML = '<p class="empty">찾는 사람이 없습니다. 이름을 줄여 보거나 직분·시찰을 ‘전체’로 바꿔 보세요.</p>';
+      return;
+    }
+    var shown = list.slice(0, PE_LIMIT);
+    box.innerHTML = shown.map(peCard).join('');
+    if (more) {
+      more.hidden = list.length <= shown.length;
+      more.textContent = '더 보기 (' + (list.length - shown.length) + '명 남음)';
+    }
   }
 
   /* ---------------------------------------------------------- 엑셀 명단 가져오기
@@ -1758,6 +2075,7 @@
     else if (open === false) f.hidden = true;
     $('peName').value = p ? (p.name || '') : '';
     $('pePosition').value = p ? (p.position || '') : '';
+    $('peDistrict').value = p ? (p.district || '') : '';
     $('peBirth').value = p ? (p.birth || '') : '';
     $('peChurch').value = p ? (p.church || '') : '';
     $('peChurchAddr').value = p ? (p.churchAddress || '') : '';
@@ -1778,6 +2096,7 @@
       id: editingPersonId || '',
       name: name,
       position: $('pePosition').value.trim(),
+      district: $('peDistrict').value.trim(),
       birth: $('peBirth').value,
       church: $('peChurch').value.trim(),
       churchAddress: $('peChurchAddr').value.trim(),
@@ -1795,6 +2114,8 @@
     }
     if (idx > -1) {
       rec.id = people[idx].id;
+      /* 이 서식에 없는 항목(시드에 딸린 값 등)은 지우지 않고 그대로 둔다 */
+      Object.keys(people[idx]).forEach(function (k) { if (rec[k] === undefined) rec[k] = people[idx][k]; });
       people[idx] = rec;
     } else {
       rec.id = 'p' + Date.now();
@@ -3469,11 +3790,58 @@
       $('peForm').scrollIntoView({ block: 'center', behavior: 'smooth' });
       $('peName').focus();
     });
+    /* 명단 찾기 · 거르기 */
+    if ($('peQ')) $('peQ').addEventListener('input', function () {
+      PE_FILTER.q = this.value; PE_LIMIT = 40; renderPeopleList();
+    });
+    if ($('pePos')) $('pePos').addEventListener('change', function () {
+      PE_FILTER.pos = this.value; PE_LIMIT = 40; renderPeopleList();
+    });
+    if ($('peDist')) $('peDist').addEventListener('change', function () {
+      PE_FILTER.dist = this.value; PE_LIMIT = 40; renderPeopleList();
+    });
+    if ($('peMore')) $('peMore').addEventListener('click', function () {
+      PE_LIMIT += 40; renderPeopleList();
+    });
+
+    /* 인명부 잠금 화면 */
+    function rosterReady() {
+      if (ROSTER) return true;
+      try { return people.length > 1 && !!localStorage.getItem(KEY_SEED); } catch (e) { return people.length > 1; }
+    }
+    function askRoster() {
+      if (rosterReady()) { toast('명단이 이미 열려 있습니다.'); return; }
+      rosterShowLock();
+    }
+    if ($('cvRoster')) $('cvRoster').addEventListener('click', askRoster);
+    if ($('peUnlock')) $('peUnlock').addEventListener('click', askRoster);
+    if ($('rosterPass')) $('rosterPass').addEventListener('input', function () {
+      var v = String(this.value).replace(/[^0-9]/g, '').slice(0, 4);
+      if (this.value !== v) this.value = v;
+      rosterDots(v.length);
+      if (v.length === 4) setTimeout(function () { rosterTry(v); }, 80);
+    });
+    if ($('rosterPass')) $('rosterPass').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); rosterTry(this.value); }
+    });
+    if ($('rosterPad')) $('rosterPad').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('button[data-k]') : null;
+      if (!b) return;
+      var inp = $('rosterPass');
+      if (!inp) return;
+      var k = b.getAttribute('data-k');
+      if (k === 'del') inp.value = String(inp.value).slice(0, -1);
+      else if (String(inp.value).length < 4) inp.value = String(inp.value) + k;
+      rosterDots(String(inp.value).length);
+      if (String(inp.value).length === 4) setTimeout(function () { rosterTry(inp.value); }, 80);
+    });
+    if ($('rosterLater')) $('rosterLater').addEventListener('click', rosterHide);
     $('peSave').addEventListener('click', savePersonFromForm);
     $('peReset').addEventListener('click', function () {
       if (!confirm('이 기기에 저장한 명단을 지우고 기본 명단으로 돌아갈까요?')) return;
-      try { localStorage.removeItem(KEY_PEOPLE); } catch (e) {}
+      try { localStorage.removeItem(KEY_PEOPLE); localStorage.removeItem(KEY_SEED); } catch (e) {}
       people = deepCopy(basePeople);
+      if (ROSTER && ROSTER.people) seedDirectory({ ver: ROSTER.ver, people: ROSTER.people });
       editingPersonId = null; newPhotoData = null;
       syncPeople(); renderPersonForm(); render();
       toast('기본 명단으로 돌아갔습니다.');
@@ -3517,7 +3885,7 @@
         if (!p) return;
         if (!confirm('명단에서 ' + p.name + ' 님을 지울까요?')) return;
         people = people.filter(function (x) { return x.id !== id; });
-        try { localStorage.removeItem(photoKey(id)); } catch (err) {}
+        setPhoto(id, null);
         if (state.personId === id) state.personId = '';
         if (editingPersonId === id) editingPersonId = null;
         syncPeople(); renderPersonForm(); render();
@@ -3656,6 +4024,9 @@
     renderSealSlots();
 
     Promise.all([loadTypes(), loadPeople()]).then(function () {
+      /* 이 기기에 인명부가 있으면 그대로 쓰고, 처음이면 비밀번호를 묻는다 */
+      return rosterBoot();
+    }).then(function (rosterReady) {
       if (!TYPE_BY_ID[state.typeId]) state.typeId = (TYPES[0] && TYPES[0].id) || 'membership';
 
       // 앱을 열면 관리자에 들어가지 않아도 기본 사람·교회 정보로 채워 둔다
@@ -3685,6 +4056,8 @@
       renderCoverTypes();
       switchView('cover');
       registerSW();
+      /* 처음 여는 기기 — 비밀번호 한 번 넣으면 명단·사진이 들어온다(‘나중에’로 닫아도 증명서 발급은 된다) */
+      if (!rosterReady) setTimeout(rosterShowLock, 600);
     });
   }
 
