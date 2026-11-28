@@ -55,7 +55,6 @@ def snapshot(pg):
         total: people.length, byPos, byDist,
         jbCount: people.filter(p => p.name === '박재용').length,
         jb: people.filter(p => p.name === '박재용')[0] || null,
-        gsh: people.filter(p => p.name === '강성훈')[0] || null,
         seedVer: localStorage.getItem('cert.v1.seed.directory'),
         rosterOpen: localStorage.getItem('cert.roster'),
         lsBytes: ls, lsKeys: localStorage.length,
@@ -63,6 +62,27 @@ def snapshot(pg):
         lock: localStorage.getItem('cert.lock.v1')
       };
     }""")
+
+
+def pick_examples(pg):
+    """사진이 있는 사람 하나와 없는 사람 하나를 자료에서 고른다(이름을 코드에 적지 않는다)."""
+    return pg.evaluate("""() => new Promise(res => {
+      const people = JSON.parse(localStorage.getItem('cert.v1.people') || '[]');
+      const r = indexedDB.open('cert.photos', 1);
+      r.onsuccess = () => {
+        const db = r.result;
+        if (!db.objectStoreNames.contains('photos')) return res({ withPhoto: people[1] || null, noPhoto: people[1] || null });
+        const req = db.transaction('photos', 'readonly').objectStore('photos').getAllKeys();
+        req.onsuccess = () => {
+          const ids = new Set((req.result || []).map(String));
+          const withPhoto = people.filter(p => ids.has(String(p.id)) && p.name !== '박재용')[0] || null;
+          const noPhoto = people.filter(p => !ids.has(String(p.id)))[0] || null;
+          res({ withPhoto, noPhoto });
+        };
+        req.onerror = () => res({ withPhoto: null, noPhoto: null });
+      };
+      r.onerror = () => res({ withPhoto: null, noPhoto: null });
+    })""")
 
 
 def idb_photos(pg):
@@ -135,7 +155,10 @@ def main():
         print("    직분:", json.dumps(info["byPos"], ensure_ascii=False))
         print("    시찰:", json.dumps(info["byDist"], ensure_ascii=False))
         print("    박재용:", json.dumps(info["jb"], ensure_ascii=False))
-        print("    강성훈:", json.dumps(info["gsh"], ensure_ascii=False))
+        ex = pick_examples(pg)
+        withp, nop = ex["withPhoto"], ex["noPhoto"]
+        print("    사진 있는 예(첫 사람):", json.dumps(withp, ensure_ascii=False))
+        print("    사진 없는 예(첫 사람):", json.dumps(nop, ensure_ascii=False))
         print("    사진 합계 %.2f MB · localStorage %.2f MB" % (photos["bytes"] / 1048576, info["lsBytes"] / 1048576))
         if est:
             print("    브라우저 저장 %.2f MB / 한도 %.0f MB (%.2f%%)" % (
@@ -174,7 +197,7 @@ def main():
         check("카드에 사진 보임", any(t.startswith("IMG:data:image") for t in thumbs), thumbs[:3])
         pg.screenshot(path=str(OUT / (TAG + "06-명단-전체.png")))
 
-        pg.fill("#peQ", "강성훈")
+        pg.fill("#peQ", withp["name"])
         pg.wait_for_timeout(500)
         hit = pg.eval_on_selector_all("#peList .hitem", """els => els.map(e => ({
             name: e.querySelector('b').textContent,
@@ -182,10 +205,10 @@ def main():
             sub: (e.querySelector('small') || {}).textContent || '',
             img: (e.querySelector('img') || {}).src ? e.querySelector('img').src.slice(0, 22) : ''
         }))""")
-        print("    ‘강성훈’ 검색:", json.dumps(hit, ensure_ascii=False), "·", pg.inner_text("#peCount"))
-        check("이름 검색 1명", len(hit) == 1 and hit[0]["name"] == "강성훈", hit)
+        print("    이름 검색(%s):" % withp["name"], json.dumps(hit, ensure_ascii=False), "·", pg.inner_text("#peCount"))
+        check("이름 검색 결과 1명", any(h["name"] == withp["name"] for h in hit), hit)
         check("검색 카드에 사진", bool(hit and hit[0]["img"].startswith("data:image")), hit)
-        pg.screenshot(path=str(OUT / (TAG + "07-이름-검색-강성훈.png")))
+        pg.screenshot(path=str(OUT / (TAG + "07-이름-검색.png")))
 
         pg.fill("#peQ", "")
         pg.select_option("#pePos", "목사")
@@ -201,7 +224,7 @@ def main():
         pg.screenshot(path=str(OUT / (TAG + "08-시찰-거르기.png")))
         pg.select_option("#peDist", "")
 
-        pg.fill("#peQ", "강은출")
+        pg.fill("#peQ", nop["name"])
         pg.wait_for_timeout(500)
         noimg = pg.evaluate("""() => {
           const it = document.querySelector('#peList .hitem');
@@ -214,7 +237,7 @@ def main():
         check("사진 없는 사람 카드 정상", bool(noimg) and noimg["tag"] == "SPAN" and noimg["w"] > 0, noimg)
         pg.screenshot(path=str(OUT / (TAG + "09-사진-없는-사람.png")))
 
-        pg.fill("#peQ", "강성훈")
+        pg.fill("#peQ", withp["name"])
         pg.wait_for_timeout(400)
         pg.click('#peList [data-pedit]')
         pg.wait_for_timeout(500)
@@ -227,15 +250,16 @@ def main():
           photo: !!document.querySelector('#pePhotoThumb img')
         })""")
         print("    고치기 서식:", json.dumps(form, ensure_ascii=False))
-        check("서식에 인명부 값·사진", form["name"] == "강성훈" and form["pos"] == "강도사"
-              and form["dist"] == "서부시찰" and form["photo"], form)
+        check("서식에 인명부 값·사진", form["name"] == withp["name"]
+              and form["pos"] == (withp.get("position") or "")
+              and (form["dist"] or "") == (withp.get("district") or "") and form["photo"], form)
         pg.screenshot(path=str(OUT / (TAG + "10-고치기-사진.png")))
 
         # ---------------------------------------------- ⑤ 발급 화면
         print("\n[⑤ 발급 화면]")
         pg.evaluate("() => window.CertApp.switchView('issue')")
         pg.wait_for_timeout(500)
-        gsh_id = info["gsh"]["id"]
+        gsh_id = withp["id"]
         pg.select_option("#fType", "employment")
         pg.wait_for_timeout(400)
         pg.select_option("#fPerson", gsh_id)
@@ -247,10 +271,11 @@ def main():
           addr: document.getElementById('fAddr').value,
           photoImgs: document.querySelectorAll('.paper img[src^="data:image/jpeg"]').length
         })""")
-        print("    재직증명서(강성훈):", json.dumps(emp, ensure_ascii=False))
+        print("    재직증명서(%s):" % withp["name"], json.dumps(emp, ensure_ascii=False))
         check("이름·직분·교회·주소 자동 입력",
-              emp["name"] == "강성훈" and emp["pos"] == "강도사"
-              and emp["church"] == "글로벌비전교회" and "가좌로" in emp["addr"], emp)
+              emp["name"] == withp["name"] and emp["pos"] == (withp.get("position") or "")
+              and emp["church"] == (withp.get("church") or "")
+              and bool(withp.get("address")) and emp["addr"] == withp.get("address"), emp)
         check("지면에 증명사진", emp["photoImgs"] > 0, emp["photoImgs"])
         pg.screenshot(path=str(OUT / (TAG + "11-발급-재직-자동입력.png")))
 
@@ -311,7 +336,11 @@ def main():
         except Exception as e:
             check(name + " 받기", False, e)
             continue
-        plain = ("강성훈".encode() in raw) or (b"data:image/jpeg" in raw) or ("김소영".encode() in raw)
+        # 인명부 사람 이름이 들어 있으면 평문이다(people.json 의 박재용은 원래부터 공개된 기본 명단)
+        names = [x["name"] for x in (withp, nop) if x and x.get("name")]
+        plain = (b"data:image/jpeg" in raw) or any(n.encode() in raw for n in names)
+        if name.endswith("roster.enc"):
+            plain = plain or (b'"people"' in raw)
         print("    %s — %.2f MB · 평문 흔적 %s" % (name, len(raw) / 1048576, "있음" if plain else "없음"))
         check(name + " 평문 아님", not plain, len(raw))
 
